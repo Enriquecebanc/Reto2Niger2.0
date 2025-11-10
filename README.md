@@ -5,3 +5,7 @@
 npm init -y ----
 npm install electron ----
 npm install --save-dev electronmon
+
+
+
+npm install @mui/material @emotion/react @emotion/styled
