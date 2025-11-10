@@ -9,12 +9,12 @@ function App() {
 
   return (
     <>
+
       <h1>Reto 2 Niger 2.0</h1>
       <div>
         <Fabricacion />
       </div>
 
-      
     </>
   )
 }
