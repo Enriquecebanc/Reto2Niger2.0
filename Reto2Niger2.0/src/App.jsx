@@ -1,11 +1,13 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import './App.css'
 import Fabricacion from './pages/fabricacion.jsx'
+import Facturacion from './pages/Facturacion.jsx'
+import Proveedores from './pages/Proveedores.jsx'
+import Ventas from './pages/ventas.jsx'
+import Inventario from './pages/Inventario.jsx'
 
 function App() {
-  const [count, setCount] = useState(0)
+  
 
   return (
     <>
@@ -13,6 +15,10 @@ function App() {
       <h1>Reto 2 Niger 2.0</h1>
       <div>
         <Fabricacion />
+        <Facturacion />
+        <Proveedores />
+        <Ventas />
+        <Inventario />
       </div>
 
     </>
