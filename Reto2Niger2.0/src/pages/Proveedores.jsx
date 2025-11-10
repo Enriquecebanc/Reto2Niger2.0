@@ -2,7 +2,7 @@ const Proveedores = () => {
   return (
 
     <>
-        <h1>Proveedores Page</h1>
+        <h1>PROVEEDORES</h1>
     </>
     )
 
