@@ -1,7 +1,7 @@
 {
   "name": "reto2niger2.0",
   "version": "1.0.0",
-  "description": "",
+  "description": "npm init -y ----\r npm install electron ----\r npm install --save-dev electronmon",
   "main": "main.js",
   "type": "module",
   "scripts": {
