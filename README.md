@@ -2,6 +2,6 @@
 
 
 
-npm init -y
-npm install electron
+npm init -y ----
+npm install electron ----
 npm install --save-dev electronmon
