@@ -4,7 +4,7 @@
   "description": "",
   "main": "main.js",
   "type": "module",
- "scripts": {
+  "scripts": {
     "dev": "electronmon .",
     "start": "electron .",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -21,7 +21,9 @@
   },
   "homepage": "https://github.com/Enriquecebanc/Reto2Niger2.0#readme",
   "dependencies": {
-    "electron": "^39.1.1"
+    "electron": "^39.1.1",
+    "react": "^19.2.0",
+    "react-router-dom": "^7.9.5"
   },
   "devDependencies": {
     "electronmon": "^2.0.4"
