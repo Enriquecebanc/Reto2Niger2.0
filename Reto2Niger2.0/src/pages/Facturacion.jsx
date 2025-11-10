@@ -3,7 +3,7 @@ import React from 'react';
 const Facturacion = () => {
   return (
 	<div>
-	  <h1>Facturación</h1>
+	  <h1>FACTURACIÓN</h1>
 	</div>
   );
 };
