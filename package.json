@@ -1,0 +1,29 @@
+{
+  "name": "reto2niger2.0",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "type": "module",
+ "scripts": {
+    "dev": "electronmon .",
+    "start": "electron .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Enriquecebanc/Reto2Niger2.0.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Enriquecebanc/Reto2Niger2.0/issues"
+  },
+  "homepage": "https://github.com/Enriquecebanc/Reto2Niger2.0#readme",
+  "dependencies": {
+    "electron": "^39.1.1"
+  },
+  "devDependencies": {
+    "electronmon": "^2.0.4"
+  }
+}
