@@ -6,4 +6,5 @@ function fabricacion() {
     </div>
   );
 }
+
 export default fabricacion;
