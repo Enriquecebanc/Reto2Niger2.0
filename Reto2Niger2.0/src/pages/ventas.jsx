@@ -5,9 +5,9 @@ const styles = {
     container: { padding: 16, fontFamily: 'Segoe UI, Roboto, Arial, sans-serif' },
     header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
     table: { width: '100%', borderCollapse: 'collapse' },
-    th: { textAlign: 'left', padding: '8px 10px', borderBottom: '2px solid #006881ff', background: '#fafafa' },
+    th: { textAlign: 'left', padding: '8px 10px', borderBottom: '2px solid #006881ff', background: '#a7d8fcff' },
     td: { padding: '8px 10px', borderBottom: '1px solid #09025cff' },
-    small: { fontSize: 12, color: '#666' },
+    small: { fontSize: 12, color: '#0177edff' },
     button: { padding: '8px 12px', background: '#097d85ff', color: '#fff', border: 'none', borderRadius: 4, cursor: 'pointer', textDecoration: 'none' },
 };
 
@@ -46,8 +46,8 @@ const Ventas = () => {
                                 <td style={styles.td}>{v.customerName}</td>
                                 <td style={styles.td}>{v.size}</td>
                                 <td style={styles.td}>{v.quantity}</td>
-                                <td style={styles.td}>${Number(v.unitPrice).toFixed(2)}</td>
-                                <td style={styles.td}>${Number(v.totalPrice).toFixed(2)}</td>
+                                <td style={styles.td}>€{Number(v.unitPrice).toFixed(2)}</td>
+                                <td style={styles.td}>€{Number(v.totalPrice).toFixed(2)}</td>
                                 <td style={styles.td}>{v.paymentMethod}</td>
                             </tr>
                         ))}

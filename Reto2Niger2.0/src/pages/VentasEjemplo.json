@@ -17,7 +17,7 @@
     "quantity": 1,
     "unitPrice": 34.00,
     "totalPrice": 34.00,
-    "paymentMethod": "Cash"
+    "paymentMethod": "PayPal"
   },
   {
     "saleId": "S1003",
@@ -47,6 +47,6 @@
     "quantity": 2,
     "unitPrice": 34.00,
     "totalPrice": 68.00,
-    "paymentMethod": "Cash"
+    "paymentMethod": "PayPal"
   }
 ]
