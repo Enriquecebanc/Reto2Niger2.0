@@ -4,8 +4,11 @@ import BarraBusqueda from '../componentes/barraBusqueda.jsx';
 const Inventario = () => {
     const [piezas, setPiezas] = React.useState([
         { id: 1, nombre: 'Plástico duro', cantidad: 120 },
-        { id: 2, nombre: 'Sensores', cantidad: 45 },
-        { id: 3, nombre: 'Luz LED', cantidad: 200 },
+        { id: 2, nombre: 'Sensor de Luz', cantidad: 45 },
+        { id: 3, nombre: 'Sensor de Humedad', cantidad: 45 },
+        { id: 4, nombre: 'Luz LED', cantidad: 200 },
+        { id: 5, nombre: 'Bateria', cantidad: 35 },
+
     ]);
 
     // Formularios controlados
@@ -26,7 +29,7 @@ const Inventario = () => {
         setNuevoNombre(''); setNuevaCantidad(1);
     };
 
-    // 🧹 Restar una unidad de una pieza (si llega a 0, se borra)
+    //  Restar una unidad de una pieza (si llega a 0, se borra)
     const restarPieza = (id) => {
         setPiezas(prev => prev.map(p => {
             if (p.id === id) {
@@ -55,10 +58,18 @@ const Inventario = () => {
                 {/* 🧩 Cuadro 1: Piezas disponibles */}
                 <div style={boxStyle}>
                     <h2>Piezas disponibles</h2>
-                    <ul style={listStyle}>
+                    <ul style={{ ...listStyle, listStyle: 'none', paddingLeft: 0, margin: 0 }}>
                         {piezas.map(p => (
-                            <li key={p.id}>
-                                {p.nombre} — {p.cantidad} unidades
+                            <li
+                                key={p.id}
+                                style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                    marginBottom: 8
+                                }}
+                            >
+                                <span>{p.nombre} — {p.cantidad} unidades</span>
                                 <button
                                     onClick={() => restarPieza(p.id)}
                                     style={{
