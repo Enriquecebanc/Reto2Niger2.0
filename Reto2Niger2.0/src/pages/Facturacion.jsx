@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import BarraBusqueda from '../componentes/barraBusqueda.jsx';
 
 const Facturacion = () => {
+  const navigate = useNavigate();
   const [facturas, setFacturas] = useState([]);
   const [mostrarForm, setMostrarForm] = useState(false);
   const [form, setForm] = useState({
@@ -42,13 +45,15 @@ const Facturacion = () => {
   };
 
   return (
-    <div style={{ padding: '20px' }}>
-      <h1>📄 FACTURACIÓN</h1>
-      
-      <button 
-        onClick={() => setMostrarForm(!mostrarForm)}
-        style={{ marginBottom: '20px', padding: '10px 20px', background: '#007bff', color: 'white', border: 'none', borderRadius: '5px' }}
-      >
+    <div>
+      <BarraBusqueda />
+      <div style={{ padding: '20px' }}>
+        <h1>📄 FACTURACIÓN</h1>
+        
+        <button 
+          onClick={() => setMostrarForm(!mostrarForm)}
+          style={{ marginBottom: '20px', padding: '10px 20px', background: '#007bff', color: 'white', border: 'none', borderRadius: '5px' }}
+        >
         {mostrarForm ? 'Cancelar' : 'Nueva Factura'}
       </button>
 
@@ -143,6 +148,7 @@ const Facturacion = () => {
           </div>
         ))
       )}
+      </div>
     </div>
   );
 };
