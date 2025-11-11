@@ -21,6 +21,9 @@
   },
   "homepage": "https://github.com/Enriquecebanc/Reto2Niger2.0#readme",
   "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@mui/material": "^7.3.5",
     "electron": "^39.1.1",
     "react": "^19.2.0",
     "react-router-dom": "^7.9.5"

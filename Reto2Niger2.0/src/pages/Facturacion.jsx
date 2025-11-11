@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import BarraBusqueda from '../componentes/barraBusqueda.jsx';
+
+const STORAGE_KEY = 'facturas_data';
 
 const Facturacion = () => {
   const navigate = useNavigate();
@@ -12,6 +14,26 @@ const Facturacion = () => {
     cantidad: '',
     precio: ''
   });
+
+  // Cargar facturas al inicializar
+  useEffect(() => {
+    const facturasGuardadas = localStorage.getItem(STORAGE_KEY);
+    if (facturasGuardadas) {
+      try {
+        setFacturas(JSON.parse(facturasGuardadas));
+      } catch (error) {
+        console.error('Error al cargar facturas:', error);
+        setFacturas([]);
+      }
+    }
+  }, []);
+
+  // Guardar facturas cuando cambien
+  useEffect(() => {
+    if (facturas.length > 0 || localStorage.getItem(STORAGE_KEY)) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(facturas));
+    }
+  }, [facturas]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -44,18 +66,81 @@ const Facturacion = () => {
     setFacturas(facturas.filter(f => f.id !== id));
   };
 
+  // Función para exportar facturas a JSON
+  const exportarFacturas = () => {
+    const dataStr = JSON.stringify(facturas, null, 2);
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(dataBlob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'facturas.json';
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
+  // Función para importar facturas desde JSON
+  const importarFacturas = (event) => {
+    const file = event.target.files[0];
+    if (file && file.type === 'application/json') {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const facturasImportadas = JSON.parse(e.target.result);
+          if (Array.isArray(facturasImportadas)) {
+            setFacturas(facturasImportadas);
+            alert('Facturas importadas correctamente');
+          } else {
+            alert('El archivo no contiene un formato válido');
+          }
+        } catch (error) {
+          alert('Error al leer el archivo JSON');
+        }
+      };
+      reader.readAsText(file);
+    } else {
+      alert('Por favor selecciona un archivo JSON válido');
+    }
+  };
+
   return (
     <div>
       <BarraBusqueda />
       <div style={{ padding: '20px' }}>
         <h1>FACTURACIÓN</h1>
         
-        <button 
-          onClick={() => setMostrarForm(!mostrarForm)}
-          style={{ marginBottom: '20px', padding: '10px 20px', background: '#007bff', color: 'white', border: 'none', borderRadius: '5px' }}
-        >
-        {mostrarForm ? 'Cancelar' : 'Nueva Factura'}
-      </button>
+        <div style={{ marginBottom: '20px', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+          <button 
+            onClick={() => setMostrarForm(!mostrarForm)}
+            style={{ padding: '10px 20px', background: '#007bff', color: 'white', border: 'none', borderRadius: '5px' }}
+          >
+            {mostrarForm ? 'Cancelar' : 'Nueva Factura'}
+          </button>
+          
+          <button 
+            onClick={exportarFacturas}
+            style={{ padding: '10px 20px', background: '#28a745', color: 'white', border: 'none', borderRadius: '5px' }}
+            disabled={facturas.length === 0}
+          >
+            Exportar JSON
+          </button>
+          
+          <label style={{ 
+            padding: '10px 20px', 
+            background: '#6c757d', 
+            color: 'white', 
+            borderRadius: '5px', 
+            cursor: 'pointer',
+            display: 'inline-block'
+          }}>
+            Importar JSON
+            <input 
+              type="file" 
+              accept=".json"
+              onChange={importarFacturas}
+              style={{ display: 'none' }}
+            />
+          </label>
+        </div>
 
       {mostrarForm && (
         <form onSubmit={handleSubmit} style={{ background: '#f8f9fa', padding: '20px', borderRadius: '8px', marginBottom: '20px' }}>

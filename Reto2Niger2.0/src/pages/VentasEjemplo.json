@@ -2,7 +2,8 @@
   {
     "saleId": "S1001",
     "date": "2024-06-11",
-    "customerName": "Alice Malice",
+    "customerName": "Aimar Duharte",
+    "idMaceta": "M001",
     "size": "small",
     "quantity": 2,
     "unitPrice": 27.00,
@@ -12,7 +13,8 @@
   {
     "saleId": "S1002",
     "date": "2024-06-12",
-    "customerName": "Bob Espon Jr",
+    "customerName": "Oihan Curi ",
+    "idMaceta": "M002",
     "size": "mid",
     "quantity": 1,
     "unitPrice": 34.00,
@@ -22,7 +24,8 @@
   {
     "saleId": "S1003",
     "date": "2024-06-13",
-    "customerName": "Carol Lee Na",
+    "customerName": "Titi Henry",
+    "idMaceta": "M003",
     "size": "big",
     "quantity": 3,
     "unitPrice": 40.00,
@@ -32,7 +35,8 @@
   {
     "saleId": "S1004",
     "date": "2024-06-14",
-    "customerName": "David Niggersson",
+    "customerName": "Redondix",
+    "idMaceta": "M004",
     "size": "small",
     "quantity": 1,
     "unitPrice": 27.00,
@@ -42,7 +46,8 @@
   {
     "saleId": "S1005",
     "date": "2024-06-15",
-    "customerName": "Elva Ginaso",
+    "customerName": "Luka Isasa",
+    "idMaceta": "M005",
     "size": "mid",
     "quantity": 2,
     "unitPrice": 34.00,

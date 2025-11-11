@@ -2,16 +2,24 @@
 
 
 
-npm init -y ----
-npm install electron ----
+npm init -y 
+npm install electron 
 npm install --save-dev electronmon
 
+-----------------------------------------------------------------
+
 npm install react
+
+------------------------------------------------------------------
 
 npm install @mui/material @emotion/react @emotion/styled
 npm install @mui/material @mui/styled-engine-sc styled-components
 npm install @fontsource/roboto
 npm install @mui/icons-material
 
+-------------------------------------------------------------------
+
 npm install react-router-dom
 npm install react-router-dom@6
+
+
