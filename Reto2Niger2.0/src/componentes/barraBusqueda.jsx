@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 function BarraBusqueda() {
   return (
     <ButtonGroup variant="outlined" aria-label="Basic button group">
+      <Button component={Link} to="/">☖</Button>
       <Button component={Link} to="/fabricacion">Fabricación</Button>
       <Button component={Link} to="/facturacion">Facturación</Button>
       <Button component={Link} to="/inventario">Inventario</Button>
