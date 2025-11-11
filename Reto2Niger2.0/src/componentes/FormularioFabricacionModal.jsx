@@ -16,9 +16,9 @@ function FormularioFabricacionModal({ open, onClose, onCrear }) {
 
   // Materiales por tipo de maceta
   const materialesPorTamano = {
-    pequeña: ['Barro', 'Pintura'],
-    mediana: ['Barro', 'Pintura', 'Arena'],
-    grande: ['Barro', 'Pintura', 'Arena', 'Fertilizante']
+    pequeña: ['Led rojo: 2', 'Led verde: 2', 'Led amarillo: 2', 'Maceta de plástico: Pequeña', 'Sensor de humedad: 1', 'Sensor de luz: 1', 'Bateria: 1'],
+    mediana: ['Led rojo: 2', 'Led verde: 2', 'Led amarillo: 2', 'Maceta de plástico: Mediana', 'Sensor de humedad: 1', 'Sensor de luz: 1', 'Bateria: 1'],
+    grande: ['Led rojo: 2', 'Led verde: 2', 'Led amarillo: 2', 'Maceta de plástico: Grande', 'Sensor de humedad: 1', 'Sensor de luz: 1', 'Bateria: 1']
   };
 
   const handleCrear = () => {

@@ -3,6 +3,8 @@ import FormularioFabricacionModal from '../componentes/FormularioFabricacionModa
 import ModalMateriales from '../componentes/ModalMateriales';
 import BarraBusqueda from '../componentes/barraBusqueda.jsx';
 
+
+
 function Fabricacion() {
   const [fabricaciones, setFabricaciones] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
