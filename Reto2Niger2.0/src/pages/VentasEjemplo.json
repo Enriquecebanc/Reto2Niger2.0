@@ -1,0 +1,52 @@
+[
+  {
+    "saleId": "S1001",
+    "date": "2024-06-11",
+    "customerName": "Alice Smith",
+    "size": "small",
+    "quantity": 2,
+    "unitPrice": 27.00,
+    "totalPrice": 54.00,
+    "paymentMethod": "Credit Card"
+  },
+  {
+    "saleId": "S1002",
+    "date": "2024-06-12",
+    "customerName": "Bob Johnson",
+    "size": "mid",
+    "quantity": 1,
+    "unitPrice": 34.00,
+    "totalPrice": 34.00,
+    "paymentMethod": "Cash"
+  },
+  {
+    "saleId": "S1003",
+    "date": "2024-06-13",
+    "customerName": "Carol Lee",
+    "size": "big",
+    "quantity": 3,
+    "unitPrice": 40.00,
+    "totalPrice": 120.00,
+    "paymentMethod": "Debit Card"
+  },
+  {
+    "saleId": "S1004",
+    "date": "2024-06-14",
+    "customerName": "David Nguyen",
+    "size": "small",
+    "quantity": 1,
+    "unitPrice": 27.00,
+    "totalPrice": 27.00,
+    "paymentMethod": "Credit Card"
+  },
+  {
+    "saleId": "S1005",
+    "date": "2024-06-15",
+    "customerName": "Eva Martinez",
+    "size": "mid",
+    "quantity": 2,
+    "unitPrice": 34.00,
+    "totalPrice": 68.00,
+    "paymentMethod": "Cash"
+  }
+]
