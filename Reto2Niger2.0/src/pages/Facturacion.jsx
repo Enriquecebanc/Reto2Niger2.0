@@ -48,7 +48,7 @@ const Facturacion = () => {
     <div>
       <BarraBusqueda />
       <div style={{ padding: '20px' }}>
-        <h1>📄 FACTURACIÓN</h1>
+        <h1>FACTURACIÓN</h1>
         
         <button 
           onClick={() => setMostrarForm(!mostrarForm)}
@@ -142,7 +142,7 @@ const Facturacion = () => {
                 onClick={() => eliminar(factura.id)}
                 style={{ padding: '4px 8px', background: '#dc3545', color: 'white', border: 'none', borderRadius: '3px' }}
               >
-                ✖
+                Eliminar
               </button>
             </div>
           </div>
