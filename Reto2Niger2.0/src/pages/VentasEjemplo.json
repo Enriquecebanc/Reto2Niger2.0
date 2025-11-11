@@ -2,7 +2,7 @@
   {
     "saleId": "S1001",
     "date": "2024-06-11",
-    "customerName": "Alice Smith",
+    "customerName": "Alice Malice",
     "size": "small",
     "quantity": 2,
     "unitPrice": 27.00,
@@ -12,7 +12,7 @@
   {
     "saleId": "S1002",
     "date": "2024-06-12",
-    "customerName": "Bob Johnson",
+    "customerName": "Bob Espon Jr",
     "size": "mid",
     "quantity": 1,
     "unitPrice": 34.00,
@@ -22,7 +22,7 @@
   {
     "saleId": "S1003",
     "date": "2024-06-13",
-    "customerName": "Carol Lee",
+    "customerName": "Carol Lee Na",
     "size": "big",
     "quantity": 3,
     "unitPrice": 40.00,
@@ -32,7 +32,7 @@
   {
     "saleId": "S1004",
     "date": "2024-06-14",
-    "customerName": "David Nguyen",
+    "customerName": "David Niggersson",
     "size": "small",
     "quantity": 1,
     "unitPrice": 27.00,
@@ -42,7 +42,7 @@
   {
     "saleId": "S1005",
     "date": "2024-06-15",
-    "customerName": "Eva Martinez",
+    "customerName": "Elva Ginaso",
     "size": "mid",
     "quantity": 2,
     "unitPrice": 34.00,
