@@ -1,15 +1,15 @@
 import BarraBusqueda from '../componentes/barraBusqueda.jsx';
 
 
-function Fabricacion() {
+function Home() {
   return (
     <div>
       <BarraBusqueda />
-      <h1>FABRICACION</h1>
+      <h1>Pantalla de Inicio</h1>
       
       
     </div>
   );
 }
 
-export default Fabricacion;
+export default Home;
