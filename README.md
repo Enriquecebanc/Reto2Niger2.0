@@ -22,4 +22,12 @@ npm install @mui/icons-material
 npm install react-router-dom
 npm install react-router-dom@6
 
+--------------------------------------------------------------------
 
+cd backend
+npm install express mongoose cors dotenv
+
+---------------------------------------------------------------------
+
+cd Reto2Niger2.0
+npm install axios
