@@ -1,10 +1,13 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import BarraBusqueda from '../componentes/barraBusqueda.jsx';
+import logoNiger from '../assets/Niger.png';
+import { commonStyles, colors } from '../styles/commonStyles.js';
 // Asegúrate de que tus servicios 'ventasService' devuelvan el JSON sin populate,
 // o adapta el servicio para simular la estructura aplanada si usas populate.
 import { getVentas, crearVenta, eliminarVenta, actualizarVenta } from '../services/ventasService';
 
 const styles = {
+    ...commonStyles,
     container: { padding: 16, fontFamily: 'Segoe UI, Roboto, Arial, sans-serif' },
     header: { display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: 12 },
     title: { color: '#87CEFA', margin: 0, textAlign: 'center' },
