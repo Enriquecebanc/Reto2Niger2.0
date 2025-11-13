@@ -1,11 +1,7 @@
 {
   "name": "reto2niger2.0",
   "version": "1.0.0",
-<<<<<<< Updated upstream
   "description": "Proyecto con Electron, Backend y Frontend React",
-=======
-  "description": "npm init -y ----\r npm install electron ----\r npm install --save-dev electronmon",
->>>>>>> Stashed changes
   "main": "main.js",
   "type": "module",
   "scripts": {
