@@ -5,8 +5,8 @@ function Home() {
   return (
     <div>
       <BarraBusqueda />
-      <h1>Pantalla de Inicio</h1>
-      
+      <h1>Pantalla de Inicio</h1>     
+
       
     </div>
   );
