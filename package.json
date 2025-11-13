@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "electronmon .",
     "start": "electron .",
-    "start:all": "concurrently --names \"FRONTEND,BACKEND,ELECTRON\" --prefix-colors \"blue,green,yellow\" \"npm run dev --prefix Reto2Niger2.0\" \"nodemon backend/index.js\" \"npm run dev\"",
+    "start:all": "concurrently --names \"FRONTEND,BACKEND,ELECTRON\" --prefix-colors \"blue,green,yellow\" \"npm run dev --prefix Reto2Niger2.0\" \"npm run start --prefix backend\" \"npm run dev\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -34,8 +34,8 @@
     "react-router-dom": "^7.9.5"
   },
   "devDependencies": {
+    "concurrently": "^8.2.2",
     "electronmon": "^2.0.4",
-    "concurrently": "^8.2.0",
-    "nodemon": "^3.0.3"
+    "nodemon": "^3.1.11"
   }
 }
