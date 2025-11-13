@@ -1,13 +1,14 @@
 import BarraBusqueda from '../componentes/barraBusqueda.jsx';
-
+import foto from '../assets/Niger.png';
 
 function Home() {
   return (
     <div>
       <BarraBusqueda />
-      <h1>Pantalla de Inicio</h1>     
-
+      <h1>BARKA DA ZUWA</h1>  
       
+
+      <img src={foto} alt="Imagen de Inicio" />
     </div>
   );
 }
