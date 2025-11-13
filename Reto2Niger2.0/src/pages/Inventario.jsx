@@ -1,5 +1,6 @@
 import React from 'react';
 import BarraBusqueda from '../componentes/barraBusqueda.jsx';
+import logoNiger from '../assets/Niger.png';
 
 const Inventario = () => {
     const [piezas, setPiezas] = React.useState([
@@ -93,8 +94,13 @@ const Inventario = () => {
     };
 
     return (
-        <>
-            <BarraBusqueda />
+        <div style={{ padding: 16 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: 10 }}>
+                <img src={logoNiger} alt="Niger Logo" style={{ width: 80, height: 'auto' }} />
+                <div style={{ flex: 1 }}>
+                    <BarraBusqueda />
+                </div>
+            </div>
             <h1>INVENTARIO</h1>
 
             <div style={containerStyle}>
@@ -189,7 +195,7 @@ const Inventario = () => {
                     </ul>
                 </div>
             </div>
-        </>
+        </div>
     );
 };
 

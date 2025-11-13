@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import BarraBusqueda from '../componentes/barraBusqueda.jsx';
+import logoNiger from '../assets/Niger.png';
 
 const STORAGE_KEY = 'facturas_data';
 const PRECIOS_MACETAS = { 'pequeña': 27, 'mediana': 34, 'grande': 40 };
@@ -107,7 +108,12 @@ const Facturacion = () => {
 
   return (
     <div style={styles.container}>
-      <BarraBusqueda />
+      <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: 10 }}>
+        <img src={logoNiger} alt="Niger Logo" style={{ width: 80, height: 'auto' }} />
+        <div style={{ flex: 1 }}>
+          <BarraBusqueda />
+        </div>
+      </div>
       <div style={styles.header}>
         <h1 style={styles.title}>Facturación</h1>
       </div>
@@ -325,7 +331,7 @@ const Facturacion = () => {
 };
 
 const styles = {
-  container: { padding: 16, fontFamily: 'Segoe UI, Roboto, Arial, sans-serif' },
+  container: { padding: 16, fontFamily: 'Segoe UI, Roboto, Arial, sans-serif', position: 'relative' },
   header: { display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: 12 },
   title: { color: '#87CEFA', margin: 0, textAlign: 'center' },
   button: { padding: '8px 12px', background: '#097d85', color: '#fff', border: 'none', borderRadius: 4, cursor: 'pointer', margin: '0 4px' },

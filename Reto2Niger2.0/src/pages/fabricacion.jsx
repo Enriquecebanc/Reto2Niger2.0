@@ -2,6 +2,7 @@ import { useState } from 'react';
 import FormularioFabricacionModal from '../componentes/FormularioFabricacionModal';
 import ModalMateriales from '../componentes/ModalMateriales';
 import BarraBusqueda from '../componentes/barraBusqueda.jsx';
+import logoNiger from '../assets/Niger.png';
 
 
 
@@ -31,7 +32,12 @@ function Fabricacion() {
 
   return (
     <div className="p-4">
-      <BarraBusqueda />
+      <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: 10 }}>
+        <img src={logoNiger} alt="Niger Logo" style={{ width: 80, height: 'auto' }} />
+        <div style={{ flex: 1 }}>
+          <BarraBusqueda />
+        </div>
+      </div>
       <h1 className="text-2xl font-bold my-4">Fabricación de Macetas</h1>
 
       {/* Botón para abrir modal nueva fabricación */}
