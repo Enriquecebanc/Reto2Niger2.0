@@ -25,7 +25,7 @@ mongoose.connect(process.env.MONGODB_URI)
   app.use("/proveedores", proveedoresRouter);
   app.use("/stock", stockRouter);
   app.use("/facturas", facturasRouter);
-  app.use("/fabricacion", fabricacionRouter);
+  app.use("/fabricaciones", fabricacionRouter);
   app.use("/ventas", ventasRouter);
 
 
