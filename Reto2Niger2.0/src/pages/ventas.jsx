@@ -1,10 +1,19 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import BarraBusqueda from '../componentes/barraBusqueda.jsx';
-import logoNiger from '../assets/Niger.png';
+// Asegúrate de que tus servicios 'ventasService' devuelvan el JSON sin populate,
+// o adapta el servicio para simular la estructura aplanada si usas populate.
 import { getVentas, crearVenta, eliminarVenta } from '../services/ventasService';
-import { commonStyles, colors } from '../styles/commonStyles.js';
 
-const styles = commonStyles;
+const styles = {
+    container: { padding: 16, fontFamily: 'Segoe UI, Roboto, Arial, sans-serif' },
+    header: { display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: 12 },
+    title: { color: '#87CEFA', margin: 0, textAlign: 'center' },
+    table: { width: '100%', borderCollapse: 'collapse' },
+    th: { textAlign: 'left', padding: '8px 10px', borderBottom: '2px solid #006881ff', background: '#a7d8fcff' },
+    td: { padding: '8px 10px', borderBottom: '1px solid #09025cff' },
+    small: { fontSize: 12, color: '#0177edff' },
+    button: { padding: '8px 12px', background: '#097d85ff', color: '#fff', border: 'none', borderRadius: 4, cursor: 'pointer', textDecoration: 'none' },
+};
 
 const VentasPage = () => {
     const [ventas, setVentas] = useState([]);
