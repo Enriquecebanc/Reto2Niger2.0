@@ -4,6 +4,7 @@ import ModalMateriales from '../componentes/ModalMateriales';
 import BarraBusqueda from '../componentes/barraBusqueda.jsx';
 import logoNiger from '../assets/Niger.png';
 import { getFabricaciones, crearFabricacion, actualizarFabricacion } from '../services/fabricacionService';
+import { commonStyles, colors } from '../styles/commonStyles.js';
 
 function Fabricacion() {
   const [fabricaciones, setFabricaciones] = useState([]);
@@ -59,7 +60,7 @@ function Fabricacion() {
   );
 
   return (
-    <div className="p-4">
+    <div style={commonStyles.container}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: 10 }}>
         <img src={logoNiger} alt="Niger Logo" style={{ width: 80, height: 'auto' }} />
         <div style={{ flex: 1 }}>
@@ -67,19 +68,19 @@ function Fabricacion() {
         </div>
       </div>
 
-      <h1 className="text-2xl font-bold my-4">Fabricación de Macetas</h1>
+      <h1 style={commonStyles.title}>Fabricación de Macetas</h1>
 
       {/* Buscador y botón nueva fabricación */}
-      <div className="mb-4 flex gap-2">
+      <div style={{ marginBottom: 16, display: 'flex', gap: 8 }}>
         <input
           type="text"
           placeholder="Buscar por tamaño de maceta..."
           value={query}
           onChange={e => setQuery(e.target.value)}
-          className="border rounded px-2 py-1 flex-1"
+          style={commonStyles.input}
         />
         <button
-          className="bg-blue-500 text-white px-4 py-2 rounded"
+          style={commonStyles.button}
           onClick={() => setModalOpen(true)}
         >
           Nueva Fabricación
@@ -101,39 +102,42 @@ function Fabricacion() {
       />
 
       {/* Tabla de fabricaciones */}
-      <table className="w-full border">
+      <table style={commonStyles.table}>
         <thead>
-          <tr className="bg-gray-200">
-            <th>ID</th>
-            <th>Tamaño</th>
-            <th>Fecha Inicio</th>
-            <th>Fecha Fin</th>
-            <th>Estado</th>
-            <th>Materiales</th>
-            <th>Acciones</th>
+          <tr>
+            <th style={commonStyles.th}>ID</th>
+            <th style={commonStyles.th}>Tamaño</th>
+            <th style={commonStyles.th}>Fecha Inicio</th>
+            <th style={commonStyles.th}>Fecha Fin</th>
+            <th style={commonStyles.th}>Estado</th>
+            <th style={commonStyles.th}>Materiales</th>
+            <th style={commonStyles.th}>Acciones</th>
           </tr>
         </thead>
         <tbody>
           {filtered.map(fab => (
-            <tr key={fab._id} className="text-center border-t">
-              <td>{fab._id}</td>
-              <td>{fab.producto}</td>
-              <td>{new Date(fab.fecha_inicio).toLocaleDateString()}</td>
-              <td>{fab.fecha_fin ? new Date(fab.fecha_fin).toLocaleDateString() : '-'}</td>
-              <td>{fab.estado}</td>
-              <td>
+            <tr key={fab._id}>
+              <td style={commonStyles.td}>{fab._id}</td>
+              <td style={commonStyles.td}>{fab.producto}</td>
+              <td style={commonStyles.td}>{new Date(fab.fecha_inicio).toLocaleDateString()}</td>
+              <td style={commonStyles.td}>{fab.fecha_fin ? new Date(fab.fecha_fin).toLocaleDateString() : '-'}</td>
+              <td style={commonStyles.td}>{fab.estado}</td>
+              <td style={commonStyles.td}>
                 <button
-                  className="text-blue-500 underline"
+                  style={{ ...commonStyles.button, textDecoration: 'underline' }}
                   onClick={() => abrirModalMateriales(fab.materiales)}
                 >
                   Ver
                 </button>
               </td>
-              <td>
+              <td style={commonStyles.td}>
                 <select
                   value={fab.estado}
                   onChange={e => handleActualizarEstado(fab._id, e.target.value)}
-                  className="border rounded px-2 py-1"
+                  style={{ 
+                    ...commonStyles.input,
+                    padding: '6px 8px'
+                  }}
                 >
                   <option value="Pendiente">Pendiente</option>
                   <option value="En proceso">En proceso</option>
