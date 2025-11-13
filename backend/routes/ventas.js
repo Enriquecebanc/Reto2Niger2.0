@@ -3,7 +3,7 @@ import Venta from "../models/Venta.js";
 
 const router = express.Router();
 
-// ✅ GET todas las ventas
+//  GET todas las ventas
 router.get("/", async (req, res) => {
   try {
     const ventas = await Venta.find()
@@ -15,7 +15,7 @@ router.get("/", async (req, res) => {
   }
 });
 
-// ✅ GET venta por ID
+//  GET venta por ID
 router.get("/:id", async (req, res) => {
   try {
     const venta = await Venta.findById(req.params.id)
@@ -28,7 +28,7 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-// ✅ POST crear nueva venta
+//  POST crear nueva venta
 router.post("/", async (req, res) => {
   try {
     const nuevaVenta = new Venta(req.body);
@@ -39,7 +39,7 @@ router.post("/", async (req, res) => {
   }
 });
 
-// ✅ PUT actualizar venta
+//  PUT actualizar venta
 router.put("/:id", async (req, res) => {
   try {
     const ventaActualizada = await Venta.findByIdAndUpdate(req.params.id, req.body, { new: true });
@@ -50,7 +50,7 @@ router.put("/:id", async (req, res) => {
   }
 });
 
-// ✅ DELETE eliminar venta
+//  DELETE eliminar venta
 router.delete("/:id", async (req, res) => {
   try {
     const ventaEliminada = await Venta.findByIdAndDelete(req.params.id);
