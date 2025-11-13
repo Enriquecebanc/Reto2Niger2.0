@@ -15,7 +15,7 @@ npm install react
 npm install @mui/material @emotion/react @emotion/styled
 npm install @mui/material @mui/styled-engine-sc styled-components
 npm install @fontsource/roboto
-npm install @mui/icons-materialn
+npm install @mui/icons-material
 npm install @mui/x-data-grid
 
 -------------------------------------------------------------------
@@ -32,3 +32,19 @@ npm install express mongoose cors dotenv
 
 cd Reto2Niger2.0
 npm install axios
+
+
+----------------------------------------------------------------------
+
+En la base del proyecto
+
+npm install --save-dev concurrently nodemon
+
+
+-----------------------------------------------------------------------
+
+
+Para iniciar el proyecto
+
+
+npm run start:all

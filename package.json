@@ -1,12 +1,13 @@
 {
   "name": "reto2niger2.0",
   "version": "1.0.0",
-  "description": "npm init -y ----\r npm install electron ----\r npm install --save-dev electronmon",
+  "description": "Proyecto con Electron, Backend y Frontend React",
   "main": "main.js",
   "type": "module",
   "scripts": {
     "dev": "electronmon .",
     "start": "electron .",
+    "start:all": "concurrently --names \"FRONTEND,BACKEND,ELECTRON\" --prefix-colors \"blue,green,yellow\" \"npm run dev --prefix Reto2Niger2.0\" \"npm run start --prefix backend\" \"npm run dev\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -33,6 +34,8 @@
     "react-router-dom": "^7.9.5"
   },
   "devDependencies": {
-    "electronmon": "^2.0.4"
+    "concurrently": "^8.2.2",
+    "electronmon": "^2.0.4",
+    "nodemon": "^3.1.11"
   }
 }
