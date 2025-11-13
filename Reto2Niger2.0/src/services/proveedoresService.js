@@ -1,0 +1,29 @@
+const API_URL = "http://localhost:5000/proveedores";
+
+export async function getProveedores() {
+  const res = await fetch(API_URL);
+  return res.json();
+}
+
+export async function crearProveedor(proveedor) {
+  const res = await fetch(API_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(proveedor)
+  });
+  return res.json();
+}
+
+export async function actualizarProveedor(id, proveedor) {
+  const res = await fetch(`${API_URL}/${id}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(proveedor)
+  });
+  return res.json();
+}
+
+export async function eliminarProveedor(id) {
+  const res = await fetch(`${API_URL}/${id}`, { method: "DELETE" });
+  return res.json();
+}

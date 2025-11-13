@@ -3,7 +3,7 @@ import Fabricacion from "../models/Fabricacion.js";
 
 const router = express.Router();
 
-// ✅ GET todas las fabricaciones
+//  GET todas las fabricaciones
 router.get("/", async (req, res) => {
   try {
     const fabricaciones = await Fabricacion.find().populate("materiales.id_pieza");
@@ -13,7 +13,7 @@ router.get("/", async (req, res) => {
   }
 });
 
-// ✅ GET fabricación por ID
+//  GET fabricación por ID
 router.get("/:id", async (req, res) => {
   try {
     const fabricacion = await Fabricacion.findById(req.params.id).populate("materiales.id_pieza");
@@ -24,7 +24,7 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-// ✅ POST crear nueva fabricación
+//  POST crear nueva fabricación
 router.post("/", async (req, res) => {
   try {
     const nuevaFabricacion = new Fabricacion(req.body);
@@ -35,7 +35,7 @@ router.post("/", async (req, res) => {
   }
 });
 
-// ✅ PUT actualizar fabricación
+//  PUT actualizar fabricación
 router.put("/:id", async (req, res) => {
   try {
     const fabricacionActualizada = await Fabricacion.findByIdAndUpdate(req.params.id, req.body, { new: true });
@@ -46,7 +46,7 @@ router.put("/:id", async (req, res) => {
   }
 });
 
-// ✅ DELETE eliminar fabricación
+//  DELETE eliminar fabricación
 router.delete("/:id", async (req, res) => {
   try {
     const fabricacionEliminada = await Fabricacion.findByIdAndDelete(req.params.id);

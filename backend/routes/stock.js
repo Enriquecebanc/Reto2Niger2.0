@@ -3,7 +3,7 @@ import Stock from "../models/Stock.js";
 
 const router = express.Router();
 
-// ✅ GET: Obtener todos los productos en stock
+//  GET: Obtener todos los productos en stock
 router.get("/", async (req, res) => {
   try {
     // Populate del proveedor para ver sus datos asociados
@@ -14,7 +14,7 @@ router.get("/", async (req, res) => {
   }
 });
 
-// ✅ GET: Obtener un producto de stock por ID
+//  GET: Obtener un producto de stock por ID
 router.get("/:id", async (req, res) => {
   try {
     const producto = await Stock.findById(req.params.id).populate("proveedor_id", "nombre correo");
@@ -25,7 +25,7 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-// ✅ POST: Crear un nuevo producto en stock
+//  POST: Crear un nuevo producto en stock
 router.post("/", async (req, res) => {
   try {
     const nuevoProducto = new Stock(req.body);
@@ -36,7 +36,7 @@ router.post("/", async (req, res) => {
   }
 });
 
-// ✅ PUT: Actualizar un producto existente
+//  PUT: Actualizar un producto existente
 router.put("/:id", async (req, res) => {
   try {
     const actualizado = await Stock.findByIdAndUpdate(req.params.id, req.body, { new: true });
@@ -47,7 +47,7 @@ router.put("/:id", async (req, res) => {
   }
 });
 
-// ✅ DELETE: Eliminar un producto del stock
+//  DELETE: Eliminar un producto del stock
 router.delete("/:id", async (req, res) => {
   try {
     const eliminado = await Stock.findByIdAndDelete(req.params.id);

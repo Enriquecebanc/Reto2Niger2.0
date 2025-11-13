@@ -4,7 +4,7 @@ import Proveedor from "../models/Proveedor.js";
 const router = express.Router();
 
 /* 
-  ✅ GET /proveedores 
+   GET /proveedores 
   Obtiene todos los proveedores (incluyendo sus productos)
 */
 router.get("/", async (req, res) => {
@@ -17,18 +17,9 @@ router.get("/", async (req, res) => {
 });
 
 /* 
-  ✅ POST /proveedores 
+   POST /proveedores 
   Crea un nuevo proveedor
-  Ejemplo de JSON esperado:
-  {
-    "nombre": "Componentes S.A.",
-    "telefono": "912345678",
-    "direccion": "Madrid",
-    "correo": "info@componentes.com",
-    "productos": [
-      { "pieza_id": "65f...", "precio_unitario": 5.5 }
-    ]
-  }
+  
 */
 router.post("/", async (req, res) => {
   try {
@@ -41,7 +32,7 @@ router.post("/", async (req, res) => {
 });
 
 /*
-  ✅ GET /proveedores/:id 
+   GET /proveedores/:id 
   Obtener un proveedor específico por ID
 */
 router.get("/:id", async (req, res) => {
@@ -55,7 +46,7 @@ router.get("/:id", async (req, res) => {
 });
 
 /*
-  ✅ PUT /proveedores/:id 
+   PUT /proveedores/:id 
   Actualizar un proveedor existente
 */
 router.put("/:id", async (req, res) => {
@@ -69,7 +60,7 @@ router.put("/:id", async (req, res) => {
 });
 
 /*
-  ✅ DELETE /proveedores/:id 
+   DELETE /proveedores/:id 
   Eliminar un proveedor
 */
 router.delete("/:id", async (req, res) => {
