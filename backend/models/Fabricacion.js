@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 
+
 const FabricacionSchema = new mongoose.Schema({
   producto: { type: String, required: true }, // ej. "Maceta pequeña"
   materiales: [
