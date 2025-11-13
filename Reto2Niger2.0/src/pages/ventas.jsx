@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import BarraBusqueda from '../componentes/barraBusqueda.jsx';
 // Asegúrate de que tus servicios 'ventasService' devuelvan el JSON sin populate,
 // o adapta el servicio para simular la estructura aplanada si usas populate.
-import { getVentas, crearVenta, eliminarVenta } from '../services/ventasService';
+import { getVentas, crearVenta, eliminarVenta, actualizarVenta } from '../services/ventasService';
 
 const styles = {
     container: { padding: 16, fontFamily: 'Segoe UI, Roboto, Arial, sans-serif' },
@@ -18,6 +18,9 @@ const styles = {
 const VentasPage = () => {
     const [ventas, setVentas] = useState([]);
     const [query, setQuery] = useState('');
+    const [editingId, setEditingId] = useState(null);
+    const [editValues, setEditValues] = useState({ cliente: '', cantidad: 0 });
+    const [saving, setSaving] = useState(false);
 
     // 🔹 Cargar las ventas desde el backend
     const fetchVentas = async () => {
@@ -60,6 +63,40 @@ const VentasPage = () => {
     const handleEliminar = async (id) => {
         await eliminarVenta(id);
         setVentas(ventas.filter(v => v._id !== id));
+    };
+
+    // 🔹 Editar venta (inline: solo cliente y cantidad)
+    const startEdit = (v) => {
+        setEditingId(v._id);
+        setEditValues({ cliente: v.cliente || '', cantidad: v.cantidad ?? 1 });
+    };
+
+    const cancelEdit = () => {
+        setEditingId(null);
+        setEditValues({ cliente: '', cantidad: 0 });
+    };
+
+    const saveEdit = async (id) => {
+        // validaciones simples
+        const name = (editValues.cliente || '').toString().trim();
+        const qty = Number(editValues.cantidad);
+        if (!name) return alert('El nombre del cliente no puede quedar vacío');
+        if (!Number.isFinite(qty) || qty < 1) return alert('La cantidad debe ser al menos 1');
+
+        setSaving(true);
+        try {
+            const payload = { cliente: name, cantidad: qty };
+            const updated = await actualizarVenta(id, payload);
+            // actualizar estado local con lo que devuelva el backend si lo hace
+            setVentas(prev => prev.map(item => item._id === id ? ({ ...item, ...updated }) : item));
+            setEditingId(null);
+            setEditValues({ cliente: '', cantidad: 0 });
+        } catch (e) {
+            console.error('Error actualizando venta', e);
+            alert('Error al guardar los cambios');
+        } finally {
+            setSaving(false);
+        }
     };
 
     return (
@@ -106,13 +143,30 @@ const VentasPage = () => {
                                 <td style={styles.td}>{v.tipo_maceta || '-'}</td> 
                                 <td style={styles.td}>{new Date(v.fecha_venta).toLocaleDateString('es-ES')}</td>
                                 {/* Accede directamente al campo 'cliente' */}
-                                <td style={styles.td}>{v.cliente || '-'}</td> 
-                                <td style={styles.td}>{v.cantidad}</td>
+                                <td style={styles.td}>
+                                    {editingId === v._id ? (
+                                        <input value={editValues.cliente} onChange={e => setEditValues(ev => ({ ...ev, cliente: e.target.value }))} />
+                                    ) : (v.cliente || '-')}
+                                </td> 
+                                <td style={styles.td}>
+                                    {editingId === v._id ? (
+                                        <input type="number" min={1} value={editValues.cantidad} onChange={e => setEditValues(ev => ({ ...ev, cantidad: e.target.value }))} style={{ width: 80 }} />
+                                    ) : (v.cantidad)}</td>
                                 <td style={styles.td}>€{Number(v.precio_unitario).toFixed(2)}</td>
                                 <td style={styles.td}>€{Number(v.total).toFixed(2)}</td>
                                 <td style={styles.td}>{v.metodo_pago}</td>
                                 <td style={styles.td}>
-                                    <button style={styles.button} onClick={() => handleEliminar(v._id)}>Eliminar</button>
+                                    {editingId === v._id ? (
+                                        <>
+                                            <button style={{ ...styles.button, marginRight: 8 }} disabled={saving} onClick={() => saveEdit(v._id)}>Guardar</button>
+                                            <button style={styles.button} disabled={saving} onClick={cancelEdit}>Cancelar</button>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <button style={{ ...styles.button, marginRight: 8 }} onClick={() => startEdit(v)}>Editar</button>
+                                            <button style={styles.button} onClick={() => handleEliminar(v._id)}>Eliminar</button>
+                                        </>
+                                    )}
                                 </td>
                             </tr>
                         ))}
