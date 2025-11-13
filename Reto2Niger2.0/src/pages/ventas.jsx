@@ -12,7 +12,10 @@ const styles = {
     th: { textAlign: 'left', padding: '8px 10px', borderBottom: '2px solid #006881ff', background: '#a7d8fcff' },
     td: { padding: '8px 10px', borderBottom: '1px solid #09025cff' },
     small: { fontSize: 12, color: '#0177edff' },
-    button: { padding: '8px 12px', background: '#097d85ff', color: '#fff', border: 'none', borderRadius: 4, cursor: 'pointer', textDecoration: 'none' },
+    button: { padding: '8px 12px', background: '#ffd500ff', color: '#fff', border: 'none', borderRadius: 4, cursor: 'pointer', textDecoration: 'none' },
+    editButton: { padding: '8px 12px', background: '#28a745', color: '#fff', border: 'none', borderRadius: 4, cursor: 'pointer', textDecoration: 'none' },
+    deleteButton: { padding: '8px 12px', background: '#dc3545', color: '#fff', border: 'none', borderRadius: 4, cursor: 'pointer', textDecoration: 'none' },
+    cancelButton: { padding: '8px 12px', background: '#6c757d', color: '#fff', border: 'none', borderRadius: 4, cursor: 'pointer', textDecoration: 'none' },
 };
 
 const VentasPage = () => {
@@ -103,7 +106,7 @@ const VentasPage = () => {
         <div style={styles.container}>
             <BarraBusqueda />
             <div style={styles.header}>
-                <h1 style={styles.title}>Ventas de Macetas Inteligentes</h1>
+                <h1 style={styles.title}>Ventas Niger</h1>
             </div>
 
             <p style={styles.small}>Mostrando {filtered.length} de {ventas.length} registros.</p>
@@ -158,13 +161,13 @@ const VentasPage = () => {
                                 <td style={styles.td}>
                                     {editingId === v._id ? (
                                         <>
-                                            <button style={{ ...styles.button, marginRight: 8 }} disabled={saving} onClick={() => saveEdit(v._id)}>Guardar</button>
-                                            <button style={styles.button} disabled={saving} onClick={cancelEdit}>Cancelar</button>
+                                            <button style={{ ...styles.editButton, marginRight: 8 }} disabled={saving} onClick={() => saveEdit(v._id)}>Guardar</button>
+                                            <button style={styles.cancelButton} disabled={saving} onClick={cancelEdit}>Cancelar</button>
                                         </>
                                     ) : (
                                         <>
-                                            <button style={{ ...styles.button, marginRight: 8 }} onClick={() => startEdit(v)}>Editar</button>
-                                            <button style={styles.button} onClick={() => handleEliminar(v._id)}>Eliminar</button>
+                                            <button style={{ ...styles.editButton, marginRight: 8 }} onClick={() => startEdit(v)}>Editar</button>
+                                            <button style={styles.deleteButton} onClick={() => handleEliminar(v._id)}>Eliminar</button>
                                         </>
                                     )}
                                 </td>
