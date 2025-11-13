@@ -8,7 +8,9 @@ function ModalMateriales({ open, onClose, materiales }) {
         <List>
           {materiales.map((mat, index) => (
             <ListItem key={index} disablePadding>
-              <ListItemText primary={mat} />
+              <ListItemText
+                primary={`${mat.id_pieza.nombre} ${mat.cantidad > 1 ? `: ${mat.cantidad}` : ''}`}
+              />
             </ListItem>
           ))}
         </List>

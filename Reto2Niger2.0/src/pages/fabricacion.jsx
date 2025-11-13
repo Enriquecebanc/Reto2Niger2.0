@@ -26,13 +26,9 @@ function Fabricacion() {
   }, []);
 
   // 2️⃣ Crear nueva fabricación
-  const handleNuevaFabricacion = async ({ tamano, materiales }) => {
+  const handleNuevaFabricacion = async ({ tamano }) => {
     try {
-      const nuevaFab = await crearFabricacion({
-        producto: tamano,
-        materiales,
-        estado: "Pendiente"
-      });
+      const nuevaFab = await crearFabricacion({ producto: tamano });
       setFabricaciones(prev => [...prev, nuevaFab]);
     } catch (err) {
       console.error("Error al crear fabricación:", err);
@@ -51,12 +47,13 @@ function Fabricacion() {
     }
   };
 
+  // 4️⃣ Abrir modal de materiales
   const abrirModalMateriales = (materiales) => {
     setMaterialesSeleccionados(materiales);
     setMaterialesModalOpen(true);
   };
 
-  // Filtrado por búsqueda
+  // 5️⃣ Filtrado por búsqueda
   const filtered = fabricaciones.filter(fab =>
     fab.producto.toLowerCase().includes(query.toLowerCase())
   );
@@ -72,6 +69,7 @@ function Fabricacion() {
 
       <h1 className="text-2xl font-bold my-4">Fabricación de Macetas</h1>
 
+      {/* Buscador y botón nueva fabricación */}
       <div className="mb-4 flex gap-2">
         <input
           type="text"
@@ -88,18 +86,21 @@ function Fabricacion() {
         </button>
       </div>
 
+      {/* Modal para crear nueva fabricación */}
       <FormularioFabricacionModal
         open={modalOpen}
         onClose={() => setModalOpen(false)}
         onCrear={handleNuevaFabricacion}
       />
 
+      {/* Modal para ver materiales */}
       <ModalMateriales
         open={materialesModalOpen}
         onClose={() => setMaterialesModalOpen(false)}
-        materiales={materialesSeleccionados}
+        materiales={materialesSeleccionados || []}
       />
 
+      {/* Tabla de fabricaciones */}
       <table className="w-full border">
         <thead>
           <tr className="bg-gray-200">
