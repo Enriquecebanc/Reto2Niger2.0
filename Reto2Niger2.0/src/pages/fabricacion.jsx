@@ -1,34 +1,65 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import FormularioFabricacionModal from '../componentes/FormularioFabricacionModal';
 import ModalMateriales from '../componentes/ModalMateriales';
 import BarraBusqueda from '../componentes/barraBusqueda.jsx';
 import logoNiger from '../assets/Niger.png';
-
-
+import { getFabricaciones, crearFabricacion, actualizarFabricacion } from '../services/fabricacionService';
 
 function Fabricacion() {
   const [fabricaciones, setFabricaciones] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [materialesModalOpen, setMaterialesModalOpen] = useState(false);
   const [materialesSeleccionados, setMaterialesSeleccionados] = useState([]);
+  const [query, setQuery] = useState('');
 
-  const handleNuevaFabricacion = ({ tamano, materiales }) => {
-    const nuevoId = fabricaciones.length > 0 ? Math.max(...fabricaciones.map(f => f.id)) + 1 : 1;
-    const nuevaFabricacion = {
-      id: nuevoId,
-      tamano,
-      fechaInicio: new Date().toISOString().split('T')[0],
-      fechaFin: '',
-      estado: 'Pendiente',
-      materiales
+  // 1️⃣ Cargar fabricaciones del backend
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data = await getFabricaciones();
+        setFabricaciones(data);
+      } catch (err) {
+        console.error("Error al obtener fabricaciones:", err);
+      }
     };
-    setFabricaciones(prev => [...prev, nuevaFabricacion]);
+    fetchData();
+  }, []);
+
+  // 2️⃣ Crear nueva fabricación
+  const handleNuevaFabricacion = async ({ tamano, materiales }) => {
+    try {
+      const nuevaFab = await crearFabricacion({
+        producto: tamano,
+        materiales,
+        estado: "Pendiente"
+      });
+      setFabricaciones(prev => [...prev, nuevaFab]);
+    } catch (err) {
+      console.error("Error al crear fabricación:", err);
+    }
+  };
+
+  // 3️⃣ Actualizar estado
+  const handleActualizarEstado = async (id, nuevoEstado) => {
+    try {
+      const updated = await actualizarFabricacion(id, { estado: nuevoEstado });
+      setFabricaciones(prev =>
+        prev.map(fab => (fab._id === id ? updated : fab))
+      );
+    } catch (err) {
+      console.error("Error al actualizar estado:", err);
+    }
   };
 
   const abrirModalMateriales = (materiales) => {
     setMaterialesSeleccionados(materiales);
     setMaterialesModalOpen(true);
   };
+
+  // Filtrado por búsqueda
+  const filtered = fabricaciones.filter(fab =>
+    fab.producto.toLowerCase().includes(query.toLowerCase())
+  );
 
   return (
     <div className="p-4">
@@ -38,31 +69,37 @@ function Fabricacion() {
           <BarraBusqueda />
         </div>
       </div>
+
       <h1 className="text-2xl font-bold my-4">Fabricación de Macetas</h1>
 
-      {/* Botón para abrir modal nueva fabricación */}
-      <button
-        className="bg-blue-500 text-white px-4 py-2 rounded mb-4"
-        onClick={() => setModalOpen(true)}
-      >
-        Nueva Fabricación
-      </button>
+      <div className="mb-4 flex gap-2">
+        <input
+          type="text"
+          placeholder="Buscar por tamaño de maceta..."
+          value={query}
+          onChange={e => setQuery(e.target.value)}
+          className="border rounded px-2 py-1 flex-1"
+        />
+        <button
+          className="bg-blue-500 text-white px-4 py-2 rounded"
+          onClick={() => setModalOpen(true)}
+        >
+          Nueva Fabricación
+        </button>
+      </div>
 
-      {/* Modal para nueva fabricación */}
-      <FormularioFabricacionModal 
+      <FormularioFabricacionModal
         open={modalOpen}
         onClose={() => setModalOpen(false)}
         onCrear={handleNuevaFabricacion}
       />
 
-      {/* Modal para ver materiales */}
       <ModalMateriales
         open={materialesModalOpen}
         onClose={() => setMaterialesModalOpen(false)}
         materiales={materialesSeleccionados}
       />
 
-      {/* Tabla de fabricaciones */}
       <table className="w-full border">
         <thead>
           <tr className="bg-gray-200">
@@ -72,15 +109,16 @@ function Fabricacion() {
             <th>Fecha Fin</th>
             <th>Estado</th>
             <th>Materiales</th>
+            <th>Acciones</th>
           </tr>
         </thead>
         <tbody>
-          {fabricaciones.map(fab => (
-            <tr key={fab.id} className="text-center border-t">
-              <td>{fab.id}</td>
-              <td>{fab.tamano}</td>
-              <td>{fab.fechaInicio}</td>
-              <td>{fab.fechaFin || '-'}</td>
+          {filtered.map(fab => (
+            <tr key={fab._id} className="text-center border-t">
+              <td>{fab._id}</td>
+              <td>{fab.producto}</td>
+              <td>{new Date(fab.fecha_inicio).toLocaleDateString()}</td>
+              <td>{fab.fecha_fin ? new Date(fab.fecha_fin).toLocaleDateString() : '-'}</td>
               <td>{fab.estado}</td>
               <td>
                 <button
@@ -89,6 +127,18 @@ function Fabricacion() {
                 >
                   Ver
                 </button>
+              </td>
+              <td>
+                <select
+                  value={fab.estado}
+                  onChange={e => handleActualizarEstado(fab._id, e.target.value)}
+                  className="border rounded px-2 py-1"
+                >
+                  <option value="Pendiente">Pendiente</option>
+                  <option value="En proceso">En proceso</option>
+                  <option value="Finalizado">Finalizado</option>
+                  <option value="Cancelado">Cancelado</option>
+                </select>
               </td>
             </tr>
           ))}
