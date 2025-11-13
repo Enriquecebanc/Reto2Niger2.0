@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import BarraBusqueda from '../componentes/barraBusqueda.jsx';
 import {
   Container,
   Box,
@@ -365,7 +366,10 @@ const ProveedoresPage = () => {
 
 
   return (
+    
     <Container maxWidth="lg" sx={{ py: 4 }}>
+      <BarraBusqueda />
+    
       {/* Header */}
       <Box sx={{ mb: 4 }}>
         <Stack direction="row" spacing={1} sx={{ alignItems: 'center', mb: 0.5 }}>
@@ -378,7 +382,7 @@ const ProveedoresPage = () => {
           Administra proveedores de piezas para macetas con sensores: sensores de humedad, baterías recargables, carcasas plásticas, sistemas de riego automático y componentes electrónica.
         </Typography>
       </Box>
-
+      
       {/* Estadísticas */}
       <Grid container spacing={2} sx={{ mb: 3 }}>
         {stats.map((stat, idx) => (
