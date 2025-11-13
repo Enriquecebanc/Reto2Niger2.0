@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import BarraBusqueda from '../componentes/barraBusqueda.jsx';
 import logoNiger from '../assets/Niger.png';
+import { commonStyles, colors } from '../styles/commonStyles.js';
 
 const API_URL = 'http://localhost:5000';
 
@@ -403,37 +404,6 @@ const Facturacion = () => {
   );
 };
 
-const styles = {
-  container: { padding: 16, fontFamily: 'Segoe UI, Roboto, Arial, sans-serif', position: 'relative' },
-  header: { display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: 12 },
-  title: { color: '#87CEFA', margin: 0, textAlign: 'center' },
-  button: { padding: '8px 12px', background: '#097d85', color: '#fff', border: 'none', borderRadius: 4, cursor: 'pointer', margin: '0 4px' },
-  input: { padding: '8px', border: '1px solid #d1d5db', borderRadius: '4px', fontSize: '14px' },
-  label: { display: 'block', marginBottom: '4px', color: '#374151', fontWeight: '600', fontSize: '14px' },
-  table: { width: '100%', borderCollapse: 'collapse' },
-  th: { textAlign: 'left', padding: '8px 10px', borderBottom: '2px solid #006881', background: '#a7d8fc' },
-  td: { padding: '8px 10px', borderBottom: '1px solid #09025c' },
-  modalOverlay: {
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 1000
-  },
-  modalContent: {
-    backgroundColor: 'white',
-    padding: 30,
-    borderRadius: 8,
-    maxWidth: '800px',
-    width: '90%',
-    maxHeight: '90vh',
-    overflowY: 'auto'
-  }
-};
+const styles = commonStyles;
 
 export default Facturacion;

@@ -22,6 +22,9 @@ import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import SearchIcon from '@mui/icons-material/Search';
+import logoNiger from '../assets/Niger.png';
+import BarraBusqueda from '../componentes/barraBusqueda.jsx';
+import { colors } from '../styles/commonStyles.js';
 
 const STORAGE_KEY = 'proveedores_simple_v2';
 const TIPOS_PRODUCTO = ['Sensores', 'Baterías', 'Carcasas plásticas', 'Sensores de riego', 'Electrónica'];
@@ -31,14 +34,21 @@ const darkTheme = createTheme({
   palette: {
     mode: 'dark',
     background: {
-      default: '#1b1b1b',
-      paper: '#2a2a2a',
+      default: colors.background,
+      paper: colors.backgroundLight,
     },
     primary: {
-      main: '#2e7d32',
+      main: colors.secondary,
     },
     error: {
-      main: '#d32f2f',
+      main: colors.danger,
+    },
+    success: {
+      main: colors.success,
+    },
+    text: {
+      primary: colors.text,
+      secondary: colors.textMuted,
     },
   },
   typography: {
@@ -179,7 +189,14 @@ const ProveedoresPage = () => {
     <ThemeProvider theme={darkTheme}>
       <CssBaseline />
       <Container maxWidth="md" sx={{ py: 5 }}>
-        <Typography variant="h4" sx={{ mb: 3, fontWeight: 'bold', color: '#4caf50' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+          <img src={logoNiger} alt="Niger Logo" style={{ width: 80, height: 'auto' }} />
+          <Box sx={{ flex: 1 }}>
+            <BarraBusqueda />
+          </Box>
+        </Box>
+        
+        <Typography variant="h4" sx={{ mb: 3, fontWeight: 'bold', color: colors.primary }}>
           Gestión de Proveedores
         </Typography>
 
@@ -188,8 +205,8 @@ const ProveedoresPage = () => {
             variant="contained"
             startIcon={<AddIcon />}
             sx={{
-              backgroundColor: '#2e7d32',
-              '&:hover': { backgroundColor: '#1b5e20' },
+              backgroundColor: colors.secondary,
+              '&:hover': { backgroundColor: colors.secondaryHover },
               height: '40px',
             }}
             onClick={() => setOpenDialog(true)}
@@ -228,21 +245,21 @@ const ProveedoresPage = () => {
             sx={{
               width: '100%',
               '& .MuiDataGrid-columnHeaders': {
-                backgroundColor: '#333',
+                backgroundColor: colors.secondary,
+                color: colors.textLight,
                 fontWeight: 'bold',
               },
               '& .MuiDataGrid-cell': {
                 whiteSpace: 'normal',
                 lineHeight: '1.4em',
               },
-              color: '#f5f5f5',
             }}
           />
         </Paper>
 
         {/* Dialogo de nuevo/editar proveedor */}
         <Dialog open={openDialog} onClose={handleCerrarDialog} maxWidth="sm" fullWidth>
-          <DialogTitle sx={{ backgroundColor: '#2e7d32', color: 'white' }}>
+          <DialogTitle sx={{ backgroundColor: colors.secondary, color: 'white' }}>
             {editingId ? 'Editar Proveedor' : 'Nuevo Proveedor'}
           </DialogTitle>
           <DialogContent sx={{ pt: 2 }}>
@@ -307,7 +324,7 @@ const ProveedoresPage = () => {
             <Button onClick={handleCerrarDialog}>Cancelar</Button>
             <Button
               variant="contained"
-              sx={{ backgroundColor: '#2e7d32' }}
+              sx={{ backgroundColor: colors.secondary, '&:hover': { backgroundColor: colors.secondaryHover } }}
               onClick={handleGuardar}
             >
               {editingId ? 'Actualizar' : 'Guardar'}
