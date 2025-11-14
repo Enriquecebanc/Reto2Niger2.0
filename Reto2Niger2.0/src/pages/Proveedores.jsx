@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import {
   Container,
   Box,
@@ -25,17 +25,19 @@ import SearchIcon from '@mui/icons-material/Search';
 import logoNiger from '../assets/Niger.png';
 import BarraBusqueda from '../componentes/barraBusqueda.jsx';
 import { colors } from '../styles/commonStyles.js';
+import { getProveedores, crearProveedor, actualizarProveedor, eliminarProveedor } from '../services/proveedoresService';
 
 const STORAGE_KEY = 'proveedores_simple_v2';
 const TIPOS_PRODUCTO = ['Sensores', 'Baterías', 'Carcasas plásticas', 'Sensores de riego', 'Electrónica'];
 const TAMAÑOS = ['Pequeña', 'Mediana', 'Grande'];
 
-const darkTheme = createTheme({
+// Usar tema claro para no forzar modo oscuro en este módulo
+const theme = createTheme({
   palette: {
-    mode: 'dark',
+    mode: 'light',
     background: {
-      default: colors.background,
-      paper: colors.backgroundLight,
+      default: colors.backgroundLight,
+      paper: colors.background,
     },
     primary: {
       main: colors.secondary,
@@ -56,8 +58,19 @@ const darkTheme = createTheme({
   },
 });
 
+// Ejemplos de proveedores compatibles con el modelo del backend (fallback)
+const EJEMPLOS_PROVEEDORES = [
+  { _id: 'ex1', nombre: 'TecnoSensores SL', telefono: '612345678', correo: 'contacto@tecnosensores.com', direccion: 'Calle Falsa 123' },
+  { _id: 'ex2', nombre: 'Energía Verde SA', telefono: '699887766', correo: 'ventas@energiaverde.es', direccion: 'Av. Verde 45' },
+  { _id: 'ex3', nombre: 'Plásticos Norte', telefono: '688551122', correo: 'info@plasticosnorte.com', direccion: 'Pol. Ind. Norte, Parc. 9' }
+];
+
 const ProveedoresPage = () => {
   const [proveedores, setProveedores] = useState([]);
+  const [dataSource, setDataSource] = useState('loading');
+  const mountedRef = useRef(true);
+  const [loading, setLoading] = useState(false);
+  const [lastError, setLastError] = useState(null);
   const [openDialog, setOpenDialog] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -70,59 +83,109 @@ const ProveedoresPage = () => {
   const [tamaño, setTamaño] = useState('Mediana');
   const [tipoProducto, setTipoProducto] = useState(TIPOS_PRODUCTO[0]);
 
-  useEffect(() => {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) setProveedores(JSON.parse(raw));
-  }, []);
+  // Función que consulta la API y normaliza resultados
+  const fetchProveedoresFromApi = async () => {
+    const data = await getProveedores();
+    return data.map((p) => {
+      let tipos = [];
+      if (Array.isArray(p.productos) && p.productos.length > 0) {
+        tipos = p.productos.map((pr) => pr.pieza_id ? (pr.pieza_id.nombre || pr.pieza_id.tipo || '') : '').filter(Boolean);
+      }
+      return {
+        id: p._id,
+        nombre: p.nombre || '',
+        direccion: p.direccion || p.direccion || '',
+        telefono: p.telefono || '',
+        correo: p.correo || '',
+        productos: tipos.join(', ') || '-',
+        raw: p,
+      };
+    });
+  };
+
+  const loadData = async () => {
+    setLoading(true);
+    setLastError(null);
+    try {
+      const mapped = await fetchProveedoresFromApi();
+      if (!mountedRef.current) return;
+      setProveedores(mapped);
+      setDataSource('api');
+    } catch (err) {
+      console.error('No se pudieron cargar proveedores desde API, usando ejemplos', err);
+      setLastError(err.message || String(err));
+      setProveedores(EJEMPLOS_PROVEEDORES.map((p) => ({ id: p._id, nombre: p.nombre, direccion: p.direccion, telefono: p.telefono, correo: p.correo, productos: '-' })));
+      setDataSource('examples');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(proveedores));
-  }, [proveedores]);
+    mountedRef.current = true;
+    loadData();
+    return () => { mountedRef.current = false; };
+  }, []);
+  
 
   const handleGuardar = () => {
-    if (!nombre.trim() || !contacto.trim() || !telefono.trim()) {
-      alert('Por favor completa los campos obligatorios.');
+    if (!nombre.trim() || !telefono.trim()) {
+      alert('Por favor completa los campos obligatorios: nombre y teléfono.');
       return;
     }
 
-    const nuevoProveedor = {
-      id: editingId || Date.now(),
+    const payload = {
       nombre: nombre.trim(),
-      contacto: contacto.trim(),
       telefono: telefono.trim(),
-      email: email.trim(),
-      tamaño,
-      tipoProducto,
+      correo: email.trim(),
+      direccion: contacto.trim(),
     };
 
-    if (editingId) {
-      setProveedores((prev) =>
-        prev.map((p) => (p.id === editingId ? nuevoProveedor : p))
-      );
-    } else {
-      setProveedores((prev) => [...prev, nuevoProveedor]);
-    }
+    const guardar = async () => {
+      try {
+        if (editingId) {
+          const updated = await actualizarProveedor(editingId, payload);
+          setProveedores((prev) => prev.map((p) => (p.id === editingId ? { ...updated, id: updated._id } : p)));
+        } else {
+          const created = await crearProveedor(payload);
+          setProveedores((prev) => [...prev, { ...created, id: created._id }]);
+        }
+        handleCerrarDialog();
+      } catch (err) {
+        console.error('Error guardando proveedor:', err);
+        alert('Error al guardar proveedor');
+      }
+    };
 
-    handleCerrarDialog();
+    guardar();
   };
 
   const handleEditar = (id) => {
     const p = proveedores.find((prov) => prov.id === id);
     if (p) {
       setEditingId(p.id);
-      setNombre(p.nombre);
-      setContacto(p.contacto);
-      setTelefono(p.telefono);
-      setEmail(p.email || '');
-      setTamaño(p.tamaño || 'Mediana');
-      setTipoProducto(p.tipoProducto || TIPOS_PRODUCTO[0]);
+      setNombre(p.nombre || '');
+      setContacto(p.direccion || '');
+      setTelefono(p.telefono || '');
+      setEmail(p.correo || '');
+      setTamaño('Mediana');
+      setTipoProducto(TIPOS_PRODUCTO[0]);
       setOpenDialog(true);
     }
   };
 
   const handleEliminar = (id) => {
     if (window.confirm('¿Eliminar este proveedor?')) {
-      setProveedores((prev) => prev.filter((p) => p.id !== id));
+      const borrar = async () => {
+        try {
+          await eliminarProveedor(id);
+          setProveedores((prev) => prev.filter((p) => p.id !== id));
+        } catch (err) {
+          console.error('Error eliminando proveedor:', err);
+          alert('Error al eliminar proveedor');
+        }
+      };
+      borrar();
     }
   };
 
@@ -142,21 +205,19 @@ const ProveedoresPage = () => {
     const texto = searchTerm.toLowerCase();
     return (
       p.nombre.toLowerCase().includes(texto) ||
-      p.contacto.toLowerCase().includes(texto) ||
-      p.telefono.toLowerCase().includes(texto) ||
-      (p.email || '').toLowerCase().includes(texto) ||
-      (p.tamaño || '').toLowerCase().includes(texto) ||
-      (p.tipoProducto || '').toLowerCase().includes(texto)
+      (p.direccion || '').toLowerCase().includes(texto) ||
+      (p.telefono || '').toLowerCase().includes(texto) ||
+      (p.correo || '').toLowerCase().includes(texto) ||
+      (p.productos || '').toLowerCase().includes(texto)
     );
   });
 
   const columns = [
     { field: 'nombre', headerName: 'Proveedor', flex: 1.2 },
-    { field: 'contacto', headerName: 'Contacto', flex: 1 },
+    { field: 'direccion', headerName: 'Dirección', flex: 1 },
     { field: 'telefono', headerName: 'Teléfono', flex: 1 },
-    { field: 'email', headerName: 'Email', flex: 1 },
-    { field: 'tamaño', headerName: 'Tamaño', flex: 0.8 },
-    { field: 'tipoProducto', headerName: 'Tipo', flex: 1 },
+    { field: 'correo', headerName: 'Correo', flex: 1 },
+    { field: 'productos', headerName: 'Productos', flex: 1 },
     {
       field: 'acciones',
       headerName: 'Acciones',
@@ -186,7 +247,7 @@ const ProveedoresPage = () => {
   ];
 
   return (
-    <ThemeProvider theme={darkTheme}>
+    <ThemeProvider theme={theme}>
       <CssBaseline />
       <Container maxWidth="md" sx={{ py: 5 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
@@ -200,7 +261,7 @@ const ProveedoresPage = () => {
           Gestión de Proveedores
         </Typography>
 
-        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ mb: 3 }}>
+  <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ mb: 3 }}>
           <Button
             variant="contained"
             startIcon={<AddIcon />}
@@ -212,6 +273,10 @@ const ProveedoresPage = () => {
             onClick={() => setOpenDialog(true)}
           >
             Nuevo Proveedor
+          </Button>
+
+          <Button variant="outlined" onClick={() => { loadData(); }}>
+            {loading ? 'Sincronizando...' : 'Sincronizar BD'}
           </Button>
 
           <Box sx={{ flexGrow: 1 }}>
@@ -228,34 +293,43 @@ const ProveedoresPage = () => {
             />
           </Box>
         </Stack>
-
-        <Paper
-          sx={{
-            width: '100%',
-            height: 440,
-            p: 1,
-            bgcolor: 'background.paper',
-          }}
-        >
-          <DataGrid
-            rows={proveedoresFiltrados}
-            columns={columns}
-            pageSizeOptions={[5, 10]}
-            disableRowSelectionOnClick
+        {/* Si no hay proveedores cargados, mostrar mensaje útil en lugar de pantalla en blanco */}
+        {proveedores.length === 0 ? (
+          <Paper sx={{ width: '100%', p: 4, textAlign: 'center', bgcolor: 'background.paper' }}>
+            <Typography variant="h6" sx={{ mb: 2 }}>{loading ? 'Cargando proveedores...' : 'No hay proveedores cargados'}</Typography>
+            {lastError && <Typography sx={{ mb: 2, color: 'error.main' }}>Error: {lastError}</Typography>}
+            <Typography sx={{ mb: 2, color: 'text.secondary' }}>Si la carga tarda o falla, puedes cargar ejemplos locales.</Typography>
+            <Button variant="outlined" onClick={() => setProveedores(EJEMPLOS_PROVEEDORES.map((p) => ({ ...p, id: p._id })))}>Cargar ejemplos</Button>
+          </Paper>
+        ) : (
+          <Paper
             sx={{
               width: '100%',
-              '& .MuiDataGrid-columnHeaders': {
-                backgroundColor: colors.backgroundDark,
-                color: colors.textLight,
-                fontWeight: 'bold',
-              },
-              '& .MuiDataGrid-cell': {
-                whiteSpace: 'normal',
-                lineHeight: '1.4em',
-              },
+              height: 440,
+              p: 1,
+              bgcolor: 'background.paper',
             }}
-          />
-        </Paper>
+          >
+            <DataGrid
+              rows={proveedoresFiltrados}
+              columns={columns}
+              pageSizeOptions={[5, 10]}
+              disableRowSelectionOnClick
+              sx={{
+                width: '100%',
+                '& .MuiDataGrid-columnHeaders': {
+                  backgroundColor: colors.backgroundDark,
+                  color: colors.textLight,
+                  fontWeight: 'bold',
+                },
+                '& .MuiDataGrid-cell': {
+                  whiteSpace: 'normal',
+                  lineHeight: '1.4em',
+                },
+              }}
+            />
+          </Paper>
+        )}
 
         {/* Dialogo de nuevo/editar proveedor */}
         <Dialog open={openDialog} onClose={handleCerrarDialog} maxWidth="sm" fullWidth>
@@ -271,7 +345,7 @@ const ProveedoresPage = () => {
                 onChange={(e) => setNombre(e.target.value)}
               />
               <TextField
-                label="Persona de Contacto *"
+                label="Dirección *"
                 fullWidth
                 value={contacto}
                 onChange={(e) => setContacto(e.target.value)}
@@ -283,7 +357,7 @@ const ProveedoresPage = () => {
                 onChange={(e) => setTelefono(e.target.value)}
               />
               <TextField
-                label="Email (opcional)"
+                label="Correo (opcional)"
                 fullWidth
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
