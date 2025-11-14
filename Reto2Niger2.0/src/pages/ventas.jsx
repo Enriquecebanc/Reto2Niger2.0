@@ -1,9 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import BarraBusqueda from '../componentes/barraBusqueda.jsx';
-import logoNiger from '../assets/Niger.png';
 import { commonStyles, colors } from '../styles/commonStyles.js';
-// Asegúrate de que tus servicios 'ventasService' devuelvan el JSON sin populate,
-// o adapta el servicio para simular la estructura aplanada si usas populate.
 import { getVentas, crearVenta, eliminarVenta, actualizarVenta } from '../services/ventasService';
 
 const styles = {
@@ -28,50 +25,68 @@ const VentasPage = () => {
     const [editValues, setEditValues] = useState({ cliente: '', cantidad: 0 });
     const [saving, setSaving] = useState(false);
 
-    // 🔹 Cargar las ventas desde el backend
+    // NUEVOS ESTADOS PARA CREAR UNA VENTA
+    const [adding, setAdding] = useState(false);
+    const [newVenta, setNewVenta] = useState({
+        cliente: "",
+        tipo_maceta: "",
+        cantidad: 1,
+        precio_unitario: 0,
+        metodo_pago: "",
+    });
+
+    // Cargar ventas
     const fetchVentas = async () => {
-        // Asume que getVentas() devuelve el JSON con el campo 'cliente' y 'tipo_maceta' ya aplanados
         const data = await getVentas();
         setVentas(data);
     };
+    useEffect(() => { fetchVentas(); }, []);
 
-    useEffect(() => {
-        fetchVentas();
-    }, []);
-
-    // 🔹 Filtrado de búsqueda
+    // Filtrado
     const filtered = useMemo(() => {
         const q = query.trim().toLowerCase();
         if (!q) return ventas;
-        
-        // Ahora busca directamente en el campo 'cliente' (nombre y apellido completo)
         return ventas.filter(v => (v.cliente || '').toLowerCase().includes(q));
     }, [ventas, query]);
 
-    // 🔹 Agregar venta de ejemplo (adaptado a la nueva estructura)
-    const handleAgregar = async () => {
-        const nueva = {
-            // Producto: Usamos el campo tipo_maceta con el valor aplanado
-            tipo_maceta: ventas[0]?.tipo_maceta || 'big', 
-            // Cliente: Usamos el campo cliente con el valor aplanado (nombre y apellido)
-            cliente: ventas[0]?.cliente || 'Aitor García', 
-            cantidad: 1,
-            precio_unitario: 40,
-            total: 40,
-            metodo_pago: "Crédito",
-            fecha_venta: new Date().toISOString() // Añadir fecha actual
+    // Confirmar nueva venta
+    const handleConfirmarNuevaVenta = async () => {
+        if (!newVenta.cliente.trim()) return alert("Falta el nombre del cliente");
+        if (!newVenta.tipo_maceta.trim()) return alert("Falta el tipo de maceta");
+        if (!newVenta.metodo_pago.trim()) return alert("Falta el método de pago");
+        if (newVenta.cantidad < 1) return alert("La cantidad debe ser al menos 1");
+        if (newVenta.precio_unitario < 1) return alert("El precio unitario debe ser al menos 1");
+
+        const payload = {
+            cliente: newVenta.cliente,
+            tipo_maceta: newVenta.tipo_maceta,
+            cantidad: newVenta.cantidad,
+            precio_unitario: newVenta.precio_unitario,
+            total: newVenta.cantidad * newVenta.precio_unitario,
+            metodo_pago: newVenta.metodo_pago,
+            fecha_venta: new Date().toISOString()
         };
-        const creada = await crearVenta(nueva);
-        setVentas([...ventas, creada]);
+
+        const created = await crearVenta(payload);
+        setVentas(v => [...v, created]);
+
+        setAdding(false);
+        setNewVenta({
+            cliente: "",
+            tipo_maceta: "",
+            cantidad: 1,
+            precio_unitario: 0,
+            metodo_pago: "",
+        });
     };
 
-    // 🔹 Eliminar venta
+    // Eliminar
     const handleEliminar = async (id) => {
         await eliminarVenta(id);
         setVentas(ventas.filter(v => v._id !== id));
     };
 
-    // 🔹 Editar venta (inline: solo cliente y cantidad)
+    // Editar inline
     const startEdit = (v) => {
         setEditingId(v._id);
         setEditValues({ cliente: v.cliente || '', cantidad: v.cantidad ?? 1 });
@@ -83,9 +98,9 @@ const VentasPage = () => {
     };
 
     const saveEdit = async (id) => {
-        // validaciones simples
-        const name = (editValues.cliente || '').toString().trim();
+        const name = (editValues.cliente || '').trim();
         const qty = Number(editValues.cantidad);
+
         if (!name) return alert('El nombre del cliente no puede quedar vacío');
         if (!Number.isFinite(qty) || qty < 1) return alert('La cantidad debe ser al menos 1');
 
@@ -93,7 +108,7 @@ const VentasPage = () => {
         try {
             const payload = { cliente: name, cantidad: qty };
             const updated = await actualizarVenta(id, payload);
-            // actualizar estado local con lo que devuelva el backend si lo hace
+
             setVentas(prev => prev.map(item => item._id === id ? ({ ...item, ...updated }) : item));
             setEditingId(null);
             setEditValues({ cliente: '', cantidad: 0 });
@@ -121,19 +136,88 @@ const VentasPage = () => {
                     onChange={e => setQuery(e.target.value)}
                     style={{ width: '100%', padding: 8, borderRadius: 6, border: '1px solid #34b6f7ff' }}
                 />
-                <button style={{ ...styles.button, marginTop: 8 }} onClick={handleAgregar}>Agregar venta de ejemplo</button>
+
+                <button
+                    style={{ ...styles.button, marginTop: 8 }}
+                    onClick={() => setAdding(true)}
+                >
+                    Añadir venta
+                </button>
             </div>
+
+            {adding && (
+                <div style={{
+                    padding: 12,
+                    border: "1px solid #0095ff",
+                    borderRadius: 8,
+                    marginBottom: 16,
+                    background: "#e9f6ff"
+                }}>
+                    <h3>Nueva venta</h3>
+
+                    <input
+                        placeholder="Nombre del cliente"
+                        value={newVenta.cliente}
+                        onChange={e => setNewVenta(v => ({ ...v, cliente: e.target.value }))}
+                        style={{ width: "100%", marginBottom: 8, padding: 6 }}
+                    />
+
+                    <input
+                        placeholder="Tipo maceta (small/medium/big)"
+                        value={newVenta.tipo_maceta}
+                        onChange={e => setNewVenta(v => ({ ...v, tipo_maceta: e.target.value }))}
+                        style={{ width: "100%", marginBottom: 8, padding: 6 }}
+                    />
+
+                    <input
+                        type="number"
+                        placeholder="Cantidad"
+                        min={1}
+                        value={newVenta.cantidad}
+                        onChange={e => setNewVenta(v => ({ ...v, cantidad: Number(e.target.value) }))}
+                        style={{ width: "100%", marginBottom: 8, padding: 6 }}
+                    />
+
+                    <input
+                        type="number"
+                        placeholder="Precio unitario"
+                        min={1}
+                        value={newVenta.precio_unitario}
+                        onChange={e => setNewVenta(v => ({ ...v, precio_unitario: Number(e.target.value) }))}
+                        style={{ width: "100%", marginBottom: 8, padding: 6 }}
+                    />
+
+                    <input
+                        placeholder="Método pago (Efectivo/Crédito...)"
+                        value={newVenta.metodo_pago}
+                        onChange={e => setNewVenta(v => ({ ...v, metodo_pago: e.target.value }))}
+                        style={{ width: "100%", marginBottom: 8, padding: 6 }}
+                    />
+
+                    <button
+                        style={{ ...styles.editButton, marginRight: 8 }}
+                        onClick={handleConfirmarNuevaVenta}
+                    >
+                        Confirmar
+                    </button>
+
+                    <button
+                        style={styles.cancelButton}
+                        onClick={() => setAdding(false)}
+                    >
+                        Cancelar
+                    </button>
+                </div>
+            )}
 
             <div style={{ overflowX: 'auto' }}>
                 <table style={styles.table}>
                     <thead>
                         <tr>
                             <th style={styles.th}>ID</th>
-                            {/* Cambiado de 'Producto' a 'Tipo Maceta' para reflejar el campo 'tipo_maceta' */}
-                            <th style={styles.th}>Tipo Maceta</th> 
+                            <th style={styles.th}>Tipo Maceta</th>
                             <th style={styles.th}>Fecha</th>
-                            {/* Accede a 'v.cliente' directamente, que ahora contiene el nombre completo */}
-                            <th style={styles.th}>Cliente</th> 
+                            <th style={styles.th}>Cliente</th>
                             <th style={styles.th}>Cantidad</th>
                             <th style={styles.th}>Precio unitario</th>
                             <th style={styles.th}>Total</th>
@@ -141,36 +225,68 @@ const VentasPage = () => {
                             <th style={styles.th}>Acciones</th>
                         </tr>
                     </thead>
+
                     <tbody>
                         {filtered.map(v => (
                             <tr key={v._id}>
                                 <td style={styles.td}><span style={styles.small}>{v._id}</span></td>
-                                {/* Accede directamente al campo 'tipo_maceta' */}
-                                <td style={styles.td}>{v.tipo_maceta || '-'}</td> 
+                                <td style={styles.td}>{v.tipo_maceta || '-'}</td>
                                 <td style={styles.td}>{new Date(v.fecha_venta).toLocaleDateString('es-ES')}</td>
-                                {/* Accede directamente al campo 'cliente' */}
                                 <td style={styles.td}>
                                     {editingId === v._id ? (
-                                        <input value={editValues.cliente} onChange={e => setEditValues(ev => ({ ...ev, cliente: e.target.value }))} />
+                                        <input
+                                            value={editValues.cliente}
+                                            onChange={e => setEditValues(ev => ({ ...ev, cliente: e.target.value }))}
+                                        />
                                     ) : (v.cliente || '-')}
-                                </td> 
+                                </td>
                                 <td style={styles.td}>
                                     {editingId === v._id ? (
-                                        <input type="number" min={1} value={editValues.cantidad} onChange={e => setEditValues(ev => ({ ...ev, cantidad: e.target.value }))} style={{ width: 80 }} />
-                                    ) : (v.cantidad)}</td>
+                                        <input
+                                            type="number"
+                                            min={1}
+                                            value={editValues.cantidad}
+                                            onChange={e => setEditValues(ev => ({ ...ev, cantidad: e.target.value }))}
+                                            style={{ width: 80 }}
+                                        />
+                                    ) : (v.cantidad)}
+                                </td>
                                 <td style={styles.td}>€{Number(v.precio_unitario).toFixed(2)}</td>
                                 <td style={styles.td}>€{Number(v.total).toFixed(2)}</td>
                                 <td style={styles.td}>{v.metodo_pago}</td>
+
                                 <td style={styles.td}>
                                     {editingId === v._id ? (
                                         <>
-                                            <button style={{ ...styles.editButton, marginRight: 8 }} disabled={saving} onClick={() => saveEdit(v._id)}>Guardar</button>
-                                            <button style={styles.cancelButton} disabled={saving} onClick={cancelEdit}>Cancelar</button>
+                                            <button
+                                                style={{ ...styles.editButton, marginRight: 8 }}
+                                                disabled={saving}
+                                                onClick={() => saveEdit(v._id)}
+                                            >
+                                                Guardar
+                                            </button>
+                                            <button
+                                                style={styles.cancelButton}
+                                                disabled={saving}
+                                                onClick={cancelEdit}
+                                            >
+                                                Cancelar
+                                            </button>
                                         </>
                                     ) : (
                                         <>
-                                            <button style={{ ...styles.editButton, marginRight: 8 }} onClick={() => startEdit(v)}>Editar</button>
-                                            <button style={styles.deleteButton} onClick={() => handleEliminar(v._id)}>Eliminar</button>
+                                            <button
+                                                style={{ ...styles.editButton, marginRight: 8 }}
+                                                onClick={() => startEdit(v)}
+                                            >
+                                                Editar
+                                            </button>
+                                            <button
+                                                style={styles.deleteButton}
+                                                onClick={() => handleEliminar(v._id)}
+                                            >
+                                                Eliminar
+                                            </button>
                                         </>
                                     )}
                                 </td>

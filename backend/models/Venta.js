@@ -1,8 +1,8 @@
 import mongoose from "mongoose";
 
 const VentaSchema = new mongoose.Schema({
-  producto_id: { type: mongoose.Schema.Types.ObjectId, ref: "Fabricacion" },
-  cliente_id: { type: mongoose.Schema.Types.ObjectId, ref: "Cliente" },
+  cliente: { type: String, required: true },
+  tipo_maceta: { type: String, enum: ["small", "medium", "big"], required: true },
   cantidad: { type: Number, required: true },
   precio_unitario: { type: Number, required: true },
   total: { type: Number, required: true },
