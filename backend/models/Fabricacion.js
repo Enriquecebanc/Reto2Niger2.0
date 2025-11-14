@@ -18,4 +18,12 @@ const FabricacionSchema = new mongoose.Schema({
   }
 }, { timestamps: true });
 
+FabricacionSchema.pre(/^find/, function (next) {
+  this.populate({
+    path: "materiales.id_pieza",
+    select: "nombre precio_unitario"
+  });
+  next();
+});
+
 export default mongoose.model("Fabricacion", FabricacionSchema);

@@ -4,134 +4,127 @@ import Stock from "../models/Stock.js";
 
 const router = express.Router();
 
-// Lista de materiales por tipo de maceta
+// Definición correcta de materiales
 const materialesPorMaceta = {
   "Maceta pequeña": [
-    "LED Rojo: 2",
-    "LED Verde: 2",
-    "LED Amarillo: 2",
-    "Maceta de plástico Pequeño",
-    "Sensor de humedad",
-    "Sensor de luz",
-    "Batería"
+    { nombre: "LED Rojo", cantidad: 2 },
+    { nombre: "LED Verde", cantidad: 2 },
+    { nombre: "LED Amarillo", cantidad: 2 },
+    { nombre: "Maceta de plástico Pequeño", cantidad: 1 },
+    { nombre: "Sensor de humedad", cantidad: 1 },
+    { nombre: "Sensor de luz", cantidad: 1 },
+    { nombre: "Batería", cantidad: 1 }
   ],
   "Maceta mediana": [
-    "LED Rojo: 2",
-    "LED Verde: 2",
-    "LED Amarillo: 2",
-    "Maceta de plástico Mediano",
-    "Sensor de humedad",
-    "Sensor de luz",
-    "Batería"
+    { nombre: "LED Rojo", cantidad: 2 },
+    { nombre: "LED Verde", cantidad: 2 },
+    { nombre: "LED Amarillo", cantidad: 2 },
+    { nombre: "Maceta de plástico Mediano", cantidad: 1 },
+    { nombre: "Sensor de humedad", cantidad: 1 },
+    { nombre: "Sensor de luz", cantidad: 1 },
+    { nombre: "Batería", cantidad: 1 }
   ],
   "Maceta grande": [
-    "LED Rojo: 2",
-    "LED Verde: 2",
-    "LED Amarillo: 2",
-    "Maceta de plástico Grande",
-    "Sensor de humedad",
-    "Sensor de luz",
-    "Batería"
+    { nombre: "LED Rojo", cantidad: 2 },
+    { nombre: "LED Verde", cantidad: 2 },
+    { nombre: "LED Amarillo", cantidad: 2 },
+    { nombre: "Maceta de plástico Grande", cantidad: 1 },
+    { nombre: "Sensor de humedad", cantidad: 1 },
+    { nombre: "Sensor de luz", cantidad: 1 },
+    { nombre: "Batería", cantidad: 1 }
   ]
 };
 
-// GET todas las fabricaciones
-router.get("/", async (req, res) => {
-  try {
-    const fabricaciones = await Fabricacion.find()
-      .populate({
-        path: "materiales.id_pieza",
-        select: "nombre precio_unitario"
-      })
-      .lean();
-
-    res.json(fabricaciones);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// GET fabricación por ID
-router.get("/:id", async (req, res) => {
-  try {
-    const fabricacion = await Fabricacion.findById(req.params.id)
-      .populate({ path: "materiales.id_pieza", select: "nombre precio_unitario" })
-      .lean();
-    if (!fabricacion) return res.status(404).json({ message: "Fabricación no encontrada" });
-    res.json(fabricacion);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// POST crear nueva fabricación y descontar stock
+// --------------------------------------------------------
+// ✅ POST: Crear una fabricación
+// --------------------------------------------------------
 router.post("/", async (req, res) => {
   try {
     const { producto } = req.body;
 
     if (!materialesPorMaceta[producto]) {
-      return res.status(400).json({ error: "Tipo de maceta no válido" });
+      return res.status(400).json({ error: "Producto no válido" });
     }
 
     const materiales = [];
-    for (const mat of materialesPorMaceta[producto]) {
-      let nombre = mat;
-      let cantidad = 1;
 
-      if (mat.includes(":")) {
-        const [n, c] = mat.split(":").map(s => s.trim());
-        nombre = n;
-        cantidad = parseInt(c);
+    // Descontar stock
+    for (const { nombre, cantidad } of materialesPorMaceta[producto]) {
+      const stockItem = await Stock.findOne({ nombre });
+
+      if (!stockItem) {
+        return res.status(400).json({ error: `No existe en stock: ${nombre}` });
       }
 
-      const stockItem = await Stock.findOne({ nombre });
-      if (!stockItem) return res.status(400).json({ error: `No hay stock del material: ${nombre}` });
-      if (stockItem.cantidad < cantidad) return res.status(400).json({ error: `No hay suficiente stock de ${nombre}` });
+      if (stockItem.cantidad < cantidad) {
+        return res.status(400).json({ error: `No hay suficiente stock de ${nombre}` });
+      }
 
       stockItem.cantidad -= cantidad;
       await stockItem.save();
 
-      materiales.push({ id_pieza: stockItem._id, cantidad });
+      materiales.push({
+        id_pieza: stockItem._id,
+        cantidad
+      });
     }
 
-    const nuevaFabricacion = new Fabricacion({ producto, materiales, estado: "Pendiente" });
+    const nuevaFabricacion = new Fabricacion({
+      producto,
+      fecha_inicio: new Date(),
+      estado: "En proceso",
+      materiales
+    });
+
     await nuevaFabricacion.save();
 
-    const fabricacionPopulada = await Fabricacion.findById(nuevaFabricacion._id).populate("materiales.id_pieza");
-    res.status(201).json(fabricacionPopulada);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: err.message });
+    res.status(201).json(nuevaFabricacion);
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Error al crear fabricación" });
   }
 });
 
-// PUT actualizar fabricación y manejar fecha_fin
+// --------------------------------------------------------
+// ✅ GET: Obtener todas las fabricaciones (incluye populate)
+// --------------------------------------------------------
+router.get("/", async (req, res) => {
+  try {
+    const fabricaciones = await Fabricacion.find()
+      .populate("materiales.id_pieza");
+
+    res.json(fabricaciones);
+  } catch (error) {
+    res.status(500).json({ error: "Error al obtener fabricaciones" });
+  }
+});
+
+// --------------------------------------------------------
+// ✅ PUT: Cambiar estado + fecha de fin automática
+// --------------------------------------------------------
 router.put("/:id", async (req, res) => {
   try {
     const { estado } = req.body;
-    const updateData = { ...req.body };
 
-    if (estado === "Finalizado") {
-      updateData.fecha_fin = new Date();
+    const fabricacion = await Fabricacion.findById(req.params.id);
+
+    if (!fabricacion) {
+      return res.status(404).json({ error: "Fabricación no encontrada" });
     }
 
-    const fabricacionActualizada = await Fabricacion.findByIdAndUpdate(req.params.id, updateData, { new: true }).populate("materiales.id_pieza");
-    if (!fabricacionActualizada) return res.status(404).json({ message: "Fabricación no encontrada" });
+    fabricacion.estado = estado;
 
-    res.json(fabricacionActualizada);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
-});
+    if (estado === "Finalizado") {
+      fabricacion.fecha_fin = new Date();
+    }
 
-// DELETE eliminar fabricación
-router.delete("/:id", async (req, res) => {
-  try {
-    const fabricacionEliminada = await Fabricacion.findByIdAndDelete(req.params.id);
-    if (!fabricacionEliminada) return res.status(404).json({ message: "Fabricación no encontrada" });
-    res.json({ message: "Fabricación eliminada correctamente" });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+    await fabricacion.save();
+
+    res.json(fabricacion);
+
+  } catch (error) {
+    res.status(500).json({ error: "Error al actualizar fabricación" });
   }
 });
 
