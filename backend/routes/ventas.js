@@ -1,6 +1,7 @@
-const express = require('express');
+import express from 'express';
+import Venta from '../models/Venta.js';
+
 const router = express.Router();
-const Venta = require('../models/Venta');
 
 // Obtener todas las ventas
 router.get('/', async (req, res) => {
@@ -35,4 +36,4 @@ router.post('/', async (req, res) => {
     }
 });
 
-module.exports = router;
+export default router;
