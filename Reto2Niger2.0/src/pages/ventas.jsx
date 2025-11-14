@@ -82,6 +82,8 @@ const VentasPage = () => {
 
     // Eliminar
     const handleEliminar = async (id) => {
+        if (!confirm('¿Estás seguro de que quieres eliminar esta venta?')) return;
+        
         await eliminarVenta(id);
         setVentas(ventas.filter(v => v._id !== id));
     };
