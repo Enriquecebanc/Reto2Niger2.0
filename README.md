@@ -1,6 +1,6 @@
 # Reto2Niger2.0
 
-
+en la base del proyexto
 
 npm init -y 
 npm install electron 
@@ -8,9 +8,13 @@ npm install --save-dev electronmon
 
 -----------------------------------------------------------------
 
+en el frontend
+
 npm install react
 
 ------------------------------------------------------------------
+
+en el frontend
 
 npm install @mui/material @emotion/react @emotion/styled
 npm install @mui/material @mui/styled-engine-sc styled-components
