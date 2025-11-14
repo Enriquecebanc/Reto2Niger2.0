@@ -25,5 +25,11 @@ export async function actualizarStock(id, producto) {
 
 export async function eliminarStock(id) {
   const res = await fetch(`${API_URL}/${id}`, { method: "DELETE" });
+  if (!res.ok && res.status === 404) {
+    return { message: 'Producto no encontrado', notFound: true };
+  }
+  if (!res.ok) {
+    throw new Error(`Error ${res.status}: ${res.statusText}`);
+  }
   return res.json();
 }

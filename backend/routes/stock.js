@@ -1,4 +1,5 @@
 import express from "express";
+import mongoose from "mongoose";
 import Stock from "../models/Stock.js";
 
 const router = express.Router();
@@ -6,7 +7,6 @@ const router = express.Router();
 //  GET: Obtener todos los productos en stock
 router.get("/", async (req, res) => {
   try {
-    // Populate del proveedor para ver sus datos asociados
     const stock = await Stock.find().populate("proveedor_id", "nombre correo");
     res.json(stock);
   } catch (err) {
@@ -50,9 +50,27 @@ router.put("/:id", async (req, res) => {
 //  DELETE: Eliminar un producto del stock
 router.delete("/:id", async (req, res) => {
   try {
-    const eliminado = await Stock.findByIdAndDelete(req.params.id);
-    if (!eliminado) return res.status(404).json({ message: "Producto no encontrado" });
-    res.json({ message: "Producto eliminado correctamente" });
+    const id = req.params.id.trim();
+    
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "ID inválido" });
+    }
+    
+    const db = mongoose.connection.db;
+    const collection = db.collection('stocks');
+    const todosLosDocs = await collection.find({}).toArray();
+    
+    const docEncontrado = todosLosDocs.find(doc => doc._id.toString() === id);
+    
+    if (docEncontrado) {
+      const resultDelete = await collection.deleteOne({ _id: docEncontrado._id });
+      
+      if (resultDelete.deletedCount > 0) {
+        return res.json({ message: "Producto eliminado correctamente" });
+      }
+    }
+    
+    return res.status(404).json({ message: "Producto no encontrado" });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

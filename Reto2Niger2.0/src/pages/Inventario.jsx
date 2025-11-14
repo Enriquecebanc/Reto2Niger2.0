@@ -18,8 +18,25 @@ const Inventario = () => {
   }, []);
 
   const handleEliminar = async (id) => {
-    await eliminarStock(id);
-    fetchData();
+    if (!confirm('¿Estás seguro de que quieres eliminar este elemento?')) return;
+    
+    try {
+      const result = await eliminarStock(id);
+      
+      // Si el elemento ya no existe en la BD, solo sincronizar
+      if (result.notFound || result.message === 'Producto no encontrado') {
+        await fetchData();
+        return;
+      }
+      
+      // Eliminación exitosa
+      await fetchData();
+      alert('Elemento eliminado correctamente');
+    } catch (error) {
+      console.error('Error al eliminar:', error);
+      await fetchData(); // Sincronizar de todos modos
+      alert(`Error: ${error.message}`);
+    }
   };
 
   // Agrupar por tipo
@@ -80,7 +97,10 @@ const Inventario = () => {
                     <strong>ID:</strong> {item._id} — <strong>{item.nombre}</strong> — {item.cantidad} unidad — {item.precio_unitario} €
                   </span>
                   <button
-                    onClick={() => handleEliminar(item._id)}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleEliminar(item._id);
+                    }}
                     style={{ 
                       ...commonStyles.button,
                       backgroundColor: colors.danger,
