@@ -34,7 +34,7 @@ import { getProveedores, crearProveedor, actualizarProveedor, eliminarProveedor 
 
 
 const STORAGE_KEY = 'proveedores_simple_v2';
-const TIPOS_PRODUCTO = ['LED Rojo', 'LED Verde', 'LED Amarillo', 'Maceta de plástico Pequeño', 'Sensor de humedad', 'Sensor de luz', 'Batería'];
+const TIPOS_PRODUCTO = ['LED Rojo', 'LED Verde', 'LED Amarillo', 'Maceta de plástico Pequeño', 'Maceta de plástico Mediano', 'Maceta de plástico Grande', 'Sensor de humedad', 'Sensor de luz', 'Batería'];
 const TAMAÑOS = ['Pequeña', 'Mediana', 'Grande'];
 
 // Usar tema claro para no forzar modo oscuro en este módulo
@@ -301,25 +301,6 @@ const ProveedoresPage = () => {
 
           <Button variant="outlined" onClick={() => { loadData(); }}>
             {loading ? 'Sincronizando...' : 'Sincronizar BD'}
-          </Button>
-
-          <Button variant="outlined" color="secondary" onClick={async () => {
-            try {
-              const res = await fetch('http://localhost:5000/admin/migrar-proveedores', { method: 'POST' });
-              const json = await res.json();
-              console.log('Migración respuesta:', json);
-              if (json && json.ok) {
-                alert('Migración ejecutada correctamente. Regenerando lista...');
-                await loadData();
-              } else {
-                alert('Error en migración: ' + (json && json.error ? json.error : 'desconocido'));
-              }
-            } catch (err) {
-              console.error('Error llamando a /admin/migrar-proveedores', err);
-              alert('Error llamando al servidor. Revisa que el backend esté arrancado.');
-            }
-          }}>
-            Ejecutar migración
           </Button>
 
           <Box sx={{ flexGrow: 1 }}>
