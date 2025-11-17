@@ -83,25 +83,38 @@ const VentasPage = () => {
             fecha_venta: new Date().toISOString()
         };
 
-        const created = await crearVenta(payload);
-        setVentas(v => [...v, created]);
-
-        setAdding(false);
-        setNewVenta({
-            cliente: "",
-            tipo_maceta: "",
-            cantidad: 1,
-            precio_unitario: 0,
-            metodo_pago: "",
-        });
+        try {
+            console.log('Enviando payload:', payload);
+            const created = await crearVenta(payload);
+            console.log('Venta creada:', created);
+            setVentas(v => [...v, created]);
+            alert('Venta creada correctamente');
+            setAdding(false);
+            setNewVenta({
+                cliente: "",
+                tipo_maceta: "",
+                cantidad: 1,
+                precio_unitario: 0,
+                metodo_pago: "",
+            });
+        } catch (err) {
+            console.error('Error creando venta:', err);
+            alert('Error al crear la venta: ' + err.message);
+        }
     };
 
     // Eliminar
     const handleEliminar = async (id) => {
         if (!confirm('¿Estás seguro de que quieres eliminar esta venta?')) return;
         
-        await eliminarVenta(id);
-        setVentas(ventas.filter(v => v._id !== id));
+        try {
+            await eliminarVenta(id);
+            setVentas(ventas.filter(v => v._id !== id));
+            alert('Venta eliminada correctamente');
+        } catch (err) {
+            console.error('Error eliminando:', err);
+            alert('Error al eliminar: ' + err.message);
+        }
     };
 
     // Editar inline
@@ -278,7 +291,7 @@ const VentasPage = () => {
                             <tr key={v._id}>
                                 <td style={styles.td}><span style={styles.small}>{v._id}</span></td>
                                 <td style={styles.td}>{v.tipo_maceta || '-'}</td>
-                                <td style={styles.td}>{new Date(v.fecha_venta).toLocaleDateString('es-ES')}</td>
+                                <td style={styles.td}>{v.fecha_venta ? new Date(v.fecha_venta).toLocaleDateString('es-ES') : '-'}</td>
                                 <td style={styles.td}>
                                     {editingId === v._id ? (
                                         <input
