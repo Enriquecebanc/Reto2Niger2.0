@@ -13,7 +13,7 @@ function Fabricacion() {
   const [materialesSeleccionados, setMaterialesSeleccionados] = useState([]);
   const [query, setQuery] = useState('');
 
-  // 1️⃣ Cargar fabricaciones del backend
+  // ⿡ Cargar fabricaciones del backend
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -26,37 +26,31 @@ function Fabricacion() {
     fetchData();
   }, []);
 
-  // 2️⃣ Crear nueva fabricación
+  // ⿢ Crear nueva fabricación
   const handleNuevaFabricacion = async ({ producto }) => {
-  try {
     const nuevaFab = await crearFabricacion({ producto });
     setFabricaciones(prev => [...prev, nuevaFab]);
-  } catch (err) {
-    if (err.response && err.response.data && err.response.data.error) {
-      alert("Error: " + err.response.data.error);
-    } else {
-      alert("Error inesperado al crear la fabricación");
+  };
+
+  // ⿣ Actualizar estado
+  const handleActualizarEstado = async (id, nuevoEstado) => {
+    try {
+      const updated = await actualizarFabricacion(id, { estado: nuevoEstado });
+      setFabricaciones(prev =>
+        prev.map(fab => (fab._id === id ? updated : fab))
+      );
+    } catch (err) {
+      console.error("Error al actualizar estado:", err);
     }
-  }
-};
+  };
 
-// Para mostrar materiales en listado/modal
-const displayMaterialName = material => material.nombre || "Material desconocido";
-
-// Ejemplo en tu modal/lista de materiales:
-fabricacion.materiales.map(m => (
-  <li key={m.nombre + m.cantidad}>
-    {displayMaterialName(m)} x {m.cantidad}
-  </li>
-));
-
-  // 4️⃣ Abrir modal de materiales
+  // ⿤ Abrir modal de materiales
   const abrirModalMateriales = (materiales) => {
     setMaterialesSeleccionados(materiales);
     setMaterialesModalOpen(true);
   };
 
-  // 5️⃣ Filtrado por búsqueda
+  // ⿥ Filtrado por búsqueda
   const filtered = fabricaciones.filter(fab =>
     fab.producto.toLowerCase().includes(query.toLowerCase())
   );
@@ -155,4 +149,4 @@ fabricacion.materiales.map(m => (
   );
 }
 
-export default Fabricacion;
+export default Fabricacion;
