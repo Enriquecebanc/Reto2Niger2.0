@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import BarraBusqueda from '../componentes/barraBusqueda.jsx';
 import { commonStyles, colors } from '../styles/commonStyles.js';
 import { getVentas, crearVenta, eliminarVenta, actualizarVenta } from '../services/ventasService';
+import { getClientes } from '../services/clientesService';
 
 const styles = {
     ...commonStyles,
@@ -19,6 +20,7 @@ const styles = {
 
 const VentasPage = () => {
     const [ventas, setVentas] = useState([]);
+    const [clientes, setClientes] = useState([]);
     const [query, setQuery] = useState('');
     const [editingId, setEditingId] = useState(null);
     const [editValues, setEditValues] = useState({ cliente: '', cantidad: 0 });
@@ -34,12 +36,21 @@ const VentasPage = () => {
         metodo_pago: "",
     });
 
-    // Cargar ventas
+    // Cargar ventas y clientes
     const fetchVentas = async () => {
         const data = await getVentas();
         setVentas(data);
     };
-    useEffect(() => { fetchVentas(); }, []);
+
+    const fetchClientes = async () => {
+        const data = await getClientes();
+        setClientes(data);
+    };
+
+    useEffect(() => { 
+        fetchVentas();
+        fetchClientes();
+    }, []);
 
     // Filtrado
     const filtered = useMemo(() => {
@@ -50,14 +61,20 @@ const VentasPage = () => {
 
     // Confirmar nueva venta
     const handleConfirmarNuevaVenta = async () => {
-        if (!newVenta.cliente.trim()) return alert("Falta el nombre del cliente");
+        if (!newVenta.cliente.trim()) return alert("Falta seleccionar un cliente");
         if (!newVenta.tipo_maceta.trim()) return alert("Falta el tipo de maceta");
         if (!newVenta.metodo_pago.trim()) return alert("Falta el método de pago");
         if (newVenta.cantidad < 1) return alert("La cantidad debe ser al menos 1");
         if (newVenta.precio_unitario < 1) return alert("El precio unitario debe ser al menos 1");
 
+        // Obtener el nombre completo del cliente seleccionado
+        const clienteSeleccionado = clientes.find(c => c._id === newVenta.cliente);
+        const nombreCliente = clienteSeleccionado 
+            ? `${clienteSeleccionado.nombre} ${clienteSeleccionado.apellidos}` 
+            : newVenta.cliente;
+
         const payload = {
-            cliente: newVenta.cliente,
+            cliente: nombreCliente,
             tipo_maceta: newVenta.tipo_maceta,
             cantidad: newVenta.cantidad,
             precio_unitario: newVenta.precio_unitario,
@@ -165,44 +182,64 @@ const VentasPage = () => {
                 }}>
                     <h3>Nueva venta</h3>
 
-                    <input
-                        placeholder="Nombre del cliente"
+                    <label style={{ display: 'block', marginBottom: 8, fontWeight: 'bold' }}>Cliente:</label>
+                    <select
                         value={newVenta.cliente}
                         onChange={e => setNewVenta(v => ({ ...v, cliente: e.target.value }))}
-                        style={{ width: "100%", marginBottom: 8, padding: 6 }}
-                    />
+                        style={{ width: "100%", marginBottom: 8, padding: 6, borderRadius: 4, border: '1px solid #ccc' }}
+                    >
+                        <option value="">-- Selecciona cliente --</option>
+                        {clientes.map(c => (
+                            <option key={c._id} value={c._id}>
+                                {c.nombre} {c.apellidos}
+                            </option>
+                        ))}
+                    </select>
 
-                    <input
-                        placeholder="Tipo maceta (small/medium/big)"
+                    <label style={{ display: 'block', marginBottom: 8, fontWeight: 'bold' }}>Tipo de maceta:</label>
+                    <select
                         value={newVenta.tipo_maceta}
                         onChange={e => setNewVenta(v => ({ ...v, tipo_maceta: e.target.value }))}
-                        style={{ width: "100%", marginBottom: 8, padding: 6 }}
-                    />
+                        style={{ width: "100%", marginBottom: 8, padding: 6, borderRadius: 4, border: '1px solid #ccc' }}
+                    >
+                        <option value="">-- Selecciona tipo --</option>
+                        <option value="small">Small</option>
+                        <option value="medium">Medium</option>
+                        <option value="big">Big</option>
+                    </select>
 
+                    <label style={{ display: 'block', marginBottom: 8, fontWeight: 'bold' }}>Cantidad:</label>
                     <input
                         type="number"
                         placeholder="Cantidad"
                         min={1}
                         value={newVenta.cantidad}
                         onChange={e => setNewVenta(v => ({ ...v, cantidad: Number(e.target.value) }))}
-                        style={{ width: "100%", marginBottom: 8, padding: 6 }}
+                        style={{ width: "100%", marginBottom: 8, padding: 6, borderRadius: 4, border: '1px solid #ccc' }}
                     />
 
+                    <label style={{ display: 'block', marginBottom: 8, fontWeight: 'bold' }}>Precio unitario (euros):</label>
                     <input
                         type="number"
                         placeholder="Precio unitario"
-                        min={1}
+                        min={0.01}
+                        step={0.01}
                         value={newVenta.precio_unitario}
                         onChange={e => setNewVenta(v => ({ ...v, precio_unitario: Number(e.target.value) }))}
-                        style={{ width: "100%", marginBottom: 8, padding: 6 }}
+                        style={{ width: "100%", marginBottom: 8, padding: 6, borderRadius: 4, border: '1px solid #ccc' }}
                     />
 
-                    <input
-                        placeholder="Método pago (Efectivo/Crédito...)"
+                    <label style={{ display: 'block', marginBottom: 8, fontWeight: 'bold' }}>Método de pago:</label>
+                    <select
                         value={newVenta.metodo_pago}
                         onChange={e => setNewVenta(v => ({ ...v, metodo_pago: e.target.value }))}
-                        style={{ width: "100%", marginBottom: 8, padding: 6 }}
-                    />
+                        style={{ width: "100%", marginBottom: 8, padding: 6, borderRadius: 4, border: '1px solid #ccc' }}
+                    >
+                        <option value="">-- Selecciona método --</option>
+                        <option value="Crédito">Crédito</option>
+                        <option value="Débito">Débito</option>
+                        <option value="PayPal">PayPal</option>
+                    </select>
 
                     <button
                         style={{ ...styles.editButton, marginRight: 8 }}
