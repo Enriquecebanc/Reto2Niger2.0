@@ -249,7 +249,7 @@ const ProveedoresPage = () => {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Container maxWidth="md" sx={{ py: 5 }}>
+      <Box sx={{ py: 3, px: 5, minHeight: '100vh', backgroundColor: colors.background }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
           <img src={logoNiger} alt="Niger Logo" style={{ width: 80, height: 'auto' }} />
           <Box sx={{ flex: 1 }}>
@@ -405,7 +405,7 @@ const ProveedoresPage = () => {
             </Button>
           </DialogActions>
         </Dialog>
-      </Container>
+      </Box>
     </ThemeProvider>
   );
 };

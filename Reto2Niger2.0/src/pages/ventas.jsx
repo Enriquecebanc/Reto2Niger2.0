@@ -5,7 +5,6 @@ import { getVentas, crearVenta, eliminarVenta, actualizarVenta } from '../servic
 
 const styles = {
     ...commonStyles,
-    container: { padding: 16, fontFamily: 'Segoe UI, Roboto, Arial, sans-serif' },
     header: { display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: 12 },
     title: { color: '#87CEFA', margin: 0, textAlign: 'center' },
     table: { width: '100%', borderCollapse: 'collapse' },
