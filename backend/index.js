@@ -15,10 +15,27 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Mejor manejo de errores globales para capturar traces en la terminal
+process.on('uncaughtException', (err) => {
+  console.error('UNCAUGHT EXCEPTION -', err && err.stack ? err.stack : err);
+  // No cerramos inmediatamente para que el desarrollador vea el log, pero saldremos
+  process.exit(1);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('UNHANDLED REJECTION - Promise:', promise, 'Reason:', reason && reason.stack ? reason.stack : reason);
+});
+
+const PORT = process.env.PORT || 5000;
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/niger';
+
 // Conexión a MongoDB
-mongoose.connect(process.env.MONGODB_URI)
-  .then(() => console.log("✅ Conectado a MongoDB Atlas"))
-  .catch(err => console.log("❌ Error al conectar:", err));
+mongoose.connect(MONGODB_URI)
+  .then(() => console.log("✅ Conectado a MongoDB"))
+  .catch(err => {
+    console.error("❌ Error al conectar a MongoDB:", err);
+    // no hacemos process.exit para permitir poner la API arriba y mostrar errores
+  });
 
 // Rutas
   app.use("/clientes", clientesRouter);
@@ -34,6 +51,21 @@ app.get("/", (req, res) => {
   res.send("API ERP funcionando correctamente 🚀");
 });
 
-app.listen(process.env.PORT, () => {
-  console.log(`Servidor backend corriendo en puerto ${process.env.PORT}`);
+// Endpoint admin para ejecutar migración de proveedores desde la app
+import Proveedor from './models/Proveedor.js';
+app.post('/admin/migrar-proveedores', async (req, res) => {
+  try {
+    const filter = { $or: [ { tamano: { $exists: false } }, { tipoProducto: { $exists: false } } ] };
+    const update = { $set: { tamano: 'Mediana', tipoProducto: 'Sensores' } };
+    const result = await Proveedor.updateMany(filter, update);
+    console.log('ADMIN migración - result:', result);
+    res.json({ ok: true, result });
+  } catch (err) {
+    console.error('ADMIN migración - error:', err);
+    res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
+app.listen(PORT, () => {
+  console.log(`Servidor backend corriendo en puerto ${PORT}`);
 });

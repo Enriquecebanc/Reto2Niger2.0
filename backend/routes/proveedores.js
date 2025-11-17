@@ -23,8 +23,10 @@ router.get("/", async (req, res) => {
 */
 router.post("/", async (req, res) => {
   try {
+    console.log('POST /proveedores - body recibido:', req.body);
     const proveedor = new Proveedor(req.body);
     await proveedor.save();
+    console.log('POST /proveedores - creado:', proveedor);
     res.status(201).json(proveedor);
   } catch (err) {
     res.status(400).json({ error: err.message });
@@ -51,8 +53,10 @@ router.get("/:id", async (req, res) => {
 */
 router.put("/:id", async (req, res) => {
   try {
+    console.log(`PUT /proveedores/${req.params.id} - body recibido:`, req.body);
     const proveedor = await Proveedor.findByIdAndUpdate(req.params.id, req.body, { new: true });
     if (!proveedor) return res.status(404).json({ message: "Proveedor no encontrado" });
+    console.log(`PUT /proveedores/${req.params.id} - actualizado:`, proveedor);
     res.json(proveedor);
   } catch (err) {
     res.status(400).json({ error: err.message });
