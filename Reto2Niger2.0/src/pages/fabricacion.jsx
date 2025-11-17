@@ -27,13 +27,9 @@ function Fabricacion() {
   }, []);
 
   // 2️⃣ Crear nueva fabricación
-  const handleNuevaFabricacion = async ({ tamano }) => {
-    try {
-      const nuevaFab = await crearFabricacion({ producto: tamano });
-      setFabricaciones(prev => [...prev, nuevaFab]);
-    } catch (err) {
-      console.error("Error al crear fabricación:", err);
-    }
+  const handleNuevaFabricacion = async ({ producto }) => {
+    const nuevaFab = await crearFabricacion({ producto });
+    setFabricaciones(prev => [...prev, nuevaFab]);
   };
 
   // 3️⃣ Actualizar estado

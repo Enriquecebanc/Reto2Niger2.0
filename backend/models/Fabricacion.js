@@ -1,8 +1,7 @@
 import mongoose from "mongoose";
 
-
 const FabricacionSchema = new mongoose.Schema({
-  producto: { type: String, required: true }, // ej. "Maceta pequeña"
+  producto: { type: String, required: true },
   materiales: [
     {
       id_pieza: { type: mongoose.Schema.Types.ObjectId, ref: "Stock" },
@@ -18,12 +17,15 @@ const FabricacionSchema = new mongoose.Schema({
   }
 }, { timestamps: true });
 
+// Popula siempre materiales.id_pieza en cualquier find/findOne/findById
 FabricacionSchema.pre(/^find/, function (next) {
   this.populate({
     path: "materiales.id_pieza",
-    select: "nombre precio_unitario"
+    select: "nombre precio_unitario cantidad tipo"
   });
   next();
 });
+
+
 
 export default mongoose.model("Fabricacion", FabricacionSchema);

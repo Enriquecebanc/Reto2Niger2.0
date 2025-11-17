@@ -22,14 +22,28 @@ function FormularioFabricacionModal({ open, onClose, onCrear }) {
   };
 
   const handleCrear = () => {
-    if (!tamano) {
-      alert('Selecciona un tamaño de maceta');
-      return;
-    }
-    const materiales = materialesPorTamano[tamano];
-    onCrear({ tamano, materiales });
-    onClose();
+  if (!tamano) {
+    alert('Selecciona un tamaño de maceta');
+    return;
+  }
+
+  const productoMap = {
+    pequeña: "Maceta pequeña",
+    mediana: "Maceta mediana",
+    grande: "Maceta grande"
   };
+
+  const producto = productoMap[tamano];
+  const materiales = materialesPorTamano[tamano];
+
+  console.log("FRONTEND -> creando fabricación. Payload que voy a enviar a onCrear:", {
+    producto,
+    materiales
+  });
+
+  onCrear({ producto, materiales });
+  onClose();
+};
 
   return (
     <Dialog open={open} onClose={onClose}>
