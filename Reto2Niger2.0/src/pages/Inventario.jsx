@@ -29,7 +29,6 @@ const Inventario = () => {
     try {
       await eliminarStock(id);
       await fetchData();
-      alert('Elemento eliminado correctamente');
     } catch (error) {
       console.error('Error al eliminar:', error);
       alert(`Error: ${error.message}`);
@@ -163,7 +162,11 @@ const Inventario = () => {
                       }}
                     >
                       <span>
-                        <strong>ID:</strong> {item._id} — <strong>{item.nombre}</strong> — {item.cantidad} uds — {item.precio_unitario} €
+                        <strong>ID:</strong> {item._id} — 
+                        <strong>{item.nombre}</strong> — 
+                        {item.cantidad} uds — 
+                        {item.precio_unitario} € — 
+                        <strong>Proveedor:</strong> {item.proveedor_nombre || "Sin proveedor"}
                       </span>
 
                       <button
@@ -198,8 +201,8 @@ const Inventario = () => {
             background: colors.backgroundLight,
             position: "sticky",
             top: "20px",
-            maxHeight: "600px", // Limita la altura
-            overflowY: "auto", // Scroll si sobrepasa
+            maxHeight: "600px",
+            overflowY: "auto",
           }}
         >
           <h3>Añadir nueva pieza</h3>
