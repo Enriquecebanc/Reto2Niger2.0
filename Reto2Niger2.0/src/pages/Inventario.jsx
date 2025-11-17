@@ -8,11 +8,13 @@ const Inventario = () => {
   const [stock, setStock] = useState([]);
   const [collapsed, setCollapsed] = useState({});
   
-  // Estados para nuevo producto
+
+  const [productoSeleccionado, setProductoSeleccionado] = useState("");
   const [nuevoNombre, setNuevoNombre] = useState("");
   const [nuevoTipo, setNuevoTipo] = useState("");
-  const [nuevaCantidad, setNuevaCantidad] = useState(1);
   const [nuevoPrecio, setNuevoPrecio] = useState(0);
+  const [nuevaCantidad, setNuevaCantidad] = useState(1);
+
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
 
   const fetchData = async () => {
@@ -28,20 +30,40 @@ const Inventario = () => {
     if (!confirm('¿Estás seguro de que quieres eliminar este elemento?')) return;
 
     try {
-      const result = await eliminarStock(id);
+      await eliminarStock(id);
       await fetchData();
       alert('Elemento eliminado correctamente');
     } catch (error) {
       console.error('Error al eliminar:', error);
-      await fetchData();
       alert(`Error: ${error.message}`);
+    }
+  };
+
+
+  const productosUnicos = Object.values(
+    stock.reduce((acc, item) => {
+      if (!acc[item.nombre]) acc[item.nombre] = item;
+      return acc;
+    }, {})
+  );
+
+  const handleSeleccionProducto = (e) => {
+    const id = e.target.value;
+    setProductoSeleccionado(id);
+
+    const producto = stock.find((p) => p._id === id);
+    if (producto) {
+      setNuevoNombre(producto.nombre);
+      setNuevoTipo(producto.tipo);
+      setNuevoPrecio(producto.precio_unitario);
     }
   };
 
   const handleCrear = async (e) => {
     e.preventDefault();
-    if (!nuevoNombre || !nuevoTipo || nuevaCantidad <= 0 || nuevoPrecio < 0) {
-      alert("Por favor, rellena todos los campos correctamente");
+
+    if (!productoSeleccionado) {
+      alert("Debes seleccionar un producto existente.");
       return;
     }
 
@@ -53,11 +75,12 @@ const Inventario = () => {
         precio_unitario: nuevoPrecio
       });
 
-      // Limpiar formulario
+      
+      setProductoSeleccionado("");
       setNuevoNombre("");
       setNuevoTipo("");
-      setNuevaCantidad(1);
       setNuevoPrecio(0);
+      setNuevaCantidad(1);
 
       await fetchData();
       alert("Pieza creada correctamente");
@@ -67,7 +90,7 @@ const Inventario = () => {
     }
   };
 
-  // Agrupar por tipo
+ 
   const groupedStock = stock.reduce((acc, item) => {
     if (!acc[item.tipo]) acc[item.tipo] = [];
     acc[item.tipo].push(item);
@@ -82,75 +105,90 @@ const Inventario = () => {
   };
 
   return (
-  <div style={commonStyles.container}>
-    <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: 20 }}>
-      <img src={logoNiger} alt="Niger Logo" style={{ width: 80, height: 'auto' }} />
-      <div style={{ flex: 1 }}>
-        <BarraBusqueda />
+    <div style={commonStyles.container}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: 20 }}>
+        <img src={logoNiger} alt="Niger Logo" style={{ width: 80 }} />
+        <div style={{ flex: 1 }}>
+          <BarraBusqueda />
+        </div>
       </div>
-    </div>
 
-    <h1 style={commonStyles.title}>Inventario</h1>
+      <h1 style={commonStyles.title}>Inventario</h1>
 
-    <h3>Piezas Disponibles</h3>
-    {Object.keys(groupedStock).map((tipo) => (
-      <div key={tipo} style={{ marginBottom: "10px", border: `1px solid ${colors.border}`, borderRadius: "8px", backgroundColor: colors.backgroundLight }}>
-        <button
-          style={{ 
-            width: "100%", 
-            textAlign: "left", 
-            padding: "14px 16px", 
-            background: colors.backgroundDark, 
-            color: colors.textLight,
-            border: "none", 
-            cursor: "pointer",
-            borderRadius: "6px 6px 0 0",
-            fontSize: "1rem",
-            fontWeight: "700"
+      <h3>Piezas Disponibles</h3>
+
+      {Object.keys(groupedStock).map((tipo) => (
+        <div
+          key={tipo}
+          style={{
+            marginBottom: "10px",
+            border: `1px solid ${colors.border}`,
+            borderRadius: "8px",
+            backgroundColor: colors.backgroundLight
           }}
-          onClick={() => toggleCollapse(tipo)}
         >
-          {tipo} ({groupedStock[tipo].length} piezas)
-        </button>
+          <button
+            style={{
+              width: "100%",
+              textAlign: "left",
+              padding: "14px 16px",
+              background: colors.backgroundDark,
+              color: colors.textLight,
+              borderRadius: "6px 6px 0 0",             
+            }}
+            onClick={() => toggleCollapse(tipo)}
+          >
+            {tipo} ({groupedStock[tipo].length} piezas)
+          </button>
 
-        {collapsed[tipo] && (
-          <ul style={{ listStyle: "none", padding: "15px", margin: 0, backgroundColor: colors.backgroundLight }}>
-            {groupedStock[tipo].map((item) => (
-              <li key={item._id} style={{ 
-                marginBottom: "8px", 
-                padding: "12px",
-                borderBottom: `1px solid ${colors.borderLight}`,
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                color: colors.text
-              }}>
-                <span>
-                  <strong>ID:</strong> {item._id} — <strong>{item.nombre}</strong> — {item.cantidad} unidad — {item.precio_unitario} €
-                </span>
-
-                <button
-                  onClick={(e) => {
-                    e.preventDefault();
-                    handleEliminar(item._id);
-                  }}
-                  style={{ 
-                    ...commonStyles.button,
-                    backgroundColor: colors.danger,
-                    fontSize: "0.85rem",
-                    padding: "6px 12px"
+          {collapsed[tipo] && (
+            <ul
+              style={{
+                listStyle: "none",
+                padding: "15px",
+                margin: 0,
+                backgroundColor: colors.backgroundLight
+              }}
+            >
+              {groupedStock[tipo].map((item) => (
+                <li
+                  key={item._id}
+                  style={{
+                    marginBottom: "8px",
+                    padding: "12px",
+                    borderBottom: `1px solid ${colors.borderLight}`,
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    color: colors.text
                   }}
                 >
-                  Eliminar
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-    ))}
+                  <span>
+                    <strong>ID:</strong> {item._id} — <strong>{item.nombre}</strong> — {item.cantidad} uds — {item.precio_unitario} €
+                  </span>
 
-    {/* BOTÓN / PESTAÑA */}
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleEliminar(item._id);
+                    }}
+                    style={{
+                      ...commonStyles.button,
+                      backgroundColor: colors.danger,
+                      fontSize: "0.85rem",
+                      padding: "6px 12px"
+                    }}
+                  >
+                    Eliminar
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      ))}
+
+      {/* Botón pestaña */}
       <button
         onClick={() => setMostrarFormulario(!mostrarFormulario)}
         style={{
@@ -162,67 +200,76 @@ const Inventario = () => {
         {mostrarFormulario ? "Cerrar formulario" : "Añadir nueva pieza"}
       </button>
 
-      {/* FORMULARIO DESPLEGABLE */}
+      {/* FORMULARIO */}
       {mostrarFormulario && (
         <form onSubmit={handleCrear} style={{ marginTop: "20px" }}>
           <h3>Añadir nueva pieza</h3>
 
+          {/* SELECT */}
+          <select
+            value={productoSeleccionado}
+            onChange={handleSeleccionProducto}
+            style={commonStyles.input}
+            required
+          >
+            <option value="">Selecciona un producto...</option>
+            {productosUnicos.map((p) => (
+              <option key={p._id} value={p._id}>
+                {p.nombre}
+              </option>
+            ))}
+          </select>
+
+          <br /><br />
+
+          {/* Campos autorrellenados */}
           <input
             type="text"
             placeholder="Nombre"
             value={nuevoNombre}
-            onChange={(e) => setNuevoNombre(e.target.value)}
-            style={commonStyles.input}
-            required
+            readOnly
+            style={{ ...commonStyles.input, background: "#000000ff" }}
           />
-          <br />
+          <br /><br />
 
           <input
             type="text"
             placeholder="Tipo"
             value={nuevoTipo}
-            onChange={(e) => setNuevoTipo(e.target.value)}
-            style={commonStyles.input}
-            required
+            readOnly
+            style={{ ...commonStyles.input, background: "#000000ff" }}
           />
-          <br />
+          <br /><br />
 
+          <input
+            type="number"
+            placeholder="Precio"
+            value={nuevoPrecio}
+            readOnly
+            style={{ ...commonStyles.input, background: "#000000ff" }}
+          />
+          <br /><br />
+
+         
           <input
             type="number"
             placeholder="Cantidad"
-            value={nuevaCantidad}
             min={1}
-            onChange={(e) => setNuevaCantidad(Number(e.target.value))}
-            style={commonStyles.input}
-            required
+            value={nuevaCantidad}
+            style={{ ...commonStyles.input, background: "#000000ff" }}
           />
-          <br />
-
-          <input
-            type="number"
-            placeholder="Precio unitario"
-            value={nuevoPrecio}
-            min={0}
-            step="0.01"
-            onChange={(e) => setNuevoPrecio(Number(e.target.value))}
-            style={commonStyles.input}
-            required
-          />
-          <br />
+          <br /><br />
 
           <button
             type="submit"
             style={{ ...commonStyles.button, backgroundColor: colors.success }}
           >
-            Crear Pieza
+            Crear pieza
           </button>
         </form>
       )}
-  </div>
-);
-
-}
-
-     
+    </div>
+  );
+};
 
 export default Inventario;

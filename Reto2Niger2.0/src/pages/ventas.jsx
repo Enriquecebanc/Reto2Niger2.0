@@ -107,7 +107,16 @@ const VentasPage = () => {
 
         setSaving(true);
         try {
-            const payload = { cliente: name, cantidad: qty };
+            // Obtener la venta actual para sacar el precio_unitario
+            const ventaActual = ventas.find(v => v._id === id);
+            const precioUnitario = ventaActual?.precio_unitario || 0;
+            const nuevoTotal = qty * precioUnitario;
+            
+            const payload = { 
+                cliente: name, 
+                cantidad: qty,
+                total: nuevoTotal
+            };
             const updated = await actualizarVenta(id, payload);
 
             setVentas(prev => prev.map(item => item._id === id ? ({ ...item, ...updated }) : item));

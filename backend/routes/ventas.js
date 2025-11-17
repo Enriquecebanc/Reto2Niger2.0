@@ -59,6 +59,7 @@ router.put('/:id', async (req, res) => {
             if (req.body.tamaño !== undefined) updateData.tamaño = req.body.tamaño;
             if (req.body.producto !== undefined) updateData.producto = req.body.producto;
             if (req.body.precio !== undefined) updateData.precio = req.body.precio;
+            if (req.body.total !== undefined) updateData.total = req.body.total;
             
             const resultUpdate = await collection.updateOne(
                 { _id: docEncontrado._id },
