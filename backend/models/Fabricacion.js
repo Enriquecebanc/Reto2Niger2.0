@@ -6,7 +6,6 @@ const FabricacionSchema = new mongoose.Schema({
     {
       nombre: { type: String, required: true },
       cantidad: { type: Number, required: true }
-      // Ya NO usamos id_pieza, solo nombre y cantidad
     }
   ],
   fecha_inicio: { type: Date, default: Date.now },
