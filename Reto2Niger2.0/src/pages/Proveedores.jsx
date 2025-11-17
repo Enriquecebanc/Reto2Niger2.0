@@ -34,10 +34,10 @@ const TAMAÑOS = ['Pequeña', 'Mediana', 'Grande'];
 // Usar tema claro para no forzar modo oscuro en este módulo
 const theme = createTheme({
   palette: {
-    mode: 'light',
+    mode: 'dark',
     background: {
-      default: colors.backgroundLight,
-      paper: colors.background,
+      default: colors.background,
+      paper: colors.backgroundLight,
     },
     primary: {
       main: colors.secondary,
@@ -249,7 +249,15 @@ const ProveedoresPage = () => {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Box sx={{ py: 3, px: 5, minHeight: '100vh', backgroundColor: colors.background }}>
+      <Box sx={{ 
+        py: 3, 
+        px: 5, 
+        minHeight: '100vh', 
+        backgroundColor: colors.background,
+        width: '100%',
+        boxSizing: 'border-box',
+        margin: 0
+      }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
           <img src={logoNiger} alt="Niger Logo" style={{ width: 80, height: 'auto' }} />
           <Box sx={{ flex: 1 }}>
