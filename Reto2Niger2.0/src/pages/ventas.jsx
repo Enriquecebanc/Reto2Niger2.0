@@ -235,7 +235,7 @@ const VentasPage = () => {
                         onChange={e => setNewVenta(v => ({ ...v, metodo_pago: e.target.value }))}
                         style={{ width: "100%", marginBottom: 8, padding: 6, borderRadius: 4, border: '1px solid #ccc' }}
                     >
-                        <option value="">-- Selecciona método --</option>
+                        <option value="">-- Selecciona método de pago --</option>
                         <option value="Crédito">Crédito</option>
                         <option value="Débito">Débito</option>
                         <option value="PayPal">PayPal</option>
