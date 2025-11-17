@@ -4,8 +4,9 @@ const FabricacionSchema = new mongoose.Schema({
   producto: { type: String, required: true },
   materiales: [
     {
-      id_pieza: { type: mongoose.Schema.Types.ObjectId, ref: "Stock" },
+      nombre: { type: String, required: true },
       cantidad: { type: Number, required: true }
+      // Ya NO usamos id_pieza, solo nombre y cantidad
     }
   ],
   fecha_inicio: { type: Date, default: Date.now },
@@ -16,15 +17,6 @@ const FabricacionSchema = new mongoose.Schema({
     default: "Pendiente"
   }
 }, { timestamps: true });
-
-// Popula siempre materiales.id_pieza en cualquier find/findOne/findById
-FabricacionSchema.pre(/^find/, function (next) {
-  this.populate({
-    path: "materiales.id_pieza",
-    select: "nombre precio_unitario cantidad tipo"
-  });
-  next();
-});
 
 
 

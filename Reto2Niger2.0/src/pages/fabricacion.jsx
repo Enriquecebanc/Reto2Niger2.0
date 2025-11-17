@@ -28,21 +28,27 @@ function Fabricacion() {
 
   // 2️⃣ Crear nueva fabricación
   const handleNuevaFabricacion = async ({ producto }) => {
+  try {
     const nuevaFab = await crearFabricacion({ producto });
     setFabricaciones(prev => [...prev, nuevaFab]);
-  };
-
-  // 3️⃣ Actualizar estado
-  const handleActualizarEstado = async (id, nuevoEstado) => {
-    try {
-      const updated = await actualizarFabricacion(id, { estado: nuevoEstado });
-      setFabricaciones(prev =>
-        prev.map(fab => (fab._id === id ? updated : fab))
-      );
-    } catch (err) {
-      console.error("Error al actualizar estado:", err);
+  } catch (err) {
+    if (err.response && err.response.data && err.response.data.error) {
+      alert("Error: " + err.response.data.error);
+    } else {
+      alert("Error inesperado al crear la fabricación");
     }
-  };
+  }
+};
+
+// Para mostrar materiales en listado/modal
+const displayMaterialName = material => material.nombre || "Material desconocido";
+
+// Ejemplo en tu modal/lista de materiales:
+fabricacion.materiales.map(m => (
+  <li key={m.nombre + m.cantidad}>
+    {displayMaterialName(m)} x {m.cantidad}
+  </li>
+));
 
   // 4️⃣ Abrir modal de materiales
   const abrirModalMateriales = (materiales) => {
