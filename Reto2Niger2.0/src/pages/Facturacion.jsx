@@ -11,6 +11,7 @@ const Facturacion = () => {
   const [mostrarModalVentas, setMostrarModalVentas] = useState(false);
   const [ventasSeleccionadas, setVentasSeleccionadas] = useState([]);
   const [query, setQuery] = useState('');
+  const [facturaViewer, setFacturaViewer] = useState(null);
 
   // Cargar facturas al montar
   useEffect(() => {
@@ -23,45 +24,62 @@ const Facturacion = () => {
       const data = await response.json();
       console.log('Facturas cargadas:', data);
       
-      // Enriquecer facturas con información de ventas
+      // Enriquecer facturas con información de clientes
       const facturasEnriquecidas = await Promise.all(
         data.map(async (factura) => {
-          if (!factura.ventas_ids || factura.ventas_ids.length === 0) {
-            return factura;
-          }
+          // Obtener datos completos del cliente
+          let clienteCompleto = null;
           
-          // Si ventas_ids tiene ObjectIds (strings), buscar las ventas
-          if (typeof factura.ventas_ids[0] === 'string' || factura.ventas_ids[0]._id) {
+          // Intentar obtener el nombre del cliente desde ventas_info o ventas_ids
+          let nombreCliente = null;
+          if (factura.ventas_info && factura.ventas_info.length > 0) {
+            nombreCliente = factura.ventas_info[0].cliente;
+          } else if (factura.ventas_ids && factura.ventas_ids.length > 0) {
+            // Si hay ventas_ids, intentar cargar la primera venta
             try {
-              const ventasPromises = factura.ventas_ids.map(async (ventaId) => {
-                const id = typeof ventaId === 'string' ? ventaId : ventaId._id;
-                const ventaResponse = await fetch(`${API_URL}/ventas/${id}`);
-                if (ventaResponse.ok) {
-                  return await ventaResponse.json();
-                }
-                return null;
-              });
-              
-              const ventasData = await Promise.all(ventasPromises);
-              return {
-                ...factura,
-                ventas_ids: ventasData.filter(v => v !== null)
-              };
-            } catch (error) {
-              console.error('Error cargando ventas de factura:', error);
-              return factura;
+              const ventaId = typeof factura.ventas_ids[0] === 'string' 
+                ? factura.ventas_ids[0] 
+                : factura.ventas_ids[0]._id;
+              const ventaResponse = await fetch(`${API_URL}/ventas/${ventaId}`);
+              if (ventaResponse.ok) {
+                const ventaData = await ventaResponse.json();
+                nombreCliente = ventaData.cliente;
+              }
+            } catch (err) {
+              console.error('Error cargando venta:', err);
             }
           }
           
-          return factura;
+          // Si tenemos un nombre de cliente, buscar sus datos completos
+          if (nombreCliente) {
+            try {
+              const clientesResponse = await fetch(`${API_URL}/clientes`);
+              if (clientesResponse.ok) {
+                const todosClientes = await clientesResponse.json();
+                console.log('Todos los clientes:', todosClientes);
+                console.log('Buscando cliente:', nombreCliente);
+                
+                // Buscar cliente por nombre completo
+                const nombreBuscado = nombreCliente.trim();
+                clienteCompleto = todosClientes.find(c => {
+                  const nombreCompleto = `${c.nombre} ${c.apellidos}`.trim();
+                  return nombreCompleto === nombreBuscado;
+                });
+                console.log('Cliente encontrado:', clienteCompleto);
+              }
+            } catch (err) {
+              console.error('Error cargando datos del cliente:', err);
+            }
+          }
+          
+          return {
+            ...factura,
+            clienteCompleto: clienteCompleto
+          };
         })
       );
       
       console.log('Facturas enriquecidas:', facturasEnriquecidas);
-      if (facturasEnriquecidas.length > 0) {
-        console.log('Primera factura enriquecida:', facturasEnriquecidas[0]);
-        console.log('Ventas de primera factura:', facturasEnriquecidas[0].ventas_ids);
-      }
       setFacturas(facturasEnriquecidas);
     } catch (error) {
       console.error('Error cargando facturas:', error);
@@ -128,9 +146,10 @@ const Facturacion = () => {
       // Guardar información de las ventas directamente en la factura como backup
       ventas_info: ventasCompletas.map(v => ({
         _id: v._id,
-        cliente: v.cliente_id?.nombre || v.cliente,
-        producto: v.producto_id?.producto || v.tipo_maceta,
+        cliente: v.cliente,
+        tipo_maceta: v.tipo_maceta,
         cantidad: v.cantidad,
+        precio_unitario: v.precio_unitario,
         total: v.total
       }))
     };
@@ -202,7 +221,7 @@ const Facturacion = () => {
 
   const facturasFiltradas = facturas.filter(f => {
     if (!query) return true;
-    const cliente = f.ventas_ids?.[0]?.cliente_id?.nombre || f.ventas_ids?.[0]?.cliente || '';
+    const cliente = f.ventas_ids?.[0]?.cliente || '';
     return cliente.toLowerCase().includes(query.toLowerCase()) ||
            f._id.includes(query);
   });
@@ -266,10 +285,10 @@ const Facturacion = () => {
                           />
                         </td>
                         <td style={{ padding: 8, borderBottom: '1px solid #ddd', color: '#000' }}>
-                          {venta.cliente_id?.nombre || venta.cliente || 'Sin cliente'}
+                          {venta.cliente || 'Sin cliente'}
                         </td>
                         <td style={{ padding: 8, borderBottom: '1px solid #ddd', color: '#000' }}>
-                          {venta.producto_id?.producto || venta.tipo_maceta || 'Sin producto'}
+                          {venta.tipo_maceta || 'Sin producto'}
                         </td>
                         <td style={{ padding: 8, borderBottom: '1px solid #ddd', color: '#000' }}>
                           {venta.cantidad || 0}
@@ -345,7 +364,7 @@ const Facturacion = () => {
                   <td style={styles.td}>
                     {f.ventas_info 
                       ? f.ventas_info.map(v => v.cliente).filter(Boolean).join(', ')
-                      : f.ventas_ids?.map(v => v.cliente_id?.nombre || v.cliente).filter(Boolean).join(', ') || 'Sin cliente'
+                      : f.ventas_ids?.map(v => v.cliente).filter(Boolean).join(', ') || 'Sin cliente'
                     }
                   </td>
                   <td style={styles.td}>
@@ -356,7 +375,7 @@ const Facturacion = () => {
                           ))
                         : f.ventas_ids?.map((v, i) => (
                             <div key={i}>
-                              {v.producto_id?.producto || v.tipo_maceta || 'Sin producto'} x{v.cantidad}
+                              {v.tipo_maceta || 'Sin producto'} x{v.cantidad}
                             </div>
                           ))
                       }
@@ -380,6 +399,10 @@ const Facturacion = () => {
                     </span>
                   </td>
                   <td style={styles.td}>
+                    <button onClick={() => setFacturaViewer(f)} 
+                            style={{fontSize: '12px', padding: '4px 8px', color: '#fff', background: '#0177ed', border: 'none', borderRadius: 4, cursor: 'pointer', marginRight: 4}}>
+                       Ver
+                    </button>
                     <select 
                       value={f.estado}
                       onChange={(e) => cambiarEstado(f._id, e.target.value)}
@@ -400,6 +423,183 @@ const Facturacion = () => {
           </tbody>
         </table>
       </div>
+
+      {/* Modal Ver Factura */}
+      {facturaViewer && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          background: 'rgba(0,0,0,0.7)',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          zIndex: 1000
+        }}>
+          <div style={{
+            background: '#fff',
+            padding: '40px',
+            borderRadius: '8px',
+            maxWidth: '800px',
+            width: '90%',
+            maxHeight: '90vh',
+            overflowY: 'auto',
+            boxShadow: '0 4px 20px rgba(0,0,0,0.3)'
+          }}>
+            {/* Encabezado Factura */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '30px', borderBottom: '3px solid #0177ed', paddingBottom: '20px' }}>
+              <div>
+                <img src={logoNiger} alt="Niger" style={{ height: '60px', marginBottom: '10px' }} />
+                <h2 style={{ margin: 0, color: '#1e293b', fontSize: '24px' }}>FACTURA</h2>
+              </div>
+              <div style={{ textAlign: 'right' }}>
+                <p style={{ margin: '4px 0', color: '#475569', fontSize: '14px' }}>
+                  <strong>Nº Factura:</strong> {facturaViewer._id.slice(-8).toUpperCase()}
+                </p>
+                <p style={{ margin: '4px 0', color: '#475569', fontSize: '14px' }}>
+                  <strong>Fecha:</strong> {facturaViewer.createdAt ? new Date(facturaViewer.createdAt).toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' }) : 'Sin fecha'}
+                </p>
+                <p style={{ margin: '4px 0' }}>
+                  <span style={{
+                    padding: '6px 12px',
+                    borderRadius: '16px',
+                    fontSize: '13px',
+                    fontWeight: 'bold',
+                    background: facturaViewer.estado === 'Pendiente' ? '#fbbf24' : facturaViewer.estado === 'Pagada' ? '#10b981' : '#ef4444',
+                    color: 'white'
+                  }}>
+                    {facturaViewer.estado}
+                  </span>
+                </p>
+              </div>
+            </div>
+
+            {/* Información del Cliente */}
+            <div style={{ marginBottom: '30px' }}>
+              <h3 style={{ color: '#0177ed', fontSize: '16px', marginBottom: '10px' }}>DATOS DEL CLIENTE</h3>
+              <div style={{ background: '#f8fafc', padding: '15px', borderRadius: '6px' }}>
+                {facturaViewer.clienteCompleto ? (
+                  <>
+                    <p style={{ margin: '6px 0', color: '#1e293b', fontSize: '14px' }}>
+                      <strong>Nombre:</strong> {facturaViewer.clienteCompleto.nombre} {facturaViewer.clienteCompleto.apellidos}
+                    </p>
+                    <p style={{ margin: '6px 0', color: '#1e293b', fontSize: '14px' }}>
+                      <strong>Dirección:</strong> {facturaViewer.clienteCompleto.direccion}
+                    </p>
+                    <p style={{ margin: '6px 0', color: '#1e293b', fontSize: '14px' }}>
+                      <strong>Teléfono:</strong> {facturaViewer.clienteCompleto.telefono}
+                    </p>
+                    <p style={{ margin: '6px 0', color: '#1e293b', fontSize: '14px' }}>
+                      <strong>Email:</strong> {facturaViewer.clienteCompleto.email}
+                    </p>
+                  </>
+                ) : (
+                  <p style={{ margin: '4px 0', color: '#1e293b', fontSize: '14px' }}>
+                    {facturaViewer.ventas_info 
+                      ? [...new Set(facturaViewer.ventas_info.map(v => v.cliente))].filter(Boolean).join(', ')
+                      : facturaViewer.ventas_ids?.map(v => v.cliente).filter(Boolean).join(', ') || 'Sin cliente'
+                    }
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {/* Detalle de Productos */}
+            <div style={{ marginBottom: '30px' }}>
+              <h3 style={{ color: '#0177ed', fontSize: '16px', marginBottom: '10px' }}>DETALLE</h3>
+              <table style={{ width: '100%', borderCollapse: 'collapse', background: '#f8fafc' }}>
+                <thead>
+                  <tr style={{ background: '#0177ed', color: 'white' }}>
+                    <th style={{ padding: '12px', textAlign: 'left', fontSize: '14px' }}>Producto</th>
+                    <th style={{ padding: '12px', textAlign: 'center', fontSize: '14px' }}>Cantidad</th>
+                    <th style={{ padding: '12px', textAlign: 'right', fontSize: '14px' }}>Precio Unit.</th>
+                    <th style={{ padding: '12px', textAlign: 'right', fontSize: '14px' }}>Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {facturaViewer.ventas_info ? (
+                    facturaViewer.ventas_info.map((v, i) => (
+                      <tr key={i} style={{ borderBottom: '1px solid #e2e8f0' }}>
+                        <td style={{ padding: '12px', color: '#1e293b', fontSize: '14px' }}>{v.producto || v.tipo_maceta || 'Sin producto'}</td>
+                        <td style={{ padding: '12px', textAlign: 'center', color: '#475569', fontSize: '14px' }}>{v.cantidad}</td>
+                        <td style={{ padding: '12px', textAlign: 'right', color: '#475569', fontSize: '14px' }}>€{v.precio_unitario?.toFixed(2) || '0.00'}</td>
+                        <td style={{ padding: '12px', textAlign: 'right', color: '#1e293b', fontWeight: 'bold', fontSize: '14px' }}>€{(v.cantidad * (v.precio_unitario || 0)).toFixed(2)}</td>
+                      </tr>
+                    ))
+                  ) : facturaViewer.ventas_ids?.map((v, i) => (
+                    <tr key={i} style={{ borderBottom: '1px solid #e2e8f0' }}>
+                      <td style={{ padding: '12px', color: '#1e293b', fontSize: '14px' }}>{v.tipo_maceta || 'Sin producto'}</td>
+                      <td style={{ padding: '12px', textAlign: 'center', color: '#475569', fontSize: '14px' }}>{v.cantidad}</td>
+                      <td style={{ padding: '12px', textAlign: 'right', color: '#475569', fontSize: '14px' }}>€{v.precio_unitario?.toFixed(2) || '0.00'}</td>
+                      <td style={{ padding: '12px', textAlign: 'right', color: '#1e293b', fontWeight: 'bold', fontSize: '14px' }}>€{v.total?.toFixed(2) || '0.00'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Total */}
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '30px' }}>
+              <div style={{ width: '250px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px', background: '#f8fafc', marginBottom: '5px' }}>
+                  <span style={{ color: '#475569', fontSize: '14px' }}>Subtotal:</span>
+                  <span style={{ color: '#1e293b', fontWeight: 'bold', fontSize: '14px' }}>€{facturaViewer.total?.toFixed(2)}</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px', background: '#f8fafc', marginBottom: '5px' }}>
+                  <span style={{ color: '#475569', fontSize: '14px' }}>IVA (21%):</span>
+                  <span style={{ color: '#1e293b', fontWeight: 'bold', fontSize: '14px' }}>€{(facturaViewer.total * 0.21).toFixed(2)}</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '15px', background: '#0177ed', color: 'white' }}>
+                  <span style={{ fontSize: '16px', fontWeight: 'bold' }}>TOTAL:</span>
+                  <span style={{ fontSize: '18px', fontWeight: 'bold' }}>€{(facturaViewer.total * 1.21).toFixed(2)}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Pie de página */}
+            <div style={{ borderTop: '2px solid #e2e8f0', paddingTop: '20px', textAlign: 'center' }}>
+              <p style={{ margin: '4px 0', color: '#64748b', fontSize: '12px' }}>Niger - Soluciones de Jardinería</p>
+              <p style={{ margin: '4px 0', color: '#64748b', fontSize: '12px' }}>www.niger.com | contacto@niger.com | Tel: +34 900 000 000</p>
+            </div>
+
+            {/* Botones */}
+            <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginTop: '20px' }}>
+              <button 
+                onClick={() => window.print()}
+                style={{
+                  padding: '10px 20px',
+                  background: '#10b981',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontWeight: 'bold'
+                }}
+              >
+                 Imprimir
+              </button>
+              <button 
+                onClick={() => setFacturaViewer(null)}
+                style={{
+                  padding: '10px 20px',
+                  background: '#64748b',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontWeight: 'bold'
+                }}
+              >
+                Cerrar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

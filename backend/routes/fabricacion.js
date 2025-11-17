@@ -103,25 +103,35 @@ router.put("/:id", async (req, res) => {
     const updateData = { ...req.body };
 
     if (estado === "Finalizado") {
-      updateData.fecha_fin = new Date();
+  updateData.fecha_fin = new Date();
 
-      const fabricacion = await Fabricacion.findById(req.params.id);
-      if (!fabricacion) return res.status(404).json({ message: "Fabricación no encontrada" });
+  const fabricacion = await Fabricacion.findById(req.params.id);
+  if (!fabricacion) return res.status(404).json({ message: "Fabricación no encontrada" });
 
-      const nombreMaceta = fabricacion.producto;
-      let precio = 0;
-      if (nombreMaceta === "Maceta pequeña") precio = 27;
-      if (nombreMaceta === "Maceta mediana") precio = 34;
-      if (nombreMaceta === "Maceta grande") precio = 40;
+  const nombreMaceta = fabricacion.producto;
+  let precio = 0;
+  let tipoFabricada = "";
 
-      const nuevaMaceta = new Stock({
-          nombre: nombreMaceta,
-          tipo: "Maceta fabricada",
-          cantidad: 1,
-          precio_unitario: precio
-        });
-        await nuevaMaceta.save();
-      }
+  if (nombreMaceta === "Maceta pequeña") {
+    precio = 27;
+    tipoFabricada = "Maceta pequeña fabricada";
+  } else if (nombreMaceta === "Maceta mediana") {
+    precio = 34;
+    tipoFabricada = "Maceta mediana fabricada";
+  } else if (nombreMaceta === "Maceta grande") {
+    precio = 40;
+    tipoFabricada = "Maceta grande fabricada";
+  }
+
+  const nuevaMaceta = new Stock({
+    nombre: nombreMaceta,
+    tipo: tipoFabricada,
+    cantidad: 1,
+    precio_unitario: precio
+  });
+
+  await nuevaMaceta.save();
+}
     
 
     const updated = await Fabricacion.findByIdAndUpdate(req.params.id, updateData);

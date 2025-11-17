@@ -343,12 +343,17 @@ const ProveedoresPage = () => {
                 width: '100%',
                 '& .MuiDataGrid-columnHeaders': {
                   backgroundColor: colors.backgroundDark,
-                  color: colors.textLight,
+                  color: '#ffffff',
                   fontWeight: '700',
                 },
                 '& .MuiDataGrid-columnHeader': {
                   backgroundColor: colors.backgroundDark,
-                  color: colors.textLight,
+                  color: '#ffffff',
+                  fontWeight: '700',
+                },
+                '& .MuiDataGrid-columnHeaderTitle': {
+                  fontWeight: '700',
+                  color: '#ffffff',
                 },
                 '& .MuiDataGrid-cell': {
                   whiteSpace: 'normal',
