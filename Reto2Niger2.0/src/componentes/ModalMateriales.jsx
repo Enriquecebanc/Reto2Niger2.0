@@ -6,13 +6,13 @@ function ModalMateriales({ open, onClose, materiales }) {
       <DialogTitle>Materiales utilizados</DialogTitle>
       <DialogContent dividers>
         <List>
-          {materiales.map((mat, index) => (
-            <ListItem key={index} disablePadding>
-              <ListItemText
-                primary={`${mat?.id_pieza?.nombre ?? "Material desconocido"}${mat.cantidad > 1 ? `: ${mat.cantidad}` : ""}`}
-              />
-            </ListItem>
-          ))}
+          <ul>
+            {materiales.map(m => (
+              <li key={m.nombre + m.cantidad}>
+                {m.nombre || "Material desconocido"} x {m.cantidad}
+              </li>
+            ))}
+          </ul>
         </List>
       </DialogContent>
       <DialogActions>

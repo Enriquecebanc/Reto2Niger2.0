@@ -70,25 +70,22 @@ router.post("/", async (req, res) => {
 
     const materiales = [];
     for (const { nombre, cantidad } of materialesPorMaceta[producto]) {
-      const stockItems = await Stock.find({ nombre, cantidad: { $gt: 0 } });
-      const totalCantidad = stockItems.reduce((acc, item) => acc + item.cantidad, 0);
+  // Busca los docs de Stock por nombre (cada doc es una unidad física)
+  const stockDocs = await Stock.find({ nombre }).limit(cantidad);
 
-      if (totalCantidad < cantidad) {
-        return res.status(400).json({ error: `No hay suficiente stock de ${nombre}` });
-      }
+  // Comprueba si hay suficientes
+  if (stockDocs.length < cantidad) {
+    return res.status(400).json({ error: `No hay suficiente stock de ${nombre}` });
+  }
 
-      let resta = cantidad;
-      for (const item of stockItems) {
-        if (resta === 0) break;
-        const descontar = Math.min(item.cantidad, resta);
-        item.cantidad -= descontar;
-        resta -= descontar;
-        await item.save(); // deja el doc aunque cantidad sea 0
-        if (descontar > 0) {
-          materiales.push({ nombre, cantidad: descontar });
-        }
-      }
-    }
+  // Borra justo la cantidad necesaria (uno por unidad usada)
+  for (let i = 0; i < cantidad; i++) {
+    await Stock.findByIdAndDelete(stockDocs[i]._id);
+  }
+
+  // Guarda en Fabricación solo el nombre y la cantidad, NO el id
+  materiales.push({ nombre, cantidad }); // <- correcto!
+}
 
     const nuevaFabricacion = new Fabricacion({
       producto,
