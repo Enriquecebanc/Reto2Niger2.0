@@ -18,9 +18,9 @@ const createWindow = () => {
       ]
     },
     {
-      label: 'Ayuda',
+      label: 'Documentación',
       submenu: [
-        { label: 'Sobre nosotros', click: () => console.log('Abrir info') }
+        { label: 'Informe Final Reto', click: () => console.log('Abrir info') }
       ]
     }
   ];
