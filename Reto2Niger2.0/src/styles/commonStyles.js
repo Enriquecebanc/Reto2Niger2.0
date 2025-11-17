@@ -19,12 +19,18 @@ export const colors = {
 // Estilos comunes para todos los módulos
 export const commonStyles = {
   container: { 
-    padding: 16, 
+    padding: '20px 40px',
     fontFamily: 'Segoe UI, Roboto, Arial, sans-serif', 
     position: 'relative',
     backgroundColor: colors.background,
     color: colors.text,
-    minHeight: '100vh'
+    minHeight: '100vh',
+    width: '100%',
+    boxSizing: 'border-box',
+    margin: 0,
+    left: 0,
+    right: 0,
+    top: 0
   },
   header: { 
     display: 'flex', 
