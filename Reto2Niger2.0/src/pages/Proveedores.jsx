@@ -34,7 +34,7 @@ import { getProveedores, crearProveedor, actualizarProveedor, eliminarProveedor 
 
 
 const STORAGE_KEY = 'proveedores_simple_v2';
-const TIPOS_PRODUCTO = ['Sensores', 'Baterías', 'Carcasas plásticas', 'Sensores de riego', 'Electrónica'];
+const TIPOS_PRODUCTO = ['LED Rojo', 'LED Verde', 'LED Amarillo', 'Maceta de plástico Pequeño', 'Sensor de humedad', 'Sensor de luz', 'Batería'];
 const TAMAÑOS = ['Pequeña', 'Mediana', 'Grande'];
 
 // Usar tema claro para no forzar modo oscuro en este módulo
@@ -234,7 +234,6 @@ const ProveedoresPage = () => {
     { field: 'correo', headerName: 'Correo', flex: 1 },
     { field: 'tipoProducto', headerName: 'Tipo', flex: 0.8 },
     { field: 'tamano', headerName: 'Tamaño', width: 120 },
-    { field: 'productos', headerName: 'Productos', flex: 1 },
     {
       field: 'acciones',
       headerName: 'Acciones',
