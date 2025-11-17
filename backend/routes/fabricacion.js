@@ -4,7 +4,6 @@ import Stock from "../models/Stock.js";
 
 const router = express.Router();
 
-// Materiales por maceta (objeto nombre+cantidad)
 const materialesPorMaceta = {
   "Maceta pequeña": [
     { nombre: "LED Rojo", cantidad: 2 },
@@ -38,7 +37,7 @@ const materialesPorMaceta = {
 // GET todas las fabricaciones
 router.get("/", async (req, res) => {
   try {
-    const fabricaciones = await Fabricacion.find(); // el pre-hook hará el populate
+    const fabricaciones = await Fabricacion.find();
     res.json(fabricaciones);
   } catch (err) {
     console.error("GET /fabricaciones error:", err);
@@ -49,7 +48,7 @@ router.get("/", async (req, res) => {
 // GET por id
 router.get("/:id", async (req, res) => {
   try {
-    const fabricacion = await Fabricacion.findById(req.params.id); // pre-hook activa populate
+    const fabricacion = await Fabricacion.findById(req.params.id);
     if (!fabricacion) return res.status(404).json({ message: "Fabricación no encontrada" });
     res.json(fabricacion);
   } catch (err) {
@@ -61,39 +60,34 @@ router.get("/:id", async (req, res) => {
 // POST crear nueva fabricación y descontar stock
 router.post("/", async (req, res) => {
   try {
-    console.log("POST /fabricaciones body:", req.body);
-
     const { producto } = req.body;
     if (!producto) {
-      console.error("POST error: falta campo 'producto'");
       return res.status(400).json({ error: "Falta campo 'producto' en body" });
     }
-
     if (!materialesPorMaceta[producto]) {
-      console.error("POST error: tipo de maceta no válido:", producto);
       return res.status(400).json({ error: "Tipo de maceta no válido" });
     }
 
     const materiales = [];
-
     for (const { nombre, cantidad } of materialesPorMaceta[producto]) {
-      console.log("Buscando stock para:", nombre, "cantidad:", cantidad);
-      const stockItem = await Stock.findOne({ nombre });
-      console.log("stockItem encontrado:", stockItem);
+      const stockItems = await Stock.find({ nombre, cantidad: { $gt: 0 } });
+      const totalCantidad = stockItems.reduce((acc, item) => acc + item.cantidad, 0);
 
-      if (!stockItem) {
-        console.error("No existe en stock:", nombre);
-        return res.status(400).json({ error: `No hay stock del material: ${nombre}` });
-      }
-
-      if (stockItem.cantidad < cantidad) {
-        console.error("Stock insuficiente para:", nombre, "necesita:", cantidad, "tiene:", stockItem.cantidad);
+      if (totalCantidad < cantidad) {
         return res.status(400).json({ error: `No hay suficiente stock de ${nombre}` });
       }
 
-      stockItem.cantidad -= cantidad;
-      await stockItem.save();
-      materiales.push({ id_pieza: stockItem._id, cantidad });
+      let resta = cantidad;
+      for (const item of stockItems) {
+        if (resta === 0) break;
+        const descontar = Math.min(item.cantidad, resta);
+        item.cantidad -= descontar;
+        resta -= descontar;
+        await item.save(); // deja el doc aunque cantidad sea 0
+        if (descontar > 0) {
+          materiales.push({ nombre, cantidad: descontar });
+        }
+      }
     }
 
     const nuevaFabricacion = new Fabricacion({
@@ -103,27 +97,16 @@ router.post("/", async (req, res) => {
       estado: "Pendiente"
     });
 
-    console.log("Guardando nuevaFabricacion:", nuevaFabricacion);
     await nuevaFabricacion.save();
 
-    // Leerla otra vez para que se aplique el populate del pre-hook
     const fabricacionPopulada = await Fabricacion.findById(nuevaFabricacion._id);
-    console.log("Fabricacion creada y poblada:", fabricacionPopulada);
-
     return res.status(201).json(fabricacionPopulada);
   } catch (err) {
-    console.error("POST /fabricaciones EXCEPTION:", err);
     return res.status(500).json({ error: err.message || "Error inesperado" });
   }
 });
 
-router.get("/debug/stock", async (req, res) => {
-  const all = await Stock.find().limit(50);
-  res.json(all);
-});
-
-
-// PUT actualizar fabricación y manejar fecha_fin
+// PUT actualizar fabricación y sumar maceta fabricada a stock con PRECIO correcto
 router.put("/:id", async (req, res) => {
   try {
     const { estado } = req.body;
@@ -131,30 +114,56 @@ router.put("/:id", async (req, res) => {
 
     if (estado === "Finalizado") {
       updateData.fecha_fin = new Date();
+
+      const fabricacion = await Fabricacion.findById(req.params.id);
+      if (!fabricacion) return res.status(404).json({ message: "Fabricación no encontrada" });
+
+      const nombreMaceta = fabricacion.producto;
+      let precio = 0;
+      if (nombreMaceta === "Maceta pequeña") precio = 27;
+      if (nombreMaceta === "Maceta mediana") precio = 34;
+      if (nombreMaceta === "Maceta grande") precio = 40;
+
+      let stockMaceta = await Stock.findOne({ nombre: nombreMaceta, tipo: "Maceta fabricada" });
+      if (stockMaceta) {
+        stockMaceta.cantidad += 1;
+        stockMaceta.precio_unitario = precio;
+        await stockMaceta.save();
+      } else {
+        stockMaceta = new Stock({
+          nombre: nombreMaceta,
+          tipo: "Maceta fabricada",
+          cantidad: 1,
+          precio_unitario: precio
+        });
+        await stockMaceta.save();
+      }
     }
 
-    // Usar findByIdAndUpdate pero luego reconsultar para activar pre-hook
     const updated = await Fabricacion.findByIdAndUpdate(req.params.id, updateData);
     if (!updated) return res.status(404).json({ message: "Fabricación no encontrada" });
 
     const fabricacionActualizada = await Fabricacion.findById(req.params.id);
     res.json(fabricacionActualizada);
   } catch (err) {
-    console.error("PUT /fabricaciones/:id error:", err);
     res.status(400).json({ error: err.message });
   }
 });
 
-// DELETE
 router.delete("/:id", async (req, res) => {
   try {
     const fabricacionEliminada = await Fabricacion.findByIdAndDelete(req.params.id);
     if (!fabricacionEliminada) return res.status(404).json({ message: "Fabricación no encontrada" });
     res.json({ message: "Fabricación eliminada correctamente" });
   } catch (err) {
-    console.error("DELETE /fabricaciones/:id error:", err);
     res.status(500).json({ error: err.message });
   }
+});
+
+// Endpoint de debug para stock
+router.get("/debug/stock", async (req, res) => {
+  const all = await Stock.find().limit(50);
+  res.json(all);
 });
 
 export default router;
