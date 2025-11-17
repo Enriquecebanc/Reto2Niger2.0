@@ -27,6 +27,8 @@ import BarraBusqueda from '../componentes/barraBusqueda.jsx';
 import { colors } from '../styles/commonStyles.js';
 import { getProveedores, crearProveedor, actualizarProveedor, eliminarProveedor } from '../services/proveedoresService';
 
+
+
 const STORAGE_KEY = 'proveedores_simple_v2';
 const TIPOS_PRODUCTO = ['Sensores', 'Baterías', 'Carcasas plásticas', 'Sensores de riego', 'Electrónica'];
 const TAMAÑOS = ['Pequeña', 'Mediana', 'Grande'];
