@@ -7,15 +7,13 @@ import { commonStyles, colors } from '../styles/commonStyles.js';
 const Inventario = () => {
   const [stock, setStock] = useState([]);
   const [collapsed, setCollapsed] = useState({});
-  
 
+  // Formulario
   const [productoSeleccionado, setProductoSeleccionado] = useState("");
   const [nuevoNombre, setNuevoNombre] = useState("");
   const [nuevoTipo, setNuevoTipo] = useState("");
   const [nuevoPrecio, setNuevoPrecio] = useState(0);
   const [nuevaCantidad, setNuevaCantidad] = useState(1);
-
-  const [mostrarFormulario, setMostrarFormulario] = useState(false);
 
   const fetchData = async () => {
     const data = await getStock();
@@ -28,7 +26,6 @@ const Inventario = () => {
 
   const handleEliminar = async (id) => {
     if (!confirm('¿Estás seguro de que quieres eliminar este elemento?')) return;
-
     try {
       await eliminarStock(id);
       await fetchData();
@@ -38,7 +35,6 @@ const Inventario = () => {
       alert(`Error: ${error.message}`);
     }
   };
-
 
   const productosUnicos = Object.values(
     stock.reduce((acc, item) => {
@@ -75,7 +71,6 @@ const Inventario = () => {
         precio_unitario: nuevoPrecio
       });
 
-      
       setProductoSeleccionado("");
       setNuevoNombre("");
       setNuevoTipo("");
@@ -90,7 +85,6 @@ const Inventario = () => {
     }
   };
 
- 
   const groupedStock = stock.reduce((acc, item) => {
     if (!acc[item.tipo]) acc[item.tipo] = [];
     acc[item.tipo].push(item);
@@ -106,7 +100,7 @@ const Inventario = () => {
 
   return (
     <div style={commonStyles.container}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: 20 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: "20px", marginBottom: 20 }}>
         <img src={logoNiger} alt="Niger Logo" style={{ width: 80 }} />
         <div style={{ flex: 1 }}>
           <BarraBusqueda />
@@ -115,94 +109,99 @@ const Inventario = () => {
 
       <h1 style={commonStyles.title}>Inventario</h1>
 
-      <h3>Piezas Disponibles</h3>
+      {/* CONTENEDOR GENERAL A DOS COLUMNAS */}
+      <div style={{ display: "flex", gap: "25px", alignItems: "flex-start" }}>
 
-      {Object.keys(groupedStock).map((tipo) => (
-        <div
-          key={tipo}
-          style={{
-            marginBottom: "10px",
-            border: `1px solid ${colors.border}`,
-            borderRadius: "8px",
-            backgroundColor: colors.backgroundLight
-          }}
-        >
-          <button
-            style={{
-              width: "100%",
-              textAlign: "left",
-              padding: "14px 16px",
-              background: colors.backgroundDark,
-              color: colors.textLight,
-              borderRadius: "6px 6px 0 0",             
-            }}
-            onClick={() => toggleCollapse(tipo)}
-          >
-            {tipo} ({groupedStock[tipo].length} piezas)
-          </button>
+        {/* COLUMNA IZQUIERDA (LISTA) */}
+        <div style={{ flex: 2 }}>
+          <h3>Piezas Disponibles</h3>
 
-          {collapsed[tipo] && (
-            <ul
+          {Object.keys(groupedStock).map((tipo) => (
+            <div
+              key={tipo}
               style={{
-                listStyle: "none",
-                padding: "15px",
-                margin: 0,
+                marginBottom: "10px",
+                border: `1px solid ${colors.border}`,
+                borderRadius: "8px",
                 backgroundColor: colors.backgroundLight
               }}
             >
-              {groupedStock[tipo].map((item) => (
-                <li
-                  key={item._id}
+              <button
+                style={{
+                  width: "100%",
+                  textAlign: "left",
+                  padding: "14px 16px",
+                  background: colors.backgroundDark,
+                  color: colors.textLight,
+                  borderRadius: "6px 6px 0 0"
+                }}
+                onClick={() => toggleCollapse(tipo)}
+              >
+                {tipo} ({groupedStock[tipo].length} piezas)
+              </button>
+
+              {collapsed[tipo] && (
+                <ul
                   style={{
-                    marginBottom: "8px",
-                    padding: "12px",
-                    borderBottom: `1px solid ${colors.borderLight}`,
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    color: colors.text
+                    listStyle: "none",
+                    padding: "15px",
+                    margin: 0,
+                    backgroundColor: colors.backgroundLight
                   }}
                 >
-                  <span>
-                    <strong>ID:</strong> {item._id} — <strong>{item.nombre}</strong> — {item.cantidad} uds — {item.precio_unitario} €
-                  </span>
+                  {groupedStock[tipo].map((item) => (
+                    <li
+                      key={item._id}
+                      style={{
+                        marginBottom: "8px",
+                        padding: "12px",
+                        borderBottom: `1px solid ${colors.borderLight}`,
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        color: colors.text
+                      }}
+                    >
+                      <span>
+                        <strong>ID:</strong> {item._id} — <strong>{item.nombre}</strong> — {item.cantidad} uds — {item.precio_unitario} €
+                      </span>
 
-                  <button
-                    onClick={(e) => {
-                      e.preventDefault();
-                      handleEliminar(item._id);
-                    }}
-                    style={{
-                      ...commonStyles.button,
-                      backgroundColor: colors.danger,
-                      fontSize: "0.85rem",
-                      padding: "6px 12px"
-                    }}
-                  >
-                    Eliminar
-                  </button>
-                </li>
-              ))}
-            </ul>
-          )}
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleEliminar(item._id);
+                        }}
+                        style={{
+                          ...commonStyles.button,
+                          backgroundColor: colors.danger,
+                          fontSize: "0.85rem",
+                          padding: "6px 12px"
+                        }}
+                      >
+                        Eliminar
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          ))}
         </div>
-      ))}
 
-      {/* Botón pestaña */}
-      <button
-        onClick={() => setMostrarFormulario(!mostrarFormulario)}
-        style={{
-          ...commonStyles.button,
-          backgroundColor: "#007bff",
-          marginTop: "20px"
-        }}
-      >
-        {mostrarFormulario ? "Cerrar formulario" : "Añadir nueva pieza"}
-      </button>
-
-      {/* FORMULARIO */}
-      {mostrarFormulario && (
-        <form onSubmit={handleCrear} style={{ marginTop: "20px" }}>
+        {/* COLUMNA DERECHA (FORMULARIO) */}
+        <div
+          style={{
+            flex: 1,
+            padding: "20px",
+            border: `1px solid ${colors.border}`,
+            borderRadius: "8px",
+            background: colors.backgroundLight,
+            position: "sticky",
+            top: "20px",
+            maxHeight: "600px", // Limita la altura
+            overflowY: "auto", // Scroll si sobrepasa
+          }}
+        >
           <h3>Añadir nueva pieza</h3>
 
           {/* SELECT */}
@@ -220,54 +219,47 @@ const Inventario = () => {
             ))}
           </select>
 
-          <br /><br />
-
-          {/* Campos autorrellenados */}
           <input
             type="text"
-            placeholder="Nombre"
+            readOnly
             value={nuevoNombre}
-            readOnly
-            style={{ ...commonStyles.input, background: "#000000ff" }}
+            placeholder="Nombre"
+            style={{ ...commonStyles.input, background: "#222", marginTop: "8px" }}
           />
-          <br /><br />
 
           <input
             type="text"
-            placeholder="Tipo"
+            readOnly
             value={nuevoTipo}
-            readOnly
-            style={{ ...commonStyles.input, background: "#000000ff" }}
+            placeholder="Tipo"
+            style={{ ...commonStyles.input, background: "#222", marginTop: "8px" }}
           />
-          <br /><br />
 
           <input
             type="number"
-            placeholder="Precio"
+            readOnly
             value={nuevoPrecio}
-            readOnly
-            style={{ ...commonStyles.input, background: "#000000ff" }}
+            placeholder="Precio"
+            style={{ ...commonStyles.input, background: "#222", marginTop: "8px" }}
           />
-          <br /><br />
 
-         
           <input
             type="number"
-            placeholder="Cantidad"
             min={1}
             value={nuevaCantidad}
-            style={{ ...commonStyles.input, background: "#000000ff" }}
+            onChange={(e) => setNuevaCantidad(Number(e.target.value))}
+            placeholder="Cantidad"
+            style={{ ...commonStyles.input, background: "#222", marginTop: "8px" }}
           />
-          <br /><br />
 
           <button
-            type="submit"
-            style={{ ...commonStyles.button, backgroundColor: colors.success }}
+            onClick={handleCrear}
+            style={{ ...commonStyles.button, backgroundColor: colors.success, width: "100%", marginTop: "12px" }}
           >
             Crear pieza
           </button>
-        </form>
-      )}
+        </div>
+      </div>
     </div>
   );
 };
