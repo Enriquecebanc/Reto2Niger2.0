@@ -5,6 +5,8 @@ const ProveedorSchema = new mongoose.Schema({
   telefono: { type: String },
   direccion: { type: String },
   correo: { type: String },
+  tamano: { type: String },
+  tipoProducto: { type: String },
   productos: [
     {
       pieza_id: { type: mongoose.Schema.Types.ObjectId, ref: "Stock" },

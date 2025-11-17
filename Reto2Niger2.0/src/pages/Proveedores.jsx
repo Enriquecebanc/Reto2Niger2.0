@@ -14,6 +14,10 @@ import {
   FormControlLabel,
   RadioGroup,
   Radio,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
   CssBaseline,
 } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
@@ -30,7 +34,7 @@ import { getProveedores, crearProveedor, actualizarProveedor, eliminarProveedor 
 
 
 const STORAGE_KEY = 'proveedores_simple_v2';
-const TIPOS_PRODUCTO = ['Sensores', 'Baterías', 'Carcasas plásticas', 'Sensores de riego', 'Electrónica'];
+const TIPOS_PRODUCTO = ['LED Rojo', 'LED Verde', 'LED Amarillo', 'Maceta de plástico Pequeño', 'Sensor de humedad', 'Sensor de luz', 'Batería'];
 const TAMAÑOS = ['Pequeña', 'Mediana', 'Grande'];
 
 // Usar tema claro para no forzar modo oscuro en este módulo
@@ -100,6 +104,8 @@ const ProveedoresPage = () => {
         telefono: p.telefono || '',
         correo: p.correo || '',
         productos: tipos.join(', ') || '-',
+        tamano: p.tamano || p.tamaño || '-',
+        tipoProducto: p.tipoProducto || '-',
         raw: p,
       };
     });
@@ -116,7 +122,7 @@ const ProveedoresPage = () => {
     } catch (err) {
       console.error('No se pudieron cargar proveedores desde API, usando ejemplos', err);
       setLastError(err.message || String(err));
-      setProveedores(EJEMPLOS_PROVEEDORES.map((p) => ({ id: p._id, nombre: p.nombre, direccion: p.direccion, telefono: p.telefono, correo: p.correo, productos: '-' })));
+      setProveedores(EJEMPLOS_PROVEEDORES.map((p) => ({ id: p._id, nombre: p.nombre, direccion: p.direccion, telefono: p.telefono, correo: p.correo, productos: '-', tamano: '-', tipoProducto: '-' })));
       setDataSource('examples');
     } finally {
       setLoading(false);
@@ -141,21 +147,28 @@ const ProveedoresPage = () => {
       telefono: telefono.trim(),
       correo: email.trim(),
       direccion: contacto.trim(),
+      tamano: tamaño,
+      tipoProducto: tipoProducto,
     };
 
     const guardar = async () => {
       try {
+        console.log('Proveedores - payload a enviar:', payload);
+        let result = null;
         if (editingId) {
-          const updated = await actualizarProveedor(editingId, payload);
-          setProveedores((prev) => prev.map((p) => (p.id === editingId ? { ...updated, id: updated._id } : p)));
+          result = await actualizarProveedor(editingId, payload);
+          console.log('Proveedores - respuesta PUT:', result);
         } else {
-          const created = await crearProveedor(payload);
-          setProveedores((prev) => [...prev, { ...created, id: created._id }]);
+          result = await crearProveedor(payload);
+          console.log('Proveedores - respuesta POST:', result);
         }
+        await loadData();
         handleCerrarDialog();
+        return result;
       } catch (err) {
         console.error('Error guardando proveedor:', err);
         alert('Error al guardar proveedor');
+        throw err;
       }
     };
 
@@ -170,8 +183,8 @@ const ProveedoresPage = () => {
       setContacto(p.direccion || '');
       setTelefono(p.telefono || '');
       setEmail(p.correo || '');
-      setTamaño('Mediana');
-      setTipoProducto(TIPOS_PRODUCTO[0]);
+      setTamaño((p.tamano && p.tamano !== '-') ? p.tamano : (p.raw && (p.raw.tamano || p.raw.tamaño)) || 'Mediana');
+      setTipoProducto((p.tipoProducto && p.tipoProducto !== '-') ? p.tipoProducto : (p.raw && p.raw.tipoProducto) || TIPOS_PRODUCTO[0]);
       setOpenDialog(true);
     }
   };
@@ -219,7 +232,8 @@ const ProveedoresPage = () => {
     { field: 'direccion', headerName: 'Dirección', flex: 1 },
     { field: 'telefono', headerName: 'Teléfono', flex: 1 },
     { field: 'correo', headerName: 'Correo', flex: 1 },
-    { field: 'productos', headerName: 'Productos', flex: 1 },
+    { field: 'tipoProducto', headerName: 'Tipo', flex: 0.8 },
+    { field: 'tamano', headerName: 'Tamaño', width: 120 },
     {
       field: 'acciones',
       headerName: 'Acciones',
@@ -289,6 +303,25 @@ const ProveedoresPage = () => {
             {loading ? 'Sincronizando...' : 'Sincronizar BD'}
           </Button>
 
+          <Button variant="outlined" color="secondary" onClick={async () => {
+            try {
+              const res = await fetch('http://localhost:5000/admin/migrar-proveedores', { method: 'POST' });
+              const json = await res.json();
+              console.log('Migración respuesta:', json);
+              if (json && json.ok) {
+                alert('Migración ejecutada correctamente. Regenerando lista...');
+                await loadData();
+              } else {
+                alert('Error en migración: ' + (json && json.error ? json.error : 'desconocido'));
+              }
+            } catch (err) {
+              console.error('Error llamando a /admin/migrar-proveedores', err);
+              alert('Error llamando al servidor. Revisa que el backend esté arrancado.');
+            }
+          }}>
+            Ejecutar migración
+          </Button>
+
           <Box sx={{ flexGrow: 1 }}>
             <TextField
               fullWidth
@@ -330,11 +363,22 @@ const ProveedoresPage = () => {
                 '& .MuiDataGrid-columnHeaders': {
                   backgroundColor: colors.backgroundDark,
                   color: colors.textLight,
-                  fontWeight: 'bold',
+                  fontWeight: '700',
+                },
+                '& .MuiDataGrid-columnHeader': {
+                  backgroundColor: colors.backgroundDark,
+                  color: colors.textLight,
                 },
                 '& .MuiDataGrid-cell': {
                   whiteSpace: 'normal',
                   lineHeight: '1.4em',
+                  color: colors.text,
+                  borderBottom: `1px solid ${colors.borderLight}`,
+                },
+                '& .MuiDataGrid-row': {
+                  '&:hover': {
+                    backgroundColor: colors.backgroundLight,
+                  },
                 },
               }}
             />
@@ -374,33 +418,35 @@ const ProveedoresPage = () => {
               />
 
               <Box>
-                <Typography variant="subtitle2" sx={{ mb: 1 }}>
-                  Tamaño de la pieza:
-                </Typography>
-                <RadioGroup
-                  row
-                  value={tamaño}
-                  onChange={(e) => setTamaño(e.target.value)}
-                >
-                  {TAMAÑOS.map((t) => (
-                    <FormControlLabel key={t} value={t} control={<Radio />} label={t} />
-                  ))}
-                </RadioGroup>
+                <FormControl fullWidth>
+                  <InputLabel id="select-tamano-label">Tamaño</InputLabel>
+                  <Select
+                    labelId="select-tamano-label"
+                    value={tamaño}
+                    label="Tamaño"
+                    onChange={(e) => setTamaño(e.target.value)}
+                  >
+                    {TAMAÑOS.map((t) => (
+                      <MenuItem key={t} value={t}>{t}</MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
               </Box>
 
               <Box>
-                <Typography variant="subtitle2" sx={{ mb: 1 }}>
-                  Tipo de producto:
-                </Typography>
-                <RadioGroup
-                  row
-                  value={tipoProducto}
-                  onChange={(e) => setTipoProducto(e.target.value)}
-                >
-                  {TIPOS_PRODUCTO.map((tipo) => (
-                    <FormControlLabel key={tipo} value={tipo} control={<Radio />} label={tipo} />
-                  ))}
-                </RadioGroup>
+                <FormControl fullWidth>
+                  <InputLabel id="select-tipo-label">Tipo de producto</InputLabel>
+                  <Select
+                    labelId="select-tipo-label"
+                    value={tipoProducto}
+                    label="Tipo de producto"
+                    onChange={(e) => setTipoProducto(e.target.value)}
+                  >
+                    {TIPOS_PRODUCTO.map((tipo) => (
+                      <MenuItem key={tipo} value={tipo}>{tipo}</MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
               </Box>
             </Stack>
           </DialogContent>
