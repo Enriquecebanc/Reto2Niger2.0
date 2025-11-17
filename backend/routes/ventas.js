@@ -1,109 +1,98 @@
 import express from 'express';
-import mongoose from 'mongoose';
 import Venta from '../models/Venta.js';
 
 const router = express.Router();
 
-// Obtener todas las ventas
+// GET todas las ventas
 router.get('/', async (req, res) => {
     try {
         const ventas = await Venta.find();
+        console.log('GET /ventas - Devolviendo', ventas.length, 'ventas');
         res.json(ventas);
     } catch (err) {
+        console.error('Error GET /ventas:', err);
         res.status(500).json({ message: err.message });
     }
 });
 
-// Crear nueva venta
+// POST crear nueva venta
 router.post('/', async (req, res) => {
-    const { cliente, tamaño, producto, precio } = req.body;
+    console.log('POST /ventas - Recibido:', req.body);
+    
+    const { cliente, tipo_maceta, cantidad, precio_unitario, metodo_pago, fecha_venta } = req.body;
 
-    if (!cliente || !tamaño) {
-        return res.status(400).json({ message: 'Faltan datos obligatorios' });
+    // Validar campos obligatorios
+    if (!cliente || !tipo_maceta || cantidad === undefined || !precio_unitario || !metodo_pago) {
+        console.error('Campos faltantes');
+        return res.status(400).json({ 
+            message: 'Faltan campos: cliente, tipo_maceta, cantidad, precio_unitario, metodo_pago' 
+        });
     }
+
+    // Calcular total
+    const total = Number(cantidad) * Number(precio_unitario);
 
     const nuevaVenta = new Venta({
         cliente,
-        tamaño,
-        producto,
-        precio
+        tipo_maceta,
+        cantidad: Number(cantidad),
+        precio_unitario: Number(precio_unitario),
+        total,
+        metodo_pago,
+        fecha_venta: fecha_venta ? new Date(fecha_venta) : new Date()
     });
 
     try {
         const ventaGuardada = await nuevaVenta.save();
+        console.log('Venta guardada en BD:', ventaGuardada);
         res.status(201).json(ventaGuardada);
     } catch (err) {
+        console.error('Error POST /ventas:', err);
         res.status(400).json({ message: err.message });
     }
 });
 
-// Actualizar una venta
+// PUT actualizar venta
 router.put('/:id', async (req, res) => {
+    console.log('PUT /ventas/:id - ID:', req.params.id, 'Body:', req.body);
+    
     try {
-        const id = req.params.id.trim();
-        
-        if (!mongoose.Types.ObjectId.isValid(id)) {
-            return res.status(400).json({ message: "ID inválido" });
+        const venta = await Venta.findByIdAndUpdate(
+            req.params.id,
+            req.body,
+            { new: true, runValidators: true }
+        );
+
+        if (!venta) {
+            console.error('Venta no encontrada:', req.params.id);
+            return res.status(404).json({ message: 'Venta no encontrada' });
         }
-        
-        const db = mongoose.connection.db;
-        const collection = db.collection('ventas');
-        const todosLosDocs = await collection.find({}).toArray();
-        
-        const docEncontrado = todosLosDocs.find(doc => doc._id.toString() === id);
-        
-        if (docEncontrado) {
-            const updateData = {};
-            if (req.body.cliente !== undefined) updateData.cliente = req.body.cliente;
-            if (req.body.cantidad !== undefined) updateData.cantidad = req.body.cantidad;
-            if (req.body.tamaño !== undefined) updateData.tamaño = req.body.tamaño;
-            if (req.body.producto !== undefined) updateData.producto = req.body.producto;
-            if (req.body.precio !== undefined) updateData.precio = req.body.precio;
-            if (req.body.total !== undefined) updateData.total = req.body.total;
-            
-            const resultUpdate = await collection.updateOne(
-                { _id: docEncontrado._id },
-                { $set: updateData }
-            );
-            
-            if (resultUpdate.modifiedCount > 0 || resultUpdate.matchedCount > 0) {
-                const ventaActualizada = await collection.findOne({ _id: docEncontrado._id });
-                return res.json(ventaActualizada);
-            }
-        }
-        
-        return res.status(404).json({ message: "Venta no encontrada" });
+
+        console.log('Venta actualizada:', venta);
+        res.json(venta);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        console.error('Error PUT /ventas/:id:', err);
+        res.status(400).json({ message: err.message });
     }
 });
 
-// Eliminar una venta
+// DELETE eliminar venta
 router.delete('/:id', async (req, res) => {
+    console.log('DELETE /ventas/:id - ID:', req.params.id);
+    
     try {
-        const id = req.params.id.trim();
-        
-        if (!mongoose.Types.ObjectId.isValid(id)) {
-            return res.status(400).json({ message: "ID inválido" });
+        const venta = await Venta.findByIdAndDelete(req.params.id);
+
+        if (!venta) {
+            console.error('Venta no encontrada:', req.params.id);
+            return res.status(404).json({ message: 'Venta no encontrada' });
         }
-        
-        const db = mongoose.connection.db;
-        const collection = db.collection('ventas');
-        const todosLosDocs = await collection.find({}).toArray();
-        
-        const docEncontrado = todosLosDocs.find(doc => doc._id.toString() === id);
-        
-        if (docEncontrado) {
-            const resultDelete = await collection.deleteOne({ _id: docEncontrado._id });
-            
-            if (resultDelete.deletedCount > 0) {
-                return res.json({ message: "Venta eliminada correctamente" });
-            }
-        }
-        
-        return res.status(404).json({ message: "Venta no encontrada" });
+
+        console.log('Venta eliminada');
+        res.json({ message: 'Venta eliminada correctamente' });
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        console.error('Error DELETE /ventas/:id:', err);
+        res.status(400).json({ message: err.message });
     }
 });
 
