@@ -13,6 +13,7 @@ const Inventario = () => {
   const [nuevoTipo, setNuevoTipo] = useState("");
   const [nuevaCantidad, setNuevaCantidad] = useState(1);
   const [nuevoPrecio, setNuevoPrecio] = useState(0);
+  const [mostrarFormulario, setMostrarFormulario] = useState(false);
 
   const fetchData = async () => {
     const data = await getStock();
@@ -149,52 +150,74 @@ const Inventario = () => {
       </div>
     ))}
 
-    {/* FORMULARIO ABAJO */}
-    <form onSubmit={handleCrear} style={{ marginTop: "30px" }}>
-      <h3>Añadir nueva pieza</h3>
-      <input
-        type="text"
-        placeholder="Nombre"
-        value={nuevoNombre}
-        onChange={(e) => setNuevoNombre(e.target.value)}
-        style={commonStyles.input}
-        required
-      />
-      <br/>
-      <input
-        type="text"
-        placeholder="Tipo"
-        value={nuevoTipo}
-        onChange={(e) => setNuevoTipo(e.target.value)}
-        style={commonStyles.input}
-        required
-      />
-      <br/>
-      <input
-        type="number"
-        placeholder="Cantidad"
-        value={nuevaCantidad}
-        min={1}
-        onChange={(e) => setNuevaCantidad(Number(e.target.value))}
-        style={commonStyles.input}
-        required
-      />
-      <br/>
-      <input
-        type="number"
-        placeholder="Precio unitario"
-        value={nuevoPrecio}
-        min={0}
-        step="0.01"
-        onChange={(e) => setNuevoPrecio(Number(e.target.value))}
-        style={commonStyles.input}
-        required
-      />
-      <br/>
-      <button type="submit" style={{ ...commonStyles.button, backgroundColor: colors.success }}>
-        Crear Pieza
+    {/* BOTÓN / PESTAÑA */}
+      <button
+        onClick={() => setMostrarFormulario(!mostrarFormulario)}
+        style={{
+          ...commonStyles.button,
+          backgroundColor: "#007bff",
+          marginTop: "20px"
+        }}
+      >
+        {mostrarFormulario ? "Cerrar formulario" : "Añadir nueva pieza"}
       </button>
-    </form>
+
+      {/* FORMULARIO DESPLEGABLE */}
+      {mostrarFormulario && (
+        <form onSubmit={handleCrear} style={{ marginTop: "20px" }}>
+          <h3>Añadir nueva pieza</h3>
+
+          <input
+            type="text"
+            placeholder="Nombre"
+            value={nuevoNombre}
+            onChange={(e) => setNuevoNombre(e.target.value)}
+            style={commonStyles.input}
+            required
+          />
+          <br />
+
+          <input
+            type="text"
+            placeholder="Tipo"
+            value={nuevoTipo}
+            onChange={(e) => setNuevoTipo(e.target.value)}
+            style={commonStyles.input}
+            required
+          />
+          <br />
+
+          <input
+            type="number"
+            placeholder="Cantidad"
+            value={nuevaCantidad}
+            min={1}
+            onChange={(e) => setNuevaCantidad(Number(e.target.value))}
+            style={commonStyles.input}
+            required
+          />
+          <br />
+
+          <input
+            type="number"
+            placeholder="Precio unitario"
+            value={nuevoPrecio}
+            min={0}
+            step="0.01"
+            onChange={(e) => setNuevoPrecio(Number(e.target.value))}
+            style={commonStyles.input}
+            required
+          />
+          <br />
+
+          <button
+            type="submit"
+            style={{ ...commonStyles.button, backgroundColor: colors.success }}
+          >
+            Crear Pieza
+          </button>
+        </form>
+      )}
   </div>
 );
 
