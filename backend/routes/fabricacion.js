@@ -70,22 +70,15 @@ router.post("/", async (req, res) => {
 
     const materiales = [];
     for (const { nombre, cantidad } of materialesPorMaceta[producto]) {
-  // Busca los docs de Stock por nombre (cada doc es una unidad física)
-  const stockDocs = await Stock.find({ nombre }).limit(cantidad);
-
-  // Comprueba si hay suficientes
-  if (stockDocs.length < cantidad) {
-    return res.status(400).json({ error: `No hay suficiente stock de ${nombre}` });
-  }
-
-  // Borra justo la cantidad necesaria (uno por unidad usada)
-  for (let i = 0; i < cantidad; i++) {
-    await Stock.findByIdAndDelete(stockDocs[i]._id);
-  }
-
-  // Guarda en Fabricación solo el nombre y la cantidad, NO el id
-  materiales.push({ nombre, cantidad }); // <- correcto!
-}
+      const stockDocs = await Stock.find({ nombre }).limit(cantidad);
+      if (stockDocs.length < cantidad) {
+        return res.status(400).json({ error: `No hay suficiente stock de ${nombre}` });
+      }
+      for (let i = 0; i < cantidad; i++) {
+        await Stock.findByIdAndDelete(stockDocs[i]._id);
+      }
+      materiales.push({ nombre, cantidad });
+    }
 
     const nuevaFabricacion = new Fabricacion({
       producto,
@@ -121,21 +114,15 @@ router.put("/:id", async (req, res) => {
       if (nombreMaceta === "Maceta mediana") precio = 34;
       if (nombreMaceta === "Maceta grande") precio = 40;
 
-      let stockMaceta = await Stock.findOne({ nombre: nombreMaceta, tipo: "Maceta fabricada" });
-      if (stockMaceta) {
-        stockMaceta.cantidad += 1;
-        stockMaceta.precio_unitario = precio;
-        await stockMaceta.save();
-      } else {
-        stockMaceta = new Stock({
+      const nuevaMaceta = new Stock({
           nombre: nombreMaceta,
           tipo: "Maceta fabricada",
           cantidad: 1,
           precio_unitario: precio
         });
-        await stockMaceta.save();
+        await nuevaMaceta.save();
       }
-    }
+    
 
     const updated = await Fabricacion.findByIdAndUpdate(req.params.id, updateData);
     if (!updated) return res.status(404).json({ message: "Fabricación no encontrada" });
