@@ -8,7 +8,6 @@ const Inventario = () => {
   const [stock, setStock] = useState([]);
   const [collapsed, setCollapsed] = useState({});
 
-  // Formulario
   const [productoSeleccionado, setProductoSeleccionado] = useState("");
   const [nuevoNombre, setNuevoNombre] = useState("");
   const [nuevoTipo, setNuevoTipo] = useState("");
@@ -108,12 +107,12 @@ const Inventario = () => {
 
       <h1 style={commonStyles.title}>Inventario</h1>
 
-      {/* CONTENEDOR GENERAL A DOS COLUMNAS */}
       <div style={{ display: "flex", gap: "25px", alignItems: "flex-start" }}>
 
-        {/* COLUMNA IZQUIERDA (LISTA) */}
-        <div style={{ flex: 2 }}>
-          <h3>Piezas Disponibles</h3>
+        {/* COLUMNA IZQUIERDA */}
+        <div style={{ flex: 3 }}>
+          <h3 style={{ marginLeft: "-675px" }}>Piezas Disponibles</h3>
+
 
           {Object.keys(groupedStock).map((tipo) => (
             <div
@@ -129,7 +128,7 @@ const Inventario = () => {
                 style={{
                   width: "100%",
                   textAlign: "left",
-                  padding: "14px 16px",
+                  padding: "18px 20px",
                   background: colors.backgroundDark,
                   color: colors.textLight,
                   borderRadius: "6px 6px 0 0"
@@ -164,7 +163,6 @@ const Inventario = () => {
                       <span>
                         <strong>ID:</strong> {item._id} — 
                         <strong>{item.nombre}</strong> — 
-                        {item.cantidad} uds — 
                         {item.precio_unitario} € — 
                         <strong>Proveedor:</strong> {item.proveedor_nombre || "Sin proveedor"}
                       </span>
@@ -200,14 +198,13 @@ const Inventario = () => {
             borderRadius: "8px",
             background: colors.backgroundLight,
             position: "sticky",
-            top: "20px",
+            top: "0px",
             maxHeight: "600px",
-            overflowY: "auto",
+            marginTop: "65px"
           }}
         >
           <h3>Añadir nueva pieza</h3>
 
-          {/* SELECT */}
           <select
             value={productoSeleccionado}
             onChange={handleSeleccionProducto}
@@ -257,7 +254,7 @@ const Inventario = () => {
 
           <button
             onClick={handleCrear}
-            style={{ ...commonStyles.button, backgroundColor: colors.success, width: "100%", marginTop: "12px" }}
+            style={{ ...commonStyles.button, backgroundColor: colors.success, width: "50%", marginTop: "12px" }}
           >
             Crear pieza
           </button>
