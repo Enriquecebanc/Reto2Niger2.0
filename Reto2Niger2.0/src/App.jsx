@@ -5,6 +5,7 @@ import Proveedores from './pages/Proveedores.jsx';
 import Ventas from './pages/ventas.jsx';
 import Inventario from './pages/Inventario.jsx';
 import Home from './pages/home.jsx';
+import Documentacion from './pages/Documentacion.jsx';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
 function App() {
@@ -17,6 +18,7 @@ function App() {
         <Route path='/proveedores' element={<Proveedores />} />
         <Route path='/ventas' element={<Ventas />} />
         <Route path='/inventario' element={<Inventario />} />
+        <Route path='/documentacion' element={<Documentacion />} />
       </Routes>
     </BrowserRouter>
   );

@@ -1,4 +1,9 @@
-import { app, BrowserWindow, Menu } from 'electron'; // 👈 Añadido Menu
+import { app, BrowserWindow, Menu, shell } from 'electron'; // 👈 Añadido Menu y shell
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const createWindow = () => {
   const win = new BrowserWindow({
@@ -20,7 +25,27 @@ const createWindow = () => {
     {
       label: 'Documentación',
       submenu: [
-        { label: 'Informe Final Reto', click: () => console.log('Abrir info') }
+        { 
+          label: 'Informe Final Reto', 
+          click: () => {
+            const rutaInforme = path.join(__dirname, 'documentacion', 'Informe_Final_Reto.pdf');
+            shell.openPath(rutaInforme).then(error => {
+              if (error) {
+                console.error('Error al abrir el informe:', error);
+                // Mostrar diálogo alternativo
+                shell.showItemInFolder(rutaInforme);
+              }
+            });
+          }
+        },
+        { type: 'separator' },
+        { 
+          label: 'Abrir Carpeta Documentación', 
+          click: () => {
+            const rutaDocumentacion = path.join(__dirname, 'documentacion');
+            shell.openPath(rutaDocumentacion);
+          }
+        }
       ]
     }
   ];
