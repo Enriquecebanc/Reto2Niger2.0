@@ -110,7 +110,6 @@ const VentasPage = () => {
         try {
             await eliminarVenta(id);
             setVentas(ventas.filter(v => v._id !== id));
-            alert('Venta eliminada correctamente');
         } catch (err) {
             console.error('Error eliminando:', err);
             alert('Error al eliminar: ' + err.message);
