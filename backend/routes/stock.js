@@ -1,25 +1,27 @@
 import express from "express";
 import mongoose from "mongoose";
 import Stock from "../models/Stock.js";
+import Proveedor from "../models/Proveedor.js";
 
 const router = express.Router();
 
-//  GET: Obtener todos los productos en stock
-router.get("/", async (req, res) => {
-  try {
-    const stock = await Stock.find().populate("proveedor_id", "nombre correo");
-    res.json(stock);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
+
 
 //  GET: Obtener un producto de stock por ID
 router.get("/:id", async (req, res) => {
   try {
-    const producto = await Stock.findById(req.params.id).populate("proveedor_id", "nombre correo");
+    const producto = await Stock.findById(req.params.id);
     if (!producto) return res.status(404).json({ message: "Producto no encontrado" });
-    res.json(producto);
+
+    // Buscar proveedor
+    const proveedor = await Proveedor.findOne({
+      tipoProducto: producto.tipo
+    });
+
+    res.json({
+      ...producto.toObject(),
+      proveedor_nombre: proveedor ? proveedor.nombre : "Sin proveedor"
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -51,26 +53,41 @@ router.put("/:id", async (req, res) => {
 router.delete("/:id", async (req, res) => {
   try {
     const id = req.params.id.trim();
-    
+
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({ message: "ID inválido" });
     }
-    
-    const db = mongoose.connection.db;
-    const collection = db.collection('stocks');
-    const todosLosDocs = await collection.find({}).toArray();
-    
-    const docEncontrado = todosLosDocs.find(doc => doc._id.toString() === id);
-    
-    if (docEncontrado) {
-      const resultDelete = await collection.deleteOne({ _id: docEncontrado._id });
-      
-      if (resultDelete.deletedCount > 0) {
-        return res.json({ message: "Producto eliminado correctamente" });
-      }
+
+    const result = await Stock.deleteOne({ _id: id });
+
+    if (result.deletedCount > 0) {
+      return res.json({ message: "Producto eliminado correctamente" });
+    } else {
+      return res.status(404).json({ message: "Producto no encontrado" });
     }
-    
-    return res.status(404).json({ message: "Producto no encontrado" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+//  GET: Obtener todos los productos en stock con nombre del proveedor
+router.get("/", async (req, res) => {
+  try {
+    const stock = await Stock.find();
+    const proveedores = await Proveedor.find();
+
+    const stockConProveedor = stock.map((item) => {
+      const proveedor = proveedores.find(
+      (prov) => prov.tipoProducto?.toLowerCase() === item.nombre?.toLowerCase()
+    );
+
+      return {
+        ...item.toObject(),
+        proveedor_nombre: proveedor ? proveedor.nombre : "Sin proveedor"
+      };
+    });
+
+    res.json(stockConProveedor);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
