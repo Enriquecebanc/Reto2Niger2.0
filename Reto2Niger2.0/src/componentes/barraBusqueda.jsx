@@ -11,6 +11,7 @@ function BarraBusqueda() {
       <Button component={Link} to="/inventario">Inventario</Button>
       <Button component={Link} to="/proveedores">Proveedores</Button>
       <Button component={Link} to="/ventas">Ventas</Button>
+      <Button component={Link} to="/documentacion">Documentación</Button>
     </ButtonGroup>
   );
 }
