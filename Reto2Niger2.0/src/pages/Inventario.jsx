@@ -54,19 +54,10 @@ const Inventario = () => {
     }, {})
   );
 
-  // Combinar productos únicos del stock con productos predefinidos
+  // Solo usar productos predefinidos, no agregar del stock
   const todosLosProductos = [...PRODUCTOS_PREDEFINIDOS];
-  
-  // Agregar productos del stock que no estén en la lista predefinida
-  productosUnicos.forEach(p => {
-    if (!PRODUCTOS_PREDEFINIDOS.find(prod => prod.nombre === p.nombre)) {
-      todosLosProductos.push({
-        nombre: p.nombre,
-        tipo: p.tipo,
-        precio: p.precio_unitario
-      });
-    }
-  });
+
+  console.log("Productos disponibles en selector:", todosLosProductos.length, todosLosProductos);
 
   const handleSeleccionProducto = (e) => {
     const nombreProducto = e.target.value;
