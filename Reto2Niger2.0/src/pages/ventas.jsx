@@ -3,6 +3,7 @@ import BarraBusqueda from '../componentes/barraBusqueda.jsx';
 import { commonStyles, colors } from '../styles/commonStyles.js';
 import { getVentas, crearVenta, eliminarVenta, actualizarVenta } from '../services/ventasService';
 import { getClientes } from '../services/clientesService';
+import { getStock } from '../services/stockService';
 
 const styles = {
     ...commonStyles,
@@ -21,6 +22,7 @@ const styles = {
 const VentasPage = () => {
     const [ventas, setVentas] = useState([]);
     const [clientes, setClientes] = useState([]);
+    const [stock, setStock] = useState([]);
     const [query, setQuery] = useState('');
     const [editingId, setEditingId] = useState(null);
     const [editValues, setEditValues] = useState({ cliente: '', cantidad: 0 });
@@ -47,9 +49,15 @@ const VentasPage = () => {
         setClientes(data);
     };
 
+    const fetchStock = async () => {
+        const data = await getStock();
+        setStock(data);
+    };
+
     useEffect(() => { 
         fetchVentas();
         fetchClientes();
+        fetchStock();
     }, []);
 
     // Filtrado
@@ -59,6 +67,26 @@ const VentasPage = () => {
         return ventas.filter(v => (v.cliente || '').toLowerCase().includes(q));
     }, [ventas, query]);
 
+    // Obtener cantidad disponible en inventario
+    const getCantidadDisponible = (tipoMaceta) => {
+        // Mapear el tipo de maceta al nombre en el inventario
+        const nombreMap = {
+            'Pequeña': 'Maceta pequeña',
+            'Mediana': 'Maceta mediana',
+            'Grande': 'Maceta grande'
+        };
+        
+        const nombreBuscado = nombreMap[tipoMaceta];
+        if (!nombreBuscado) return 0;
+        
+        // Sumar todas las cantidades de productos con el mismo nombre
+        const cantidadTotal = stock
+            .filter(item => item.nombre?.toLowerCase() === nombreBuscado.toLowerCase())
+            .reduce((sum, item) => sum + (item.cantidad || 0), 0);
+        
+        return cantidadTotal;
+    };
+
     // Confirmar nueva venta
     const handleConfirmarNuevaVenta = async () => {
         if (!newVenta.cliente.trim()) return alert("Falta seleccionar un cliente");
@@ -66,6 +94,12 @@ const VentasPage = () => {
         if (!newVenta.metodo_pago.trim()) return alert("Falta el método de pago");
         if (newVenta.cantidad < 1) return alert("La cantidad debe ser al menos 1");
         if (newVenta.precio_unitario < 1) return alert("El precio unitario debe ser al menos 1");
+        
+        // Validar que hay suficiente stock
+        const cantidadDisponible = getCantidadDisponible(newVenta.tipo_maceta);
+        if (newVenta.cantidad > cantidadDisponible) {
+            return alert(`No hay suficiente stock. Disponible: ${cantidadDisponible} unidades`);
+        }
 
         // Obtener el nombre completo del cliente seleccionado
         const clienteSeleccionado = clientes.find(c => c._id === newVenta.cliente);
@@ -88,6 +122,8 @@ const VentasPage = () => {
             const created = await crearVenta(payload);
             console.log('Venta creada:', created);
             setVentas(v => [...v, created]);
+            // Actualizar el stock local después de la venta
+            await fetchStock();
             alert('Venta creada correctamente');
             setAdding(false);
             setNewVenta({
@@ -215,10 +251,15 @@ const VentasPage = () => {
                         style={{ width: "100%", marginBottom: 8, padding: 6, borderRadius: 4, border: '1px solid #ccc' }}
                     >
                         <option value="">-- Selecciona tipo --</option>
-                        <option value="small">Small</option>
-                        <option value="medium">Medium</option>
-                        <option value="big">Big</option>
+                        <option value="Pequeña">Pequeña (Disponible: {getCantidadDisponible('Pequeña')} unidades)</option>
+                        <option value="Mediana">Mediana (Disponible: {getCantidadDisponible('Mediana')} unidades)</option>
+                        <option value="Grande">Grande (Disponible: {getCantidadDisponible('Grande')} unidades)</option>
                     </select>
+                    {newVenta.tipo_maceta && (
+                        <p style={{ fontSize: 12, color: '#0177edff', marginBottom: 8 }}>
+                            Stock disponible: {getCantidadDisponible(newVenta.tipo_maceta)} unidades
+                        </p>
+                    )}
 
                     <label style={{ display: 'block', marginBottom: 8, fontWeight: 'bold' }}>Cantidad:</label>
                     <input
