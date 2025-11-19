@@ -1,10 +1,16 @@
+// Importamos React y los hooks necesarios
 import React, { useState, useEffect, useMemo } from 'react';
+
+// Importamos la barra de búsqueda y estilos
 import BarraBusqueda from '../componentes/barraBusqueda.jsx';
 import { commonStyles, colors } from '../styles/commonStyles.js';
+
+// Importamos los servicios (API) para ventas, clientes y stock
 import { getVentas, crearVenta, eliminarVenta, actualizarVenta } from '../services/ventasService';
 import { getClientes } from '../services/clientesService';
 import { getStock } from '../services/stockService';
 
+// Estilos (combinamos estilos comunes con estilos específicos)
 const styles = {
     ...commonStyles,
     header: { display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: 12 },
@@ -19,16 +25,19 @@ const styles = {
     cancelButton: { padding: '8px 12px', background: '#6c757d', color: '#fff', border: 'none', borderRadius: 4, cursor: 'pointer', textDecoration: 'none' },
 };
 
+// Componente principal de la página de ventas
 const VentasPage = () => {
-    const [ventas, setVentas] = useState([]);
-    const [clientes, setClientes] = useState([]);
-    const [stock, setStock] = useState([]);
-    const [query, setQuery] = useState('');
-    const [editingId, setEditingId] = useState(null);
-    const [editValues, setEditValues] = useState({ cliente: '', cantidad: 0 });
-    const [saving, setSaving] = useState(false);
 
-    // NUEVOS ESTADOS PARA CREAR UNA VENTA
+    // Estados principales
+    const [ventas, setVentas] = useState([]);         // Lista de ventas
+    const [clientes, setClientes] = useState([]);     // Lista de clientes
+    const [stock, setStock] = useState([]);           // Stock disponible
+    const [query, setQuery] = useState('');           // Texto para filtrar
+    const [editingId, setEditingId] = useState(null); // ID de venta que se está editando
+    const [editValues, setEditValues] = useState({ cliente: '', cantidad: 0 }); // Valores editados
+    const [saving, setSaving] = useState(false);      // Estado de guardado
+
+    // Estado para crear nuevas ventas
     const [adding, setAdding] = useState(false);
     const [newVenta, setNewVenta] = useState({
         cliente: "",
@@ -38,38 +47,40 @@ const VentasPage = () => {
         metodo_pago: "",
     });
 
-    // Cargar ventas y clientes
+    // Función para cargar ventas desde el backend
     const fetchVentas = async () => {
         const data = await getVentas();
         setVentas(data);
     };
 
+    // Función para cargar clientes
     const fetchClientes = async () => {
         const data = await getClientes();
         setClientes(data);
     };
 
+    // Función para cargar stock
     const fetchStock = async () => {
         const data = await getStock();
         setStock(data);
     };
 
+    // useEffect: carga inicial de datos al montar el componente
     useEffect(() => { 
         fetchVentas();
         fetchClientes();
         fetchStock();
     }, []);
 
-    // Filtrado
+    // Filtrado de ventas según el query
     const filtered = useMemo(() => {
         const q = query.trim().toLowerCase();
         if (!q) return ventas;
         return ventas.filter(v => (v.cliente || '').toLowerCase().includes(q));
     }, [ventas, query]);
 
-    // Obtener cantidad disponible en inventario
+    // Calcula cuánta cantidad queda de un tipo de maceta (según el inventario)
     const getCantidadDisponible = (tipoMaceta) => {
-        // Mapear el tipo de maceta al nombre en el inventario
         const nombreMap = {
             'Pequeña': 'Maceta pequeña',
             'Mediana': 'Maceta mediana',
@@ -79,34 +90,34 @@ const VentasPage = () => {
         const nombreBuscado = nombreMap[tipoMaceta];
         if (!nombreBuscado) return 0;
         
-        // Sumar todas las cantidades de productos con el mismo nombre
-        const cantidadTotal = stock
+        return stock
             .filter(item => item.nombre?.toLowerCase() === nombreBuscado.toLowerCase())
             .reduce((sum, item) => sum + (item.cantidad || 0), 0);
-        
-        return cantidadTotal;
     };
 
     // Confirmar nueva venta
     const handleConfirmarNuevaVenta = async () => {
+
+        // Validaciones básicas
         if (!newVenta.cliente.trim()) return alert("Falta seleccionar un cliente");
         if (!newVenta.tipo_maceta.trim()) return alert("Falta el tipo de maceta");
         if (!newVenta.metodo_pago.trim()) return alert("Falta el método de pago");
         if (newVenta.cantidad < 1) return alert("La cantidad debe ser al menos 1");
         if (newVenta.precio_unitario < 1) return alert("El precio unitario debe ser al menos 1");
-        
-        // Validar que hay suficiente stock
+
+        // Verificar si hay stock suficiente
         const cantidadDisponible = getCantidadDisponible(newVenta.tipo_maceta);
         if (newVenta.cantidad > cantidadDisponible) {
             return alert(`No hay suficiente stock. Disponible: ${cantidadDisponible} unidades`);
         }
 
-        // Obtener el nombre completo del cliente seleccionado
+        // Convertir el ID del cliente en su nombre completo
         const clienteSeleccionado = clientes.find(c => c._id === newVenta.cliente);
         const nombreCliente = clienteSeleccionado 
             ? `${clienteSeleccionado.nombre} ${clienteSeleccionado.apellidos}` 
             : newVenta.cliente;
 
+        // Crear el payload final que se enviará a la API
         const payload = {
             cliente: nombreCliente,
             tipo_maceta: newVenta.tipo_maceta,
@@ -117,16 +128,14 @@ const VentasPage = () => {
             fecha_venta: new Date().toISOString()
         };
 
+        // Enviar la venta
         try {
-            console.log('Enviando payload:', payload);
             const created = await crearVenta(payload);
-            console.log('Venta creada:', created);
             setVentas(v => [...v, created]);
-            // Actualizar el stock local después de la venta
-            await fetchStock();
+            await fetchStock();    // Actualizar stock tras la venta
             alert('Venta creada correctamente');
-            setAdding(false);
-            setNewVenta({
+            setAdding(false);      // Ocultar formulario
+            setNewVenta({          // Reiniciar formulario
                 cliente: "",
                 tipo_maceta: "",
                 cantidad: 1,
@@ -139,7 +148,7 @@ const VentasPage = () => {
         }
     };
 
-    // Eliminar
+    // Eliminar venta
     const handleEliminar = async (id) => {
         if (!confirm('¿Estás seguro de que quieres eliminar esta venta?')) return;
         
@@ -152,17 +161,19 @@ const VentasPage = () => {
         }
     };
 
-    // Editar inline
+    // Empezar a editar una venta
     const startEdit = (v) => {
         setEditingId(v._id);
         setEditValues({ cliente: v.cliente || '', cantidad: v.cantidad ?? 1 });
     };
 
+    // Cancelar edición
     const cancelEdit = () => {
         setEditingId(null);
         setEditValues({ cliente: '', cantidad: 0 });
     };
 
+    // Guardar edición
     const saveEdit = async (id) => {
         const name = (editValues.cliente || '').trim();
         const qty = Number(editValues.cantidad);
@@ -172,7 +183,7 @@ const VentasPage = () => {
 
         setSaving(true);
         try {
-            // Obtener la venta actual para sacar el precio_unitario
+            // Recuperamos la venta original para obtener el precio unitario
             const ventaActual = ventas.find(v => v._id === id);
             const precioUnitario = ventaActual?.precio_unitario || 0;
             const nuevoTotal = qty * precioUnitario;
@@ -182,11 +193,14 @@ const VentasPage = () => {
                 cantidad: qty,
                 total: nuevoTotal
             };
+
             const updated = await actualizarVenta(id, payload);
 
+            // Actualizamos visualmente la venta editada
             setVentas(prev => prev.map(item => item._id === id ? ({ ...item, ...updated }) : item));
             setEditingId(null);
             setEditValues({ cliente: '', cantidad: 0 });
+
         } catch (e) {
             console.error('Error actualizando venta', e);
             alert('Error al guardar los cambios');
@@ -195,15 +209,19 @@ const VentasPage = () => {
         }
     };
 
+    // Render principal
     return (
         <div style={styles.container}>
+            {/* Barra superior */}
             <BarraBusqueda />
             <div style={styles.header}>
                 <h1 style={styles.title}>Ventas Niger</h1>
             </div>
 
+            {/* Contador de registros */}
             <p style={styles.small}>Mostrando {filtered.length} de {ventas.length} registros.</p>
 
+            {/* Buscador y botón para añadir venta */}
             <div style={{ marginBottom: 12 }}>
                 <input
                     placeholder="Buscar por nombre de cliente..."
@@ -220,6 +238,7 @@ const VentasPage = () => {
                 </button>
             </div>
 
+            {/* Formulario para crear nueva venta */}
             {adding && (
                 <div style={{
                     padding: 12,
@@ -230,6 +249,7 @@ const VentasPage = () => {
                 }}>
                     <h3>Nueva venta</h3>
 
+                    {/* Selección de cliente */}
                     <label style={{ display: 'block', marginBottom: 8, fontWeight: 'bold' }}>Cliente:</label>
                     <select
                         value={newVenta.cliente}
@@ -244,6 +264,7 @@ const VentasPage = () => {
                         ))}
                     </select>
 
+                    {/* Tipo de maceta */}
                     <label style={{ display: 'block', marginBottom: 8, fontWeight: 'bold' }}>Tipo de maceta:</label>
                     <select
                         value={newVenta.tipo_maceta}
@@ -255,26 +276,28 @@ const VentasPage = () => {
                         <option value="Mediana">Mediana (Disponible: {getCantidadDisponible('Mediana')} unidades)</option>
                         <option value="Grande">Grande (Disponible: {getCantidadDisponible('Grande')} unidades)</option>
                     </select>
+
+                    {/* Mostrar stock si se eligió tipo */}
                     {newVenta.tipo_maceta && (
                         <p style={{ fontSize: 12, color: '#0177edff', marginBottom: 8 }}>
                             Stock disponible: {getCantidadDisponible(newVenta.tipo_maceta)} unidades
                         </p>
                     )}
 
+                    {/* Cantidad */}
                     <label style={{ display: 'block', marginBottom: 8, fontWeight: 'bold' }}>Cantidad:</label>
                     <input
                         type="number"
-                        placeholder="Cantidad"
                         min={1}
                         value={newVenta.cantidad}
                         onChange={e => setNewVenta(v => ({ ...v, cantidad: Number(e.target.value) }))}
                         style={{ width: "100%", marginBottom: 8, padding: 6, borderRadius: 4, border: '1px solid #ccc' }}
                     />
 
+                    {/* Precio unitario */}
                     <label style={{ display: 'block', marginBottom: 8, fontWeight: 'bold' }}>Precio unitario (euros):</label>
                     <input
                         type="number"
-                        placeholder="Precio unitario"
                         min={0.01}
                         step={0.01}
                         value={newVenta.precio_unitario}
@@ -282,6 +305,7 @@ const VentasPage = () => {
                         style={{ width: "100%", marginBottom: 8, padding: 6, borderRadius: 4, border: '1px solid #ccc' }}
                     />
 
+                    {/* Método de pago */}
                     <label style={{ display: 'block', marginBottom: 8, fontWeight: 'bold' }}>Método de pago:</label>
                     <select
                         value={newVenta.metodo_pago}
@@ -294,6 +318,7 @@ const VentasPage = () => {
                         <option value="PayPal">PayPal</option>
                     </select>
 
+                    {/* Botones */}
                     <button
                         style={{ ...styles.editButton, marginRight: 8 }}
                         onClick={handleConfirmarNuevaVenta}
@@ -310,6 +335,7 @@ const VentasPage = () => {
                 </div>
             )}
 
+            {/* Tabla de ventas */}
             <div style={{ overflowX: 'auto' }}>
                 <table style={styles.table}>
                     <thead>
@@ -332,6 +358,8 @@ const VentasPage = () => {
                                 <td style={styles.td}><span style={styles.small}>{v._id}</span></td>
                                 <td style={styles.td}>{v.tipo_maceta || '-'}</td>
                                 <td style={styles.td}>{v.fecha_venta ? new Date(v.fecha_venta).toLocaleDateString('es-ES') : '-'}</td>
+
+                                {/* Cliente (editable) */}
                                 <td style={styles.td}>
                                     {editingId === v._id ? (
                                         <input
@@ -340,6 +368,8 @@ const VentasPage = () => {
                                         />
                                     ) : (v.cliente || '-')}
                                 </td>
+
+                                {/* Cantidad (editable) */}
                                 <td style={styles.td}>
                                     {editingId === v._id ? (
                                         <input
@@ -351,10 +381,12 @@ const VentasPage = () => {
                                         />
                                     ) : (v.cantidad)}
                                 </td>
+
                                 <td style={styles.td}>€{Number(v.precio_unitario).toFixed(2)}</td>
                                 <td style={styles.td}>€{Number(v.total).toFixed(2)}</td>
                                 <td style={styles.td}>{v.metodo_pago}</td>
 
+                                {/* Botones editar / eliminar */}
                                 <td style={styles.td}>
                                     {editingId === v._id ? (
                                         <>
@@ -399,4 +431,5 @@ const VentasPage = () => {
     );
 };
 
+// Exportamos el componente
 export default VentasPage;
