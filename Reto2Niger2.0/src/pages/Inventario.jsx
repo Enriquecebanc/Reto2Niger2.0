@@ -21,7 +21,6 @@ const Inventario = () => {
   const [stock, setStock] = useState([]);
   const [collapsed, setCollapsed] = useState({});
 
-  const [modoCreacion, setModoCreacion] = useState("nuevo"); // "nuevo" o "existente"
   const [productoSeleccionado, setProductoSeleccionado] = useState("");
   const [nuevoNombre, setNuevoNombre] = useState("");
   const [nuevoTipo, setNuevoTipo] = useState("");
@@ -98,13 +97,8 @@ const Inventario = () => {
   const handleCrear = async (e) => {
     e.preventDefault();
 
-    if (modoCreacion === "existente" && !productoSeleccionado) {
-      alert("Debes seleccionar un producto existente.");
-      return;
-    }
-
-    if (modoCreacion === "nuevo" && (!nuevoNombre || !nuevoTipo)) {
-      alert("Debes completar nombre y tipo para crear una pieza nueva.");
+    if (!productoSeleccionado) {
+      alert("Debes seleccionar un producto.");
       return;
     }
 
@@ -252,91 +246,52 @@ const Inventario = () => {
         >
           <h3>Añadir nueva pieza</h3>
 
-          <div style={{ marginBottom: "12px" }}>
-            <label style={{ display: "block", marginBottom: "8px", color: colors.text }}>
-              <input
-                type="radio"
-                value="nuevo"
-                checked={modoCreacion === "nuevo"}
-                onChange={(e) => {
-                  setModoCreacion(e.target.value);
-                  setProductoSeleccionado("");
-                  setNuevoNombre("");
-                  setNuevoTipo("");
-                  setNuevoPrecio(0);
-                }}
-                style={{ marginRight: "8px" }}
-              />
-              Crear producto nuevo
-            </label>
-            <label style={{ display: "block", color: colors.text }}>
-              <input
-                type="radio"
-                value="existente"
-                checked={modoCreacion === "existente"}
-                onChange={(e) => {
-                  setModoCreacion(e.target.value);
-                  setNuevoNombre("");
-                  setNuevoTipo("");
-                  setNuevoPrecio(0);
-                }}
-                style={{ marginRight: "8px" }}
-              />
-              Añadir más de producto existente
-            </label>
-          </div>
-
-          {modoCreacion === "existente" && (
-            <select
-              value={productoSeleccionado}
-              onChange={handleSeleccionProducto}
-              style={commonStyles.input}
-              required
-            >
-              <option value="">Selecciona un producto...</option>
-              {todosLosProductos.map((p, idx) => (
-                <option key={`${p.nombre}-${idx}`} value={p.nombre}>
-                  {p.nombre}
-                </option>
-              ))}
-            </select>
-          )}
+          <select
+            value={productoSeleccionado}
+            onChange={handleSeleccionProducto}
+            style={commonStyles.input}
+            required
+          >
+            <option value="">Selecciona un producto...</option>
+            {todosLosProductos.map((p, idx) => (
+              <option key={`${p.nombre}-${idx}`} value={p.nombre}>
+                {p.nombre}
+              </option>
+            ))}
+          </select>
 
           <input
             type="text"
-            readOnly={modoCreacion === "existente"}
+            readOnly
             value={nuevoNombre}
-            onChange={(e) => setNuevoNombre(e.target.value)}
             placeholder="Nombre"
             style={{ 
               ...commonStyles.input, 
-              background: modoCreacion === "existente" ? "#222" : colors.backgroundLight, 
+              background: "#222", 
               marginTop: "8px" 
             }}
           />
 
           <input
             type="text"
-            readOnly={modoCreacion === "existente"}
+            readOnly
             value={nuevoTipo}
-            onChange={(e) => setNuevoTipo(e.target.value)}
             placeholder="Tipo"
             style={{ 
               ...commonStyles.input, 
-              background: modoCreacion === "existente" ? "#222" : colors.backgroundLight, 
+              background: "#222", 
               marginTop: "8px" 
             }}
           />
 
           <input
             type="number"
-            readOnly={modoCreacion === "existente"}
+            readOnly
             value={nuevoPrecio}
-            onChange={(e) => setNuevoPrecio(Number(e.target.value))}
             placeholder="Precio"
             style={{ 
               ...commonStyles.input, 
-              background: modoCreacion === "existente" ? "#222" : colors.backgroundLight, 
+              background: "#222", 
               marginTop: "8px" 
             }}
           />
