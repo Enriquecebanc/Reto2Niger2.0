@@ -6,15 +6,15 @@ import { commonStyles, colors } from '../styles/commonStyles.js';
 
 // Productos predefinidos para fabricación
 const PRODUCTOS_PREDEFINIDOS = [
-  { nombre: "LED Rojo", tipo: "LED", precio: 0.5 },
-  { nombre: "LED Verde", tipo: "LED", precio: 0.5 },
-  { nombre: "LED Amarillo", tipo: "LED", precio: 0.5 },
-  { nombre: "Maceta de plástico Pequeño", tipo: "Carcasa", precio: 2.0 },
-  { nombre: "Maceta de plástico Mediano", tipo: "Carcasa", precio: 3.0 },
-  { nombre: "Maceta de plástico Grande", tipo: "Carcasa", precio: 4.0 },
-  { nombre: "Sensor de humedad", tipo: "Sensor", precio: 5.0 },
-  { nombre: "Sensor de luz", tipo: "Sensor", precio: 4.5 },
-  { nombre: "Batería", tipo: "Batería", precio: 3.0 }
+  { nombre: "LED Rojo", tipo: "LED", precio: 0.8 },
+  { nombre: "LED Verde", tipo: "LED", precio: 0.8 },
+  { nombre: "LED Amarillo", tipo: "LED", precio: 0.8 },
+  { nombre: "Maceta de plástico Pequeño", tipo: "Maceta", precio: 1.8 },
+  { nombre: "Maceta de plástico Mediano", tipo: "Maceta", precio: 2.5 },
+  { nombre: "Maceta de plástico Grande", tipo: "Maceta", precio: 3.2 },
+  { nombre: "Sensor de humedad", tipo: "Sensor", precio: 2.5 },
+  { nombre: "Sensor de luz", tipo: "Sensor", precio: 2 },
+  { nombre: "Batería", tipo: "Batería", precio: 1.5 }
 ];
 
 const Inventario = () => {
@@ -152,7 +152,7 @@ const Inventario = () => {
 
         {/* COLUMNA IZQUIERDA */}
         <div style={{ flex: 3 }}>
-          <h3 style={{ marginLeft: "-675px" }}>Piezas Disponibles</h3>
+          <h3 style={{ marginLeft: "-620px" }}>Piezas Disponibles</h3>
 
 
           {Object.keys(groupedStock).map((tipo) => (
@@ -162,7 +162,8 @@ const Inventario = () => {
                 marginBottom: "10px",
                 border: `1px solid ${colors.border}`,
                 borderRadius: "8px",
-                backgroundColor: colors.backgroundLight
+                backgroundColor: colors.backgroundLight,
+                width: "110%",
               }}
             >
               <button
@@ -241,7 +242,8 @@ const Inventario = () => {
             position: "sticky",
             top: "0px",
             maxHeight: "600px",
-            marginTop: "65px"
+            marginTop: "65px",
+            marginLeft: "80px",
           }}
         >
           <h3>Añadir nueva pieza</h3>
