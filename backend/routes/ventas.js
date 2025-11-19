@@ -33,12 +33,12 @@ router.post('/', async (req, res) => {
     try {
         // Mapear el tipo de maceta al nombre en el inventario
         const nombreMap = {
-            'small': 'Maceta pequeña',
-            'medium': 'Maceta mediana',
-            'big': 'Maceta grande'
+            'Pequeña': 'Maceta pequeña',
+            'Mediana': 'Maceta mediana',
+            'Grande': 'Maceta grande'
         };
         
-        const nombreProducto = nombreMap[tipo_maceta.toLowerCase()];
+        const nombreProducto = nombreMap[tipo_maceta];
         if (!nombreProducto) {
             return res.status(400).json({ 
                 message: `Tipo de maceta no válido: '${tipo_maceta}'` 
