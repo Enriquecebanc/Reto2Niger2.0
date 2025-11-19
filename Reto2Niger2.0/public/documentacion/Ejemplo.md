@@ -133,22 +133,89 @@ Durante el desarrollo del proyecto, utilizamos herramientas de IA como apoyo en 
 
 **Limitaciones**: Las sugerencias requirieron supervisión constante, ajustes al contexto específico de nuestro proyecto, y validación para evitar soluciones genéricas que no se adaptaban a nuestras necesidades.
 
-### 2.6 Dificultades Técnicas que Enfrentamos
+### 2.6 Dificultades Técnicas y Soluciones Implementadas
 
-**1. MongoDB findById() retornaba null**  
-Nuestra solución: Implementamos búsqueda manual comparando IDs como strings
+Durante el desarrollo del proyecto enfrentamos diversos desafíos técnicos que pusieron a prueba nuestras habilidades de debugging y resolución de problemas. A continuación, detallamos los principales obstáculos encontrados y las soluciones implementadas:
 
-**2. Layout no ocupaba pantalla completa**  
-Nuestra solución: Eliminamos `display: flex` del CSS global
+#### 2.6.1 Problema Crítico con MongoDB findById()
 
-**3. Datos incompletos del cliente en facturas**  
-Nuestra solución: Cargamos el cliente completo desde la colección de clientes
+**Descripción del problema**: El método estándar `findById()` de MongoDB retornaba sistemáticamente `null`, incluso cuando los documentos existían en la base de datos. Este problema bloqueaba completamente las operaciones de eliminación y actualización.
 
-**4. Total no se actualizaba al editar ventas**  
-Nuestra solución: Recalculamos el total en frontend antes de enviar
+**Impacto**: Las funcionalidades de edición y eliminación en todos los módulos (Inventario, Ventas, Proveedores) quedaron inoperativas, comprometiendo la usabilidad básica del sistema.
 
-**5. React Router interceptaba PDFs**  
-Nuestra solución: Usamos `window.open()` en lugar de iframe
+**Diagnóstico**: Tras múltiples pruebas, identificamos una posible incompatibilidad en la serialización de ObjectId entre el cliente y el servidor, donde los IDs no se reconocían correctamente en las consultas directas.
+
+**Solución implementada**: Desarrollamos un workaround robusto que realiza una búsqueda manual:
+```javascript
+const todosLosDocs = await collection.find({}).toArray();
+const docEncontrado = todosLosDocs.find(doc => doc._id.toString() === id);
+const resultado = await collection.deleteOne({ _id: docEncontrado._id });
+```
+
+**Resultado**: Aunque no es la solución ideal desde el punto de vista de rendimiento, garantizó la funcionalidad completa del sistema y demostró nuestra capacidad para encontrar soluciones creativas ante limitaciones técnicas.
+
+#### 2.6.2 Conflictos de Layout y Estilos CSS
+
+**Descripción del problema**: La interfaz no ocupaba la pantalla completa en Electron, mostrando márgenes blancos no deseados y rompiendo el diseño responsive.
+
+**Causa raíz**: Conflicto entre los estilos globales de CSS que utilizaban `display: flex` y la estructura de componentes de React Router.
+
+**Solución**: Reestructuramos la jerarquía CSS eliminando propiedades conflictivas del CSS global y aplicando estilos específicos a nivel de componente, garantizando compatibilidad con Electron.
+
+**Aprendizaje**: La importancia de mantener estilos modulares y evitar reglas globales excesivamente restrictivas en aplicaciones de escritorio.
+
+#### 2.6.3 Enriquecimiento de Datos en el Módulo de Facturación
+
+**Descripción del problema**: Las facturas inicialmente solo almacenaban el nombre del cliente como string simple, sin acceso a información adicional como dirección, teléfono o email, lo que limitaba la profesionalidad de las facturas generadas.
+
+**Impacto**: Las facturas carecían de datos esenciales requeridos en documentos comerciales legales, reduciendo significativamente su utilidad práctica.
+
+**Solución implementada**: Desarrollamos un sistema de enriquecimiento de datos que busca y vincula la información completa del cliente:
+```javascript
+const clienteCompleto = todosClientes.find(c => 
+  `${c.nombre} ${c.apellidos}`.trim() === nombreBuscado
+);
+```
+
+**Mejora adicional**: Implementamos un sistema de caché para evitar búsquedas repetidas y optimizar el rendimiento del visor de facturas.
+
+#### 2.6.4 Inconsistencias en Cálculos de Ventas
+
+**Descripción del problema**: Al editar ventas existentes (modificando cantidad o precio unitario), el total no se recalculaba automáticamente, generando inconsistencias entre los datos mostrados y los almacenados.
+
+**Impacto**: Datos financieros incorrectos que podrían derivar en errores de facturación y reportes inexactos.
+
+**Solución**: Implementamos recálculo automático en el frontend antes de enviar actualizaciones:
+```javascript
+const nuevoTotal = cantidad × precio_unitario;
+```
+
+**Validación adicional**: Añadimos validaciones para evitar valores negativos o nulos que pudieran corromper los registros.
+
+#### 2.6.5 Conflicto de React Router con Archivos PDF
+
+**Descripción del problema**: React Router interceptaba las rutas de los archivos PDF en el módulo de Documentación, impidiendo su visualización correcta. Los PDFs se trataban como rutas de navegación en lugar de recursos estáticos.
+
+**Intentos fallidos**: 
+- Configurar iframe con rutas relativas
+- Usar componentes específicos de visualización de PDFs
+- Ajustar la configuración de Vite para servir archivos estáticos
+
+**Solución definitiva**: Implementamos `window.open()` para abrir PDFs en nueva pestaña del navegador, evitando completamente el sistema de routing:
+```javascript
+window.open('/documentacion/archivo.pdf', '_blank');
+```
+
+**Beneficio adicional**: Esta solución mejoró la experiencia de usuario permitiendo vista independiente de documentos sin abandonar la aplicación.
+
+#### 2.6.6 Lecciones Aprendidas
+
+Este conjunto de desafíos nos enseñó:
+- **Persistencia en el debugging**: No siempre existen soluciones "perfectas"; a veces se requieren workarounds pragmáticos
+- **Pensamiento lateral**: Cuando los métodos convencionales fallan, buscar alternativas creativas
+- **Importancia de las pruebas**: Identificar problemas tempranamente ahorra tiempo en fases avanzadas
+- **Documentación del proceso**: Registrar problemas y soluciones facilita el mantenimiento futuro
+- **Trabajo colaborativo**: Compartir conocimientos del equipo acelera la resolución de problemas complejos
 
 ---
 
