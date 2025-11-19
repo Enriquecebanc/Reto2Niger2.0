@@ -3,7 +3,7 @@ import FormularioFabricacionModal from '../componentes/FormularioFabricacionModa
 import ModalMateriales from '../componentes/ModalMateriales';
 import BarraBusqueda from '../componentes/barraBusqueda.jsx';
 import logoNiger from '../assets/Niger.png';
-import { getFabricaciones, crearFabricacion, actualizarFabricacion } from '../services/fabricacionService';
+import { getFabricaciones, crearFabricacion, actualizarFabricacion, eliminarFabricacion } from '../services/fabricacionService';
 import { commonStyles, colors } from '../styles/commonStyles.js';
 
 function Fabricacion() {
@@ -12,6 +12,7 @@ function Fabricacion() {
   const [materialesModalOpen, setMaterialesModalOpen] = useState(false);
   const [materialesSeleccionados, setMaterialesSeleccionados] = useState([]);
   const [query, setQuery] = useState('');
+  const [eliminando, setEliminando] = useState(null);
 
   // ⿡ Cargar fabricaciones del backend
   useEffect(() => {
@@ -50,7 +51,23 @@ function Fabricacion() {
     setMaterialesModalOpen(true);
   };
 
-  // ⿥ Filtrado por búsqueda
+  // ⿥ Eliminar fabricación
+  const handleEliminar = async (id) => {
+    if (window.confirm('¿Estás seguro de eliminar esta fabricación?')) {
+      try {
+        setEliminando(id);
+        await eliminarFabricacion(id);
+        setFabricaciones(prev => prev.filter(fab => fab._id !== id));
+      } catch (err) {
+        console.error("Error al eliminar fabricación:", err);
+        alert('Error al eliminar la fabricación');
+      } finally {
+        setEliminando(null);
+      }
+    }
+  };
+
+  // ⿦ Filtrado por búsqueda
   const filtered = fabricaciones.filter(fab =>
     fab.producto.toLowerCase().includes(query.toLowerCase())
   );
@@ -127,19 +144,35 @@ function Fabricacion() {
                 </button>
               </td>
               <td style={commonStyles.td}>
-                <select
-                  value={fab.estado}
-                  onChange={e => handleActualizarEstado(fab._id, e.target.value)}
-                  style={{ 
-                    ...commonStyles.input,
-                    padding: '6px 8px'
-                  }}
-                >
-                  <option value="Pendiente">Pendiente</option>
-                  <option value="En proceso">En proceso</option>
-                  <option value="Finalizado">Finalizado</option>
-                  <option value="Cancelado">Cancelado</option>
-                </select>
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                  <select
+                    value={fab.estado}
+                    onChange={e => handleActualizarEstado(fab._id, e.target.value)}
+                    style={{ 
+                      ...commonStyles.input,
+                      padding: '6px 8px',
+                      flex: 1
+                    }}
+                  >
+                    <option value="Pendiente">Pendiente</option>
+                    <option value="En proceso">En proceso</option>
+                    <option value="Finalizado">Finalizado</option>
+                    <option value="Cancelado">Cancelado</option>
+                  </select>
+                  <button
+                    onClick={() => handleEliminar(fab._id)}
+                    disabled={eliminando === fab._id}
+                    style={{
+                      ...commonStyles.button,
+                      backgroundColor: colors.danger,
+                      padding: '6px 12px',
+                      opacity: eliminando === fab._id ? 0.5 : 1,
+                      cursor: eliminando === fab._id ? 'not-allowed' : 'pointer'
+                    }}
+                  >
+                    {eliminando === fab._id ? 'Eliminando...' : 'Eliminar'}
+                  </button>
+                </div>
               </td>
             </tr>
           ))}

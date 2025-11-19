@@ -45,3 +45,16 @@ export async function actualizarFabricacion(id, data) {
     throw err;
   }
 }
+
+// Eliminar fabricación
+export async function eliminarFabricacion(id) {
+  try {
+    console.log("SERVICE -> DELETE", `${API_URL}/${id}`);
+    const res = await axios.delete(`${API_URL}/${id}`);
+    console.log("SERVICE -> respuesta DELETE:", res.status, res.data);
+    return res.data;
+  } catch (err) {
+    console.error("SERVICE -> error DELETE:", err.response?.data || err.message);
+    throw err;
+  }
+}
