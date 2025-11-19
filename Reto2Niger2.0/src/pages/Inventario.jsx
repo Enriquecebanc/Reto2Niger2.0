@@ -4,10 +4,24 @@ import BarraBusqueda from "../componentes/barraBusqueda.jsx";
 import logoNiger from '../assets/Niger.png';
 import { commonStyles, colors } from '../styles/commonStyles.js';
 
+// Productos predefinidos para fabricación
+const PRODUCTOS_PREDEFINIDOS = [
+  { nombre: "LED Rojo", tipo: "LED", precio: 0.5 },
+  { nombre: "LED Verde", tipo: "LED", precio: 0.5 },
+  { nombre: "LED Amarillo", tipo: "LED", precio: 0.5 },
+  { nombre: "Maceta de plástico Pequeño", tipo: "Carcasa", precio: 2.0 },
+  { nombre: "Maceta de plástico Mediano", tipo: "Carcasa", precio: 3.0 },
+  { nombre: "Maceta de plástico Grande", tipo: "Carcasa", precio: 4.0 },
+  { nombre: "Sensor de humedad", tipo: "Sensor", precio: 5.0 },
+  { nombre: "Sensor de luz", tipo: "Sensor", precio: 4.5 },
+  { nombre: "Batería", tipo: "Batería", precio: 3.0 }
+];
+
 const Inventario = () => {
   const [stock, setStock] = useState([]);
   const [collapsed, setCollapsed] = useState({});
 
+  const [modoCreacion, setModoCreacion] = useState("nuevo"); // "nuevo" o "existente"
   const [productoSeleccionado, setProductoSeleccionado] = useState("");
   const [nuevoNombre, setNuevoNombre] = useState("");
   const [nuevoTipo, setNuevoTipo] = useState("");
@@ -41,23 +55,56 @@ const Inventario = () => {
     }, {})
   );
 
-  const handleSeleccionProducto = (e) => {
-    const id = e.target.value;
-    setProductoSeleccionado(id);
+  // Combinar productos únicos del stock con productos predefinidos
+  const todosLosProductos = [...PRODUCTOS_PREDEFINIDOS];
+  
+  // Agregar productos del stock que no estén en la lista predefinida
+  productosUnicos.forEach(p => {
+    if (!PRODUCTOS_PREDEFINIDOS.find(prod => prod.nombre === p.nombre)) {
+      todosLosProductos.push({
+        nombre: p.nombre,
+        tipo: p.tipo,
+        precio: p.precio_unitario
+      });
+    }
+  });
 
-    const producto = stock.find((p) => p._id === id);
+  const handleSeleccionProducto = (e) => {
+    const nombreProducto = e.target.value;
+    setProductoSeleccionado(nombreProducto);
+
+    // Buscar primero en productos predefinidos
+    let producto = PRODUCTOS_PREDEFINIDOS.find(p => p.nombre === nombreProducto);
+    
+    // Si no está en predefinidos, buscar en stock
+    if (!producto) {
+      const stockItem = stock.find((p) => p.nombre === nombreProducto);
+      if (stockItem) {
+        producto = {
+          nombre: stockItem.nombre,
+          tipo: stockItem.tipo,
+          precio: stockItem.precio_unitario
+        };
+      }
+    }
+
     if (producto) {
       setNuevoNombre(producto.nombre);
       setNuevoTipo(producto.tipo);
-      setNuevoPrecio(producto.precio_unitario);
+      setNuevoPrecio(producto.precio);
     }
   };
 
   const handleCrear = async (e) => {
     e.preventDefault();
 
-    if (!productoSeleccionado) {
+    if (modoCreacion === "existente" && !productoSeleccionado) {
       alert("Debes seleccionar un producto existente.");
+      return;
+    }
+
+    if (modoCreacion === "nuevo" && (!nuevoNombre || !nuevoTipo)) {
+      alert("Debes completar nombre y tipo para crear una pieza nueva.");
       return;
     }
 
@@ -205,42 +252,93 @@ const Inventario = () => {
         >
           <h3>Añadir nueva pieza</h3>
 
-          <select
-            value={productoSeleccionado}
-            onChange={handleSeleccionProducto}
-            style={commonStyles.input}
-            required
-          >
-            <option value="">Selecciona un producto...</option>
-            {productosUnicos.map((p) => (
-              <option key={p._id} value={p._id}>
-                {p.nombre}
-              </option>
-            ))}
-          </select>
+          <div style={{ marginBottom: "12px" }}>
+            <label style={{ display: "block", marginBottom: "8px", color: colors.text }}>
+              <input
+                type="radio"
+                value="nuevo"
+                checked={modoCreacion === "nuevo"}
+                onChange={(e) => {
+                  setModoCreacion(e.target.value);
+                  setProductoSeleccionado("");
+                  setNuevoNombre("");
+                  setNuevoTipo("");
+                  setNuevoPrecio(0);
+                }}
+                style={{ marginRight: "8px" }}
+              />
+              Crear producto nuevo
+            </label>
+            <label style={{ display: "block", color: colors.text }}>
+              <input
+                type="radio"
+                value="existente"
+                checked={modoCreacion === "existente"}
+                onChange={(e) => {
+                  setModoCreacion(e.target.value);
+                  setNuevoNombre("");
+                  setNuevoTipo("");
+                  setNuevoPrecio(0);
+                }}
+                style={{ marginRight: "8px" }}
+              />
+              Añadir más de producto existente
+            </label>
+          </div>
+
+          {modoCreacion === "existente" && (
+            <select
+              value={productoSeleccionado}
+              onChange={handleSeleccionProducto}
+              style={commonStyles.input}
+              required
+            >
+              <option value="">Selecciona un producto...</option>
+              {todosLosProductos.map((p, idx) => (
+                <option key={`${p.nombre}-${idx}`} value={p.nombre}>
+                  {p.nombre}
+                </option>
+              ))}
+            </select>
+          )}
 
           <input
             type="text"
-            readOnly
+            readOnly={modoCreacion === "existente"}
             value={nuevoNombre}
+            onChange={(e) => setNuevoNombre(e.target.value)}
             placeholder="Nombre"
-            style={{ ...commonStyles.input, background: "#222", marginTop: "8px" }}
+            style={{ 
+              ...commonStyles.input, 
+              background: modoCreacion === "existente" ? "#222" : colors.backgroundLight, 
+              marginTop: "8px" 
+            }}
           />
 
           <input
             type="text"
-            readOnly
+            readOnly={modoCreacion === "existente"}
             value={nuevoTipo}
+            onChange={(e) => setNuevoTipo(e.target.value)}
             placeholder="Tipo"
-            style={{ ...commonStyles.input, background: "#222", marginTop: "8px" }}
+            style={{ 
+              ...commonStyles.input, 
+              background: modoCreacion === "existente" ? "#222" : colors.backgroundLight, 
+              marginTop: "8px" 
+            }}
           />
 
           <input
             type="number"
-            readOnly
+            readOnly={modoCreacion === "existente"}
             value={nuevoPrecio}
+            onChange={(e) => setNuevoPrecio(Number(e.target.value))}
             placeholder="Precio"
-            style={{ ...commonStyles.input, background: "#222", marginTop: "8px" }}
+            style={{ 
+              ...commonStyles.input, 
+              background: modoCreacion === "existente" ? "#222" : colors.backgroundLight, 
+              marginTop: "8px" 
+            }}
           />
 
           <input

@@ -29,8 +29,20 @@ function Fabricacion() {
 
   // ⿢ Crear nueva fabricación
   const handleNuevaFabricacion = async ({ producto }) => {
-    const nuevaFab = await crearFabricacion({ producto });
-    setFabricaciones(prev => [...prev, nuevaFab]);
+    try {
+      console.log("Frontend -> Creando fabricación con producto:", producto);
+      const nuevaFab = await crearFabricacion({ producto });
+      console.log("Frontend -> Fabricación creada:", nuevaFab);
+      setFabricaciones(prev => [...prev, nuevaFab]);
+      setModalOpen(false);
+    } catch (err) {
+      console.error("Error al crear fabricación:", err);
+      if (err.response && err.response.data && err.response.data.error) {
+        alert('Error: ' + err.response.data.error);
+      } else {
+        alert('Error al crear la fabricación');
+      }
+    }
   };
 
   // ⿣ Actualizar estado
