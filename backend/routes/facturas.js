@@ -6,16 +6,9 @@ const router = express.Router();
 // GET todas las facturas
 router.get("/", async (req, res) => {
   try {
-    // Obtener facturas sin populate primero
     const facturas = await Factura.find().lean();
-    console.log('GET facturas - Total:', facturas.length);
-    if (facturas.length > 0) {
-      console.log('Primera factura con ventas_ids:', facturas[0].ventas_ids);
-    }
-    
     res.json(facturas);
   } catch (err) {
-    console.error('Error en GET /facturas:', err);
     res.status(500).json({ error: err.message });
   }
 });

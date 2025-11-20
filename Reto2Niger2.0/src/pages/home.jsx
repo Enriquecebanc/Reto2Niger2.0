@@ -5,7 +5,8 @@ function Home() {
   return (
     <div>
       <BarraBusqueda />
-      <h1>BARKA DA ZUWA</h1>  
+      <h1 style={{ color: "white" }}>BARKA DA ZUWA</h1> 
+      
       
 
       <img src={foto} alt="Imagen de Inicio" />
