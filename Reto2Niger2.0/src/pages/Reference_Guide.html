@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Reference Guide – Niger</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #fafafa;
+            padding: 30px 60px;
+            line-height: 1.6;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        p {
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Reference Guide – Niger: Gestión de Macetas Inteligentes</h1>
+
+<h2>Resumen General</h2>
+<p>El proyecto Niger es un ERP para macetas inteligentes desarrollado en React y conectado a un backend mediante API REST. Su objetivo es hacer funcionar la gestión de la información del inventario, fabricación, ventas, facturación y proveedores, asegurando que todas las operaciones funcionen con la base de datos.</p>
+<p>Cada módulo tiene llamadas concretas a la API para obtener, crear, actualizar y eliminar registros según lo necesitemos, garantizando que la información mostrada esté siempre actualizada. Se implementan validaciones en los formularios para evitar errores, mientras que las interfaces tienen búsquedas, filtros y agrupaciones que facilitan la navegación.</p>
+
+<h2>Módulo de Fabricación</h2>
+<p>El módulo de Fabricación permite gestionar la producción de macetas y sus componentes, registrando cada pieza fabricada y sus características principales como tipo, tamaño y cantidad. Para ello se realizan llamadas a la API mediante GET para obtener los lotes existentes y POST para registrar nuevas unidades fabricadas, validando que los campos obligatorios estén completos.</p>
+<p>Este módulo también incluye la posibilidad de actualizar la información de producción con PUT y eliminar lotes con DELETE. También se implementan agrupaciones por tipo de pieza y alertas sobre cantidades disponibles, haciendo más fácil el control y su coordinación con el módulo de inventario.</p>
+
+<h2>Módulo de Facturación</h2>
+<p>En el módulo de Facturación se registran y gestionan todas las transacciones económicas generadas por las ventas de macetas. Se realiza un seguimiento de cada factura incluyendo cliente, productos vendidos, cantidades, precios unitarios, totales y métodos de pago. Los datos se obtienen mediante GET y se crean nuevas facturas con POST asegurándonos de que todos los campos necesarios están validados.</p>
+<p>Además, se pueden actualizar facturas existentes mediante PUT y eliminar las que queramos con DELETE. La integración con el módulo de ventas permite generar facturas precisas con registros y datos de los clientes.</p>
+
+<h2>Módulo de Inventario</h2>
+<p>El módulo de Inventario gestiona todas las piezas y macetas disponibles, mostrando información detallada sobre precio, tipo y proveedor. Cada vez que se añade una pieza con POST o se elimina con DELETE, se vuelve a consultar la API para mantener la información actualizada.</p>
+<p>También se agrupan las piezas por tipo y se pueden expandir o colapsar para visualizar los detalles. Este módulo es fundamental para que la disponibilidad real esté siempre reflejada y accesible por el resto de módulos.</p>
+
+<h2>Módulo de Proveedores</h2>
+<p>En el módulo de Proveedores se gestiona la información de cada proveedor, incluyendo nombre, contacto, correo, dirección, tipo de producto y tamaño de suministro. La carga se hace mediante GET y, en caso de error, se muestran datos de ejemplo.</p>
+<p>La creación se realiza con POST, la actualización con PUT y la eliminación con DELETE, validando campos obligatorios como nombre y teléfono. Además, se integra con Inventario para relacionar cada proveedor con las piezas suministradas.</p>
+
+<h2>Módulo de Ventas</h2>
+<p>El módulo de Ventas registra todas las transacciones realizadas con los clientes, como tipo de maceta, cantidad, precio unitario, total, método de pago y fecha. La información inicial se obtiene mediante GET y se crean nuevas ventas con POST validando los campos necesarios.</p>
+<p>También se pueden actualizar ventas con PUT y eliminar registros con DELETE. Se incluye una búsqueda por nombre de cliente para facilitar la localización de ventas concretas.</p>
+
+</body>
+</html>
