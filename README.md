@@ -2,6 +2,8 @@
 
 ## Aplicación ERP Níger
 
+![alt text](image-2.png)
+
 ### Descripción del proyecto
 En este reto continuamos con el trabajo realizado en el primer reto. Mientras que en el primer reto partimos de un ERP ya existente (como Odoo), en este segundo reto estamos desarrollando nuestro propio ERP desde cero, adaptado a nuestra empresa.  
 
