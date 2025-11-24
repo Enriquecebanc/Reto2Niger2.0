@@ -53,16 +53,6 @@ const createWindow = () => {
           }
         },
         { type: 'separator' },
-        { 
-          label: 'Abrir Carpeta Documentación',
-          click: () => {
-            const rutaCarpeta = path.join(__dirname, 'Reto2Niger2.0', 'src', 'pages');
-            shell.openPath(rutaCarpeta)
-              .then(resultado => {
-                if (resultado) console.error('Error al abrir la carpeta:', resultado);
-              });
-          }
-        }
       ]
     }
   ];
