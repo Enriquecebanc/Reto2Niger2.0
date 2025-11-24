@@ -19,7 +19,7 @@ const createWindow = () => {
   // Ventana inicial
   win.loadURL('http://localhost:5173/');
 
-  // Menú principal
+  // Menú superior
   const template = [
     {
       label: 'Aplicación',

@@ -1,28 +1,280 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Informe Final Reto</title>
-  <style>
-    body { font-family: Arial, sans-serif; padding: 20px; }
-    h1 { color: #333; }
-    section { margin-bottom: 20px; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>INFORME FINAL DE PROYECTO NIGER 2.0</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f7f7f7;
+            padding: 40px;
+            line-height: 1.6;
+            color: #222;
+        }
+        img {
+            max-width: 100%;
+            place-items: center;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        h2 {
+            margin-top: 30px;
+            color: #005bbb;
+        }
+        p {
+            margin-bottom: 20px;
+        }
+        .foto {
+            font-style: italic;
+            color: #555;
+            margin: 15px 0;
+        }
+    </style>
 </head>
 <body>
-  <h1>Informe Final del Reto</h1>
-  <section>
-    <h2>Introducción</h2>
-    <p>Explicación del proyecto...</p>
-  </section>
-  <section>
-    <h2>Implementación</h2>
-    <p>Detalles de la configuración, código, etc.</p>
-  </section>
-  <section>
-    <h2>Resultados</h2>
-    <p>Qué funciona, capturas de pantalla, etc.</p>
-  </section>
+
+<h1>INFORME FINAL DE PROYECTO NIGER 2.0</h1>
+
+<h2>Introducción</h2>
+
+<h3>Contexto del Proyecto</h3>
+<p>En este reto estamos siguiendo lo que hicimos en el primer reto, solo que en el primer reto partimos de un ERP ya creado como la de Odoo, y en este reto estamos creando nuestro propio ERP desde cero y adaptado a nuestra empresa.</p>
+<p>Nosotros como grupo le hemos llamado al ERP igual que nuestro grupo, Níger. Este ERP nos permite llevar de la mejor manera posible nuestra empresa de macetas inteligentes. Para llevar bien toda la gestión dentro de nuestro ERP hemos añadido los siguientes módulos: Fabricación, Facturación, Inventario, Proveedores, Ventas y Documentación.</p>
+
+<h3>Desafío del Reto</h3>
+<p>El desafío de este reto consiste en pasar de utilizar un ERP construido como Odoo, a crear el nuestro propio desde 0, diseñando a medida para cumplir las necesidades de nuestra empresa. Tenemos que desarrollar una aplicación de escritorio totalmente funcional en el que tengamos integrados todos los módulos que necesitemos.</p>
+<p>Además, a nivel técnico es más exigente, ya que debemos implementar Node.js, trabajar con una base de datos NoSQL como es MongoDB y manejar una programación asíncrona que garantice fluidez en nuestra aplicación y una respuesta en tiempo real. El reto también busca tener un sistema escalable que en fases posteriores permita conectar la aplicación a dispositivos móviles.</p>
+
+<h3>Funcionalidades Principales</h3>
+<p>La funcionalidad exacta que queremos conseguir con nuestro ERP es llevar la gestión de la empresa lo mejor posible y para conseguir eso deberemos implementar la gestión de inventario, el registro de proveedores, la gestión de ventas, la creación de las propias macetas, y la gestión de las facturas. Aparte de eso también una ventana para el informe final de reto. Con esto y bastante más funcionalidades completamos nuestro ERP.</p>
+
+<h2>Detalles del proyecto</h2>
+
+<h3>Descripción técnica de la aplicación</h3>
+<p>Nuestra aplicación es un ERP de escritorio que hemos construido utilizando tecnologías web actuales, pero empaquetado como un programa instalable gracias a Electron. Esto nos permite ofrecer una experiencia similar a la de una aplicación nativa, aunque internamente funcione como una web.</p>
+<p>En la parte del frontend trabajamos con React, lo que nos permite crear una interfaz ágil y dinámica. La navegación entre las distintas secciones se realiza sin recargar la página, y utilizamos componentes visuales modernos para mantener una apariencia limpia y coherente en todo el sistema. También contamos con estilos personalizados que nos han ayudado a unificar el diseño de la aplicación.</p>
+<p>En el backend, donde se gestiona toda la lógica, funciona con un servidor en Node.js utilizando Express. Desde ahí se atienden todas las peticiones que llegan desde la interfaz. Las peticiones varían entre búsquedas, creación de registros, modificaciones o eliminaciones. Para cada área del ERP como ventas, facturas, stock, proveedores o fabricación tenemos rutas específicas que permiten organizar mejor el funcionamiento. Además, se han configurado mecanismos de validación y manejo de errores para asegurar que los datos se procesan correctamente antes de llegar a la base de datos.</p>
+<p>Finalmente, toda la información se almacena en MongoDB Atlas, una base de datos en la nube que nos ofrece flexibilidad y escalabilidad. Cada tipo de información se organiza en su propia colección, y los modelos definidos permiten mantener un control básico sobre la estructura de los datos. MongoDB se encarga de generar identificadores automáticos, lo que facilita relacionar información entre diferentes documentos.</p>
+<p>El flujo de funcionamiento es sencillo: el usuario interactúa con la interfaz y esta envía una petición al servidor. El backend procesa la solicitud, consulta la base de datos y devuelve la información en formato JSON. Con esa respuesta, React actualiza la pantalla para mostrar los datos más recientes.</p>
+<p>En cuanto al funcionamiento interno, hemos implementado una API REST sencilla que se encarga de gestionar la comunicación entre la interfaz y el servidor. Para realizar las peticiones utilizamos principalmente la API nativa de fetch, aunque en algunos casos también hemos recurrido a axios por comodidad.</p>
+
+<h2>Módulos de la aplicación</h2>
+<ul>
+    <li><strong>Ventas:</strong> Este módulo gestiona todas las ventas a los clientes. Permite filtrar ventas buscando el nombre del cliente, crear nuevas si hay stock y editarlas o eliminarlas. Actualiza automáticamente la lista de ventas y el inventario. Cada vez que se hace un cambio se guarda en la base de datos.</li>
+    <li><strong>Proveedores:</strong> El módulo de Proveedores gestiona la información de proveedores de macetas y componentes, incluyendo contacto, dirección y tipo de suministro. Permite obtener datos, crear, actualizar y eliminar proveedores validando campos obligatorios. Se integra con Inventario para relacionar proveedores con las piezas suministradas. Así, se mantiene la información sincronizada y se facilita el control de compras.</li>
+    <li><strong>Stock:</strong> El módulo de Inventario gestiona todas las piezas y macetas disponibles, mostrando precio, tipo y proveedor. Permite obtener datos, añadir piezas y eliminarlas, manteniendo la información siempre actualizada. Las piezas se agrupan por tipo, con opción de expandir o colapsar los detalles. Garantiza que la disponibilidad real esté reflejada y sea consultable por los demás módulos.</li>
+    <li><strong>Fabricación:</strong> El módulo de Fabricación gestiona la producción de macetas y sus componentes, registrando cada pieza con sus características principales. Permite obtener lotes existentes, registrar nuevas unidades, actualizar información y eliminar lotes. Incluye validación de campos obligatorios y agrupaciones por tipo de pieza. Además, genera alertas de cantidades disponibles y facilita la coordinación con el módulo de inventario.</li>
+    <li><strong>Facturación:</strong> El módulo de Facturación gestiona todas las transacciones económicas de las ventas de macetas, registrando cliente, productos, cantidades, precios y métodos de pago. Permite obtener facturas, crear nuevas, actualizar y eliminar, asegurando la validación de los campos obligatorios. Facilita la integración con el módulo de ventas para generar facturas precisas. También garantiza un seguimiento completo de cada transacción.</li>
+</ul>
+
+<h2>Rest API</h2>
+<p>Para la conexión del frontend con la base de datos MongoDB, hemos utilizado RestAPI. En la siguiente imagen se puede ver la estructura que sigue.</p>
+<img src="../assets/Informe1.png" alt="foto1">
+<p>En el archivo “.env” tenemos los datos necesarios para la correcta conexión con la base de datos.</p>
+<img src="../assets/Informe2.png" alt="foto2">
+<p>En la carpeta “models” tenemos los modelos de datos que utiliza nuestra base de datos. Hay un archivo “.js” para cada colección de la base de datos.</p>
+<img src="../assets/Informe3.png" alt="foto3">
+<p>En la carpeta “routes” tenemos las rutas necesarias para las llamadas que tiene que hacer la API para el funcionamiento de los distintos módulos de la aplicación. Hay un archivo “.js” para cada módulo de la aplicación.</p>
+<img src="../assets/Informe4.png" alt="foto4">
+
+<h2>Electron</h2>
+<p>Una de las partes más importantes del proyecto es cómo convertimos nuestra aplicación web en una aplicación de escritorio nativa usando Electron. Electron es un framework que permite crear aplicaciones de escritorio usando tecnologías web (HTML, CSS, JavaScript). Aplicaciones como Visual Studio Code, Slack o Discord están hechas con Electron.</p>
+<p>Lo implementamos de esta manera, en el archivo principal de configuración <code>main.js</code>, donde configuramos la ventana principal que sería el puerto 5173 de localhost, donde se inicia y aloja nuestro frontend:</p>
+
+<pre>
+const createWindow = () =&gt; {
+  const win = new BrowserWindow({
+    width: 800,
+    height: 600,
+    webPreferences: {
+      nodeIntegration: true,
+      contextIsolation: false
+    }
+  });
+  
+  win.loadURL('http://localhost:5173/');
+};
+</pre>
+
+<h2>Características implementadas</h2>
+
+<h3>Menú Personalizado</h3>
+<ul>
+    <li>Opción "Aplicación" con funciones de recargar y salir.</li>
+    <li>Menú "Documentación" que permite cargar directamente archivos HTML locales (Informe Final, How To, Reference Guide).</li>
+</ul>
+
+<h3>Integración con Node.js</h3>
+<p>Habilitamos nodeIntegration para usar funcionalidades del sistema operativo desde el frontend, como leer archivos locales o abrir ventanas del navegador.</p>
+
+<h3>Carga de Archivos Locales</h3>
+<p>Configuramos rutas específicas para cargar documentación HTML estática sin depender del servidor web.</p>
+
+<h3>Ventajas de usar Electron en nuestro proyecto</h3>
+<ul>
+    <li>La aplicación funciona sin necesidad de navegador.</li>
+    <li>Aspecto y comportamiento de aplicación nativa.</li>
+    <li>Acceso a APIs del sistema operativo.</li>
+    <li>Fácil distribución (se puede empaquetar en .exe, .dmg, .deb).</li>
+    <li>Menú personalizado para mejorar la experiencia de usuario.</li>
+</ul>
+
+<h3>Desafíos encontrados</h3>
+<ul>
+    <li>Configurar correctamente las rutas entre archivos locales y servidor web.</li>
+    <li>Gestionar la comunicación entre el proceso principal (main.js) y el renderer (React).</li>
+    <li>Ajustar los estilos CSS para que funcionen bien en ventana de escritorio.</li>
+</ul>
+
+<h2>MongoDB</h2>
+<p>Nuestra base de datos de nombre “niger” está alojada en la nube. Dispone de distintas colecciones (tablas):</p>
+<ul>
+    <li>clientes → Información sobre los clientes</li>
+    <li>fabricacions → Información sobre las fabricaciones</li>
+    <li>facturas → Información sobre las facturas</li>
+    <li>proveedors → Información sobre los proveedores</li>
+    <li>stocks → Información sobre los items del stock</li>
+    <li>ventas → Información de las ventas</li>
+</ul>
+<img src="../assets/Informe5.png" alt="foto5">
+
+<p>Cada colección dispone de una estructura diferente de datos, ajustada a las necesidades de cada módulo del que dispone nuestra aplicación.</p>
+
+<h3>Colección: clientes</h3>
+<p>La colección de clientes dispone de este formato que se ve en la imagen. Dispone de estas diferentes columnas:</p>
+<ul>
+    <li>_id → ObjectId</li>
+    <li>nombre → String</li>
+    <li>direccion → String</li>
+    <li>telefono → String</li>
+    <li>email → String</li>
+    <li>createdAt → String</li>
+    <li>updatedAt → String</li>
+</ul>
+<img src="../assets/Informe6.png" alt="foto6">
+
+<h3>Colección: fabricacions</h3>
+<p>La colección de fabricacions dispone de este formato que se ve en la imagen. Dispone de estas diferentes columnas:</p>
+<ul>
+    <li>_id → ObjectId</li>
+    <li>producto → String</li>
+    <li>materiales → Array</li>
+    <li>estado → String</li>
+    <li>fecha_inicio → Date</li>
+    <li>fecha_fin → Date</li>
+    <li>createdAt → Date</li>
+    <li>updatedAt → Date</li>
+</ul>
+<img src="../assets/Informe7.png" alt="foto7">
+
+<h3>Colección: facturas</h3>
+<p>La colección de facturas dispone de este formato que se ve en la imagen. Dispone de estas diferentes columnas:</p>
+<ul>
+    <li>_id → ObjectId</li>
+    <li>ventas_ids → Array</li>
+    <li>ventas_info → Array</li>
+    <li>subtotal → Double</li>
+    <li>impuestos → Int32</li>
+    <li>total → Int32</li>
+    <li>metodo_pago → String</li>
+    <li>estado → String</li>
+    <li>fecha_emision → Date</li>
+    <li>createdAt → Date</li>
+    <li>updatedAt → Date</li>
+</ul>
+<img src="../assets/Informe8.png" alt="foto8">
+
+<h3>Colección: proveedors</h3>
+<p>La colección de proveedors dispone de este formato que se ve en la imagen. Dispone de estas diferentes columnas:</p>
+<ul>
+    <li>_id → ObjectId</li>
+    <li>nombre → String</li>
+    <li>direccion → String</li>
+    <li>telefono → String</li>
+    <li>email → String</li>
+    <li>productos → Array</li>
+    <li>createdAt → Date</li>
+    <li>updatedAt → Date</li>
+    <li>tamano → String</li>
+    <li>tipoProducto → String</li>
+</ul>
+<img src="../assets/Informe9.png" alt="foto9">
+
+<h3>Colección: stocks</h3>
+<p>La colección de stocks dispone de este formato que se ve en la imagen. Dispone de estas diferentes columnas:</p>
+<ul>
+    <li>_id → ObjectId</li>
+    <li>nombre → String</li>
+    <li>tipo → String</li>
+    <li>precio_unitario → Int32</li>
+    <li>createdAt → Date</li>
+    <li>updatedAt → Date</li>
+</ul>
+<img src="../assets/Informe10.png" alt="foto10">
+
+<h3>Colección: ventas</h3>
+<p>La colección de ventas dispone de este formato que se ve en la imagen. Dispone de estas diferentes columnas:</p>
+<ul>
+    <li>_id → ObjectId</li>
+    <li>cliente → String</li>
+    <li>tipo_maceta → String</li>
+    <li>cantidad → Int32</li>
+    <li>precio_unitario → Int32</li>
+    <li>total → Int32</li>
+    <li>metodo_pago → String</li>
+    <li>fecha_venta → Date</li>
+    <li>createdAt → Date</li>
+    <li>updatedAt → Date</li>
+</ul>
+<img src="../assets/Informe11.png" alt="foto11">
+
+<h3>Uso de la Inteligencia Artificial</h3>
+<p>Hemos utilizado la inteligencia artificial a lo largo del reto. Es de gran ayuda poder contar con una herramienta así y nos ha ayudado en casos puntuales. La hemos utilizado, sobre todo cuando nos ha surgido alguna duda que ningún miembro del equipo ha sabido solucionar. También la hemos empleado para facilitar tareas repetitivas o irrelevantes. En cualquier caso, los resultados de la IA han sido revisados, comprendidos y modificados para implementarlos en el proyecto.</p>
+
+<h2>Dificultades Encontradas</h2>
+<h3>Problema con MongoDB findById()</h3>
+<p>Descripción: El método findById() retornaba null incluso con documentos existentes.</p>
+<p>Solución: Workaround manual que garantizó eliminación y actualización:</p>
+<pre>
+const todosLosDocs = await collection.find({}).toArray();
+const docEncontrado = todosLosDocs.find(doc =&gt; doc._id.toString() === id);
+const resultado = await collection.deleteOne({ _id: docEncontrado._id });
+</pre>
+
+<h3>Conflictos de Layout y CSS</h3>
+<p>Problema: La interfaz mostraba márgenes que no queríamos y descuadraba el diseño responsive.</p>
+<p>Solución: Uso mejor y con sentido del CSS y estilos específicos por componente.</p>
+
+<h3>Errores en los Cálculos de Ventas</h3>
+<p>Problema: Al editar ventas, los totales no se recalculan automáticamente.</p>
+<p>Solución: Recálculo automático en frontend y validaciones adicionales para evitar errores.</p>
+
+<h3>Error en la eliminación de una pieza</h3>
+<p>Problema: Al eliminar una de las piezas, no se guardaba en la base de datos, y al reiniciar no se guardaba la eliminación.</p>
+<p>Solución: Uso incorrecto del delete, no ponemos bien los ID. Esto es, no conseguimos poner el mismo nombre en el frontend que en el backend y nos daba error.</p>
+
+<h2>Reflexión Personal</h2>
+
+<h3>Oihan Cabada</h3>
+<p>A mi parecer, todo el tiempo empleado en la fase 4, nos sirvió un poco para hacernos una idea y poder seguir adelante con la parte más grande del reto, ya que al principio andábamos un poco perdidos, pero con el tiempo fuimos entendiendo con la teoría recibida y los ejercicios realizados. En cuanto al grupo y el trabajo dentro de él, creo que en comparación con el reto anterior, en este nos hemos implicado más y hemos invertido más tiempo en él. En conclusión, estoy bastante contento con el resultado y la forma que ha cogido el proyecto, ya que estamos todos bastante satisfechos con todo lo aprendido y yo personalmente conmigo mismo por los conocimientos que he adquirido y la forma que ha cogido todo.</p>
+
+<h3>Aimar Duarte</h3>
+<p>Durante la fase 4 del reto sentía que la mayoría tanto de clase como de nuestro grupo no tenía mucha idea de por donde iba el proyecto. Una vez empezada la fase 9, entendimos algo más el reto y pudimos enderezar el proyecto. Al final hemos estado bastante justos de tiempo, creo que la decisión de quitar una semana de proyecto, aunque la entiendo, fue algo precipitada. Pero en resumen estoy bastante contento con el resultado de nuestro reto y me parece que en general hemos hecho un trabajo muy correcto.</p>
+
+<h3>Aimar Redondo</h3>
+<p>Este ha sido un reto en el que he aprendido bastante sobre mongo y electrón entre otras cosas ya que en mi caso partía casi de 0. La fase 4 fué bastante útil en la mayoría de asignaturas para adquirir conocimientos y ponerlos en práctica en las siguientes fases. Hemos sabido superar los obstáculos técnicos y temporales trabajando en equipo. Creo que el resultado ha sido muy bueno tanto individual como grupalmente y hemos quedado satisfechos.</p>
+
+<h3>Enrique</h3>
+<p>Después de adquirir conceptos en la Fase 4 del proyecto, tuve la sensación de que no sería suficiente con la materia que nos habían dado. Una vez hecho el desarrollo del proyecto pienso diferente, pienso que la materia que nos dieron sí que fue suficiente. Como grupo pienso que hemos trabajado bien, ya que tenemos confianza entre nosotros y tenemos una amistad cercana. Estoy satisfecho con el desarrollo y resultado de este Reto. Pero no me parece bien tener que entregar el mismo resultado después de haber recortado el tiempo presentado al principio.</p>
+
+<h3>Luka</h3>
+<p>En mi opinión, el reto me ha gustado bastante más que el anterior, me ha parecido también bastante más útil que el anterior y también creo que he aprendido más. En la dificultad del reto, me ha parecido bastante difícil crearlo desde cero, pero me ha gustado que tenga alguna dificultad. En resumen, pienso que el reto ha estado bien y que he aprendido bastantes cosas.</p>
+
+<h2>Conclusión</h2>
+<p>En conclusión, después de estas semanas trabajando en equipo hemos quedado satisfechos con el resultado. Todos nos hemos esforzado y hemos colaborado para que el resultado final sea el mejor posible. Además, hemos aprendido cosas útiles como utilizar electrón o crear una aplicación desde 0 con conexiones a API y bases de datos. Consideramos que hemos obtenido un resultado más que bueno aun sin saber mucho sobre cosas como las máquinas virtuales o APIs. El reto ha servido para seguir reforzando nuestras habilidades de trabajo en equipo y también para aprender cosas nuevas sobre programación o bases de datos.</p>
+
 </body>
 </html>
