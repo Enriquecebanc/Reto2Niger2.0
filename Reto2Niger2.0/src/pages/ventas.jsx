@@ -3,6 +3,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 
 // Importamos la barra de búsqueda y estilos
 import BarraBusqueda from '../componentes/barraBusqueda.jsx';
+import logoNiger from '../assets/Niger-Photoroom.png';
 import { commonStyles, colors } from '../styles/commonStyles.js';
 
 // Importamos los servicios (API) para ventas, clientes y stock
@@ -213,7 +214,12 @@ const VentasPage = () => {
     return (
         <div style={styles.container}>
             {/* Barra superior */}
-            <BarraBusqueda />
+            <div style={{ display: "flex", alignItems: "center", gap: "20px", marginBottom: 20 }}>
+        <img src={logoNiger} alt="Niger Logo" style={{ width: 80 }} />
+        <div style={{ flex: 1 }}>
+          <BarraBusqueda />
+        </div>
+        </div>
             <div style={styles.header}>
                 <h1 style={styles.title}>Ventas Niger</h1>
             </div>
