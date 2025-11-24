@@ -16,10 +16,8 @@ const createWindow = () => {
     }
   });
 
-  // Carga la URL de tu frontend por defecto
   win.loadURL('http://localhost:5173/');
 
-  // 🔹 Menú personalizado
   const template = [
     {
       label: 'Aplicación',
@@ -34,27 +32,43 @@ const createWindow = () => {
         { 
           label: 'Informe Final Reto', 
           click: () => {
-            // 🔹 Ajustado a tu estructura real de carpetas
             const rutaInforme = path.join(__dirname, 'Reto2Niger2.0', 'src', 'pages', 'Informe_Final_Reto.html');
             
             fs.readFile(rutaInforme, 'utf8', (err, data) => {
-              if (err) {
-                console.error('Error leyendo el HTML del informe:', err);
-                return;
-              }
+              if (err) return console.error('Error leyendo informe:', err);
               win.loadURL('data:text/html;charset=utf-8,' + encodeURIComponent(data));
             });
           }
         },
         { 
           label: 'Volver al inicio',
-          click: () => {
-            win.loadURL('http://localhost:5173/');
-          }
+          click: () => win.loadURL('http://localhost:5173/')
         },
-        { type: 'separator' },
+
+
+        {
+      label: 'Divio',
+      click: () => {
+        const rutaDivio = path.join(__dirname, 'Reto2Niger2.0', 'src', 'pages', 'Divio.html');
+
+        fs.readFile(rutaDivio, 'utf8', (err, data) => {
+          if (err) return console.error('Error leyendo Divio.html:', err);
+          win.loadURL('data:text/html;charset=utf-8,' + encodeURIComponent(data));
+        });
+      }
+    },
+
+
+        { type: 'separator' }
+
+        
       ]
-    }
+    },
+
+    // -------------------------------------------------------
+    // 🔥 NUEVA OPCIÓN EN EL MENÚ: DIVIO
+    // -------------------------------------------------------
+    
   ];
 
   const menu = Menu.buildFromTemplate(template);
@@ -63,7 +77,6 @@ const createWindow = () => {
 
 app.whenReady().then(() => {
   createWindow();
-
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
   });
