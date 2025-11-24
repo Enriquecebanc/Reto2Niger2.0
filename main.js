@@ -29,45 +29,54 @@ const createWindow = () => {
       ]
     },
     {
-      label: 'Documentación',
-      submenu: [
-        {
-          label: 'Informe Final Reto',
-          click: () => {
-            const rutaInforme = path.join(__dirname, 'Reto2Niger2.0', 'src', 'pages', 'Informe_Final_Reto.html');
-            fs.readFile(rutaInforme, 'utf8', (err, data) => {
-              if (err) return console.error('Error leyendo Informe_Final_Reto.html:', err);
-              win.loadURL('data:text/html;charset=utf-8,' + encodeURIComponent(data));
-            });
-          }
-        },
-        {
-          label: 'How To',
-          click: () => {
-            const rutaHow = path.join(__dirname, 'Reto2Niger2.0', 'src', 'pages', 'How_To.html');
-            fs.readFile(rutaHow, 'utf8', (err, data) => {
-              if (err) return console.error('Error leyendo How_To.html:', err);
-              win.loadURL('data:text/html;charset=utf-8,' + encodeURIComponent(data));
-            });
-          }
-        },
-        {
-          label: 'Reference Guide',
-          click: () => {
-            const rutaRef = path.join(__dirname, 'Reto2Niger2.0', 'src', 'pages', 'Reference_Guide.html');
-            fs.readFile(rutaRef, 'utf8', (err, data) => {
-              if (err) return console.error('Error leyendo Reference_Guide.html:', err);
-              win.loadURL('data:text/html;charset=utf-8,' + encodeURIComponent(data));
-            });
-          }
-        },
-        { type: 'separator' },
-        {
-          label: 'Volver al inicio',
-          click: () => win.loadURL('http://localhost:5173/')
+    label: 'Documentación',
+    submenu: [
+      {
+        label: 'Informe Final Reto',
+        click: () => {
+          const rutaInforme = path.join(
+            __dirname,
+            'Reto2Niger2.0',
+            'src',
+            'pages',
+            'Informe_Final_Reto.html'
+          );
+          win.loadFile(rutaInforme);
         }
-      ]
-    }
+      },
+      {
+        label: 'How To',
+        click: () => {
+          const rutaHow = path.join(
+            __dirname,
+            'Reto2Niger2.0',
+            'src',
+            'pages',
+            'How_To.html'
+          );
+          win.loadFile(rutaHow);
+        }
+      },
+      {
+        label: 'Reference Guide',
+        click: () => {
+          const rutaRef = path.join(
+            __dirname,
+            'Reto2Niger2.0',
+            'src',
+            'pages',
+            'Reference_Guide.html'
+          );
+          win.loadFile(rutaRef);
+        }
+      },
+      { type: 'separator' },
+      {
+        label: 'Volver al inicio',
+        click: () => win.loadURL('http://localhost:5173/')
+      }
+    ]
+  }
   ];
 
   const menu = Menu.buildFromTemplate(template);
