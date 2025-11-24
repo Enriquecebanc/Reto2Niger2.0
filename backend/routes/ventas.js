@@ -8,17 +8,23 @@ const router = express.Router();
 router.get('/', async (req, res) => {
     try {
         const ventas = await Venta.find();
+        console.log('GET /ventas - Devolviendo', ventas.length, 'ventas');
         res.json(ventas);
     } catch (err) {
+        console.error('Error GET /ventas:', err);
         res.status(500).json({ message: err.message });
     }
 });
 
 // POST crear nueva venta
 router.post('/', async (req, res) => {
+    console.log('POST /ventas - Recibido:', req.body);
+    
     const { cliente, tipo_maceta, cantidad, precio_unitario, metodo_pago, fecha_venta } = req.body;
 
+    // Validar campos obligatorios
     if (!cliente || !tipo_maceta || cantidad === undefined || !precio_unitario || !metodo_pago) {
+        console.error('Campos faltantes');
         return res.status(400).json({ 
             message: 'Faltan campos: cliente, tipo_maceta, cantidad, precio_unitario, metodo_pago' 
         });
@@ -74,6 +80,7 @@ router.post('/', async (req, res) => {
         });
 
         const ventaGuardada = await nuevaVenta.save();
+        console.log('Venta guardada en BD:', ventaGuardada);
 
         // Restar del stock - ir restando de los registros disponibles
         let cantidadRestante = Number(cantidad);
@@ -81,27 +88,36 @@ router.post('/', async (req, res) => {
             if (cantidadRestante <= 0) break;
             
             if (maceta.cantidad >= cantidadRestante) {
+                // Este registro tiene suficiente para cubrir lo que falta
                 maceta.cantidad -= cantidadRestante;
                 if (maceta.cantidad === 0) {
+                    // Si la cantidad llega a 0, eliminar el registro
                     await Stock.findByIdAndDelete(maceta._id);
+                    console.log(`Stock eliminado: ${maceta.nombre} (ID: ${maceta._id})`);
                 } else {
                     await maceta.save();
+                    console.log(`Stock actualizado: ${maceta.nombre} (ID: ${maceta._id}) - Nueva cantidad: ${maceta.cantidad}`);
                 }
                 cantidadRestante = 0;
             } else {
+                // Este registro no tiene suficiente, usar todo y eliminarlo
                 cantidadRestante -= maceta.cantidad;
                 await Stock.findByIdAndDelete(maceta._id);
+                console.log(`Stock eliminado: ${maceta.nombre} (ID: ${maceta._id}) - cantidad agotada`);
             }
         }
 
         res.status(201).json(ventaGuardada);
     } catch (err) {
+        console.error('Error POST /ventas:', err);
         res.status(400).json({ message: err.message });
     }
 });
 
 // PUT actualizar venta
 router.put('/:id', async (req, res) => {
+    console.log('PUT /ventas/:id - ID:', req.params.id, 'Body:', req.body);
+    
     try {
         const venta = await Venta.findByIdAndUpdate(
             req.params.id,
@@ -110,26 +126,34 @@ router.put('/:id', async (req, res) => {
         );
 
         if (!venta) {
+            console.error('Venta no encontrada:', req.params.id);
             return res.status(404).json({ message: 'Venta no encontrada' });
         }
 
+        console.log('Venta actualizada:', venta);
         res.json(venta);
     } catch (err) {
+        console.error('Error PUT /ventas/:id:', err);
         res.status(400).json({ message: err.message });
     }
 });
 
 // DELETE eliminar venta
 router.delete('/:id', async (req, res) => {
+    console.log('DELETE /ventas/:id - ID:', req.params.id);
+    
     try {
         const venta = await Venta.findByIdAndDelete(req.params.id);
 
         if (!venta) {
+            console.error('Venta no encontrada:', req.params.id);
             return res.status(404).json({ message: 'Venta no encontrada' });
         }
 
+        console.log('Venta eliminada');
         res.json({ message: 'Venta eliminada correctamente' });
     } catch (err) {
+        console.error('Error DELETE /ventas/:id:', err);
         res.status(400).json({ message: err.message });
     }
 });
