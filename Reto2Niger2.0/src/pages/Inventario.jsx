@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { getStock, eliminarStock, crearStock } from "../services/stockService.js";
 import BarraBusqueda from "../componentes/barraBusqueda.jsx";
-import logoNiger from '../assets/Niger.png';
+import logoNiger from '../assets/Niger-Photoroom.png';
 import { commonStyles, colors } from '../styles/commonStyles.js';
 
 // Productos Para añadir directamente

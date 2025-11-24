@@ -26,7 +26,7 @@ import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import SearchIcon from '@mui/icons-material/Search';
-import logoNiger from '../assets/Niger.png';
+import logoNiger from '../assets/Niger-Photoroom.png';
 import BarraBusqueda from '../componentes/barraBusqueda.jsx';
 import { colors } from '../styles/commonStyles.js';
 import { getProveedores, crearProveedor, actualizarProveedor, eliminarProveedor } from '../services/proveedoresService';

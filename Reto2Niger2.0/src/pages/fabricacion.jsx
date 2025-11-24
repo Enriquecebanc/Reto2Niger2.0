@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import FormularioFabricacionModal from '../componentes/FormularioFabricacionModal';
 import ModalMateriales from '../componentes/ModalMateriales';
 import BarraBusqueda from '../componentes/barraBusqueda.jsx';
-import logoNiger from '../assets/Niger.png';
+import logoNiger from '../assets/Niger-Photoroom.png';
 import { getFabricaciones, crearFabricacion, actualizarFabricacion, eliminarFabricacion } from '../services/fabricacionService';
 import { commonStyles, colors } from '../styles/commonStyles.js';
 

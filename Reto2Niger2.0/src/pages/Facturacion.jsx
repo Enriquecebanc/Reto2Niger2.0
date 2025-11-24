@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import BarraBusqueda from '../componentes/barraBusqueda.jsx';
-import logoNiger from '../assets/Niger.png';
+import logoNiger from '../assets/Niger-Photoroom.png';
 import { commonStyles, colors } from '../styles/commonStyles.js';
 
 const API_URL = 'http://localhost:5000';
