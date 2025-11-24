@@ -1,5 +1,5 @@
 import BarraBusqueda from '../componentes/barraBusqueda.jsx';
-import foto from '../assets/Niger.png';
+import foto from '../assets/Niger-Photoroom.png';
 
 function Home() {
   return (

@@ -4,7 +4,7 @@ import BarraBusqueda from "../componentes/barraBusqueda.jsx";
 import logoNiger from '../assets/Niger.png';
 import { commonStyles, colors } from '../styles/commonStyles.js';
 
-// Productos predefinidos para fabricación
+// Productos Para añadir directamente
 const PRODUCTOS_PREDEFINIDOS = [
   { nombre: "LED Rojo", tipo: "LED", precio: 0.8 },
   { nombre: "LED Verde", tipo: "LED", precio: 0.8 },
@@ -17,16 +17,23 @@ const PRODUCTOS_PREDEFINIDOS = [
   { nombre: "Batería", tipo: "Batería", precio: 1.5 }
 ];
 
+// Componente del Inventario
 const Inventario = () => {
+
+  //Para Llenar el stock
   const [stock, setStock] = useState([]);
+
+  //Para ver donde esta colapsando
   const [collapsed, setCollapsed] = useState({});
 
+// Campos del Formulario 
   const [productoSeleccionado, setProductoSeleccionado] = useState("");
   const [nuevoNombre, setNuevoNombre] = useState("");
   const [nuevoTipo, setNuevoTipo] = useState("");
   const [nuevoPrecio, setNuevoPrecio] = useState(0);
   const [nuevaCantidad, setNuevaCantidad] = useState(1);
 
+  //Funcion para  los coger los datos del backend
   const fetchData = async () => {
     const data = await getStock();
     setStock(data);
@@ -36,6 +43,7 @@ const Inventario = () => {
     fetchData();
   }, []);
 
+  //Eliminar piezas del stock
   const handleEliminar = async (id) => {
     if (!confirm('¿Estás seguro de que quieres eliminar este elemento?')) return;
     try {
@@ -47,6 +55,7 @@ const Inventario = () => {
     }
   };
 
+  // Filtrar los nombres repetidos por nombre
   const productosUnicos = Object.values(
     stock.reduce((acc, item) => {
       if (!acc[item.nombre]) acc[item.nombre] = item;
@@ -59,6 +68,7 @@ const Inventario = () => {
 
   console.log("Productos disponibles en selector:", todosLosProductos.length, todosLosProductos);
 
+  // Seleccion de poructos en el formulario
   const handleSeleccionProducto = (e) => {
     const nombreProducto = e.target.value;
     setProductoSeleccionado(nombreProducto);
@@ -77,7 +87,7 @@ const Inventario = () => {
         };
       }
     }
-
+    //Rellenamos campos del formulario
     if (producto) {
       setNuevoNombre(producto.nombre);
       setNuevoTipo(producto.tipo);
@@ -114,13 +124,13 @@ const Inventario = () => {
       alert(`Error: ${error.message}`);
     }
   };
-
+   // Agrupar stock por tipo
   const groupedStock = stock.reduce((acc, item) => {
     if (!acc[item.tipo]) acc[item.tipo] = [];
     acc[item.tipo].push(item);
     return acc;
   }, {});
-
+   // Expandir o colapsar grupo del inventario
   const toggleCollapse = (tipo) => {
     setCollapsed((prev) => ({
       ...prev,
