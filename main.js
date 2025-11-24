@@ -33,7 +33,7 @@ const createWindow = () => {
       label: 'Documentación',
       submenu: [
         {
-          label: 'Divio',
+          label: 'How - To Guide ',
           click: () => {
             const rutaDivio = path.join(__dirname, 'Reto2Niger2.0', 'src', 'pages', 'Divio.html');
             fs.readFile(rutaDivio, 'utf8', (err, data) => {
@@ -42,6 +42,18 @@ const createWindow = () => {
             });
           }
         },
+
+        {
+          label: 'Reference Guide',
+          click: () => {
+            const rutaDivio = path.join(__dirname, 'Reto2Niger2.0', 'src', 'pages', 'Divio.html');
+            fs.readFile(rutaDivio, 'utf8', (err, data) => {
+              if (err) return console.error('Error leyendo Divio.html:', err);
+              win.loadURL('data:text/html;charset=utf-8,' + encodeURIComponent(data));
+            });
+          }
+        },
+        
         {
           label: 'Informe Final Reto',
           click: () => {
