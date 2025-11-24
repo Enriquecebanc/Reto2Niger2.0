@@ -70,27 +70,6 @@ router.delete("/:id", async (req, res) => {
   }
 });
 
-//  GET: Obtener todos los productos en stock con nombre del proveedor
-router.get("/", async (req, res) => {
-  try {
-    const stock = await Stock.find();
-    const proveedores = await Proveedor.find();
 
-    const stockConProveedor = stock.map((item) => {
-      const proveedor = proveedores.find(
-      (prov) => prov.tipoProducto?.toLowerCase() === item.nombre?.toLowerCase()
-    );
-
-      return {
-        ...item.toObject(),
-        proveedor_nombre: proveedor ? proveedor.nombre : "Sin proveedor"
-      };
-    });
-
-    res.json(stockConProveedor);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
 
 export default router;
