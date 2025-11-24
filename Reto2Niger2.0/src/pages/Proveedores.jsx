@@ -1,7 +1,4 @@
-// Importaciones principales de React
 import React, { useEffect, useState, useRef } from 'react';
-
-// Importaciones de Material UI
 import {
   Container,
   Box,
@@ -23,34 +20,24 @@ import {
   MenuItem,
   CssBaseline,
 } from '@mui/material';
-
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { DataGrid } from '@mui/x-data-grid';
-
-// Iconos
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import SearchIcon from '@mui/icons-material/Search';
-
-// Assets y componentes propios
 import logoNiger from '../assets/Niger.png';
 import BarraBusqueda from '../componentes/barraBusqueda.jsx';
 import { colors } from '../styles/commonStyles.js';
-
-// Servicios del backend
 import { getProveedores, crearProveedor, actualizarProveedor, eliminarProveedor } from '../services/proveedoresService';
 
-// Keys y constantes
+
+
 const STORAGE_KEY = 'proveedores_simple_v2';
-
-// Tipos de producto para el selector
 const TIPOS_PRODUCTO = ['LED Rojo', 'LED Verde', 'LED Amarillo', 'Maceta de plástico Pequeño', 'Maceta de plástico Mediano', 'Maceta de plástico Grande', 'Sensor de humedad', 'Sensor de luz', 'Batería'];
-
-// Tamaños disponibles
 const TAMAÑOS = ['Pequeña', 'Mediana', 'Grande'];
 
-// Tema personalizado (oscuro)
+// Usar tema claro para no forzar modo oscuro en este módulo
 const theme = createTheme({
   palette: {
     mode: 'dark',
@@ -77,7 +64,7 @@ const theme = createTheme({
   },
 });
 
-// Datos de ejemplo en caso de fallar la API
+// Ejemplos de proveedores compatibles con el modelo del backend (fallback)
 const EJEMPLOS_PROVEEDORES = [
   { _id: 'ex1', nombre: 'TecnoSensores SL', telefono: '612345678', correo: 'contacto@tecnosensores.com', direccion: 'Calle Falsa 123' },
   { _id: 'ex2', nombre: 'Energía Verde SA', telefono: '699887766', correo: 'ventas@energiaverde.es', direccion: 'Av. Verde 45' },
@@ -85,22 +72,16 @@ const EJEMPLOS_PROVEEDORES = [
 ];
 
 const ProveedoresPage = () => {
-
-  // Estado principal
   const [proveedores, setProveedores] = useState([]);
-  const [dataSource, setDataSource] = useState('loading'); // De dónde provienen los datos: API o ejemplos
-  const mountedRef = useRef(true); // Para evitar actualizar estado tras un desmontado
+  const [dataSource, setDataSource] = useState('loading');
+  const mountedRef = useRef(true);
   const [loading, setLoading] = useState(false);
   const [lastError, setLastError] = useState(null);
-
-  // Estados para el diálogo y edición
   const [openDialog, setOpenDialog] = useState(false);
   const [editingId, setEditingId] = useState(null);
-
-  // Estado del buscador
   const [searchTerm, setSearchTerm] = useState('');
 
-  // Campos del formulario del proveedor
+  // Campos del formulario
   const [nombre, setNombre] = useState('');
   const [contacto, setContacto] = useState('');
   const [telefono, setTelefono] = useState('');
@@ -108,88 +89,54 @@ const ProveedoresPage = () => {
   const [tamaño, setTamaño] = useState('Mediana');
   const [tipoProducto, setTipoProducto] = useState(TIPOS_PRODUCTO[0]);
 
-  // Función para consultar proveedores de la API y normalizar estructura
+  // Función que consulta la API y normaliza resultados
   const fetchProveedoresFromApi = async () => {
     const data = await getProveedores();
-
     return data.map((p) => {
       let tipos = [];
-
-      // Extrae tipos desde la lista de productos asociada
       if (Array.isArray(p.productos) && p.productos.length > 0) {
-        tipos = p.productos
-          .map((pr) =>
-            pr.pieza_id ? (pr.pieza_id.nombre || pr.pieza_id.tipo || '') : ''
-          )
-          .filter(Boolean);
+        tipos = p.productos.map((pr) => pr.pieza_id ? (pr.pieza_id.nombre || pr.pieza_id.tipo || '') : '').filter(Boolean);
       }
-
-      // Normaliza el objeto que se muestra en la tabla
       return {
         id: p._id,
         nombre: p.nombre || '',
-        direccion: p.direccion || '',
+        direccion: p.direccion || p.direccion || '',
         telefono: p.telefono || '',
         correo: p.correo || '',
         productos: tipos.join(', ') || '-',
         tamano: p.tamano || p.tamaño || '-',
         tipoProducto: p.tipoProducto || '-',
-        raw: p, // Guarda el objeto completo para reutilizarlo
+        raw: p,
       };
     });
   };
 
-  // Cargar proveedores desde API con fallback a ejemplos
   const loadData = async () => {
     setLoading(true);
     setLastError(null);
-
     try {
       const mapped = await fetchProveedoresFromApi();
-
-      if (!mountedRef.current) return; // Evita actualizar si el componente ya no está montado
-
+      if (!mountedRef.current) return;
       setProveedores(mapped);
       setDataSource('api');
-
     } catch (err) {
-      // Si la API falla, se usan datos locales
       console.error('No se pudieron cargar proveedores desde API, usando ejemplos', err);
       setLastError(err.message || String(err));
-
-      setProveedores(
-        EJEMPLOS_PROVEEDORES.map((p) => ({
-          id: p._id,
-          nombre: p.nombre,
-          direccion: p.direccion,
-          telefono: p.telefono,
-          correo: p.correo,
-          productos: '-',
-          tamano: '-',
-          tipoProducto: '-',
-        }))
-      );
-
+      setProveedores(EJEMPLOS_PROVEEDORES.map((p) => ({ id: p._id, nombre: p.nombre, direccion: p.direccion, telefono: p.telefono, correo: p.correo, productos: '-', tamano: '-', tipoProducto: '-' })));
       setDataSource('examples');
     } finally {
       setLoading(false);
     }
   };
 
-  // Se ejecuta al montar el componente
   useEffect(() => {
     mountedRef.current = true;
     loadData();
-
-    return () => {
-      mountedRef.current = false;
-    };
+    return () => { mountedRef.current = false; };
   }, []);
+  
 
-  // Guardar o actualizar proveedor
   const handleGuardar = () => {
-
-    // Validación básica
     if (!nombre.trim() || !telefono.trim()) {
       alert('Por favor completa los campos obligatorios: nombre y teléfono.');
       return;
@@ -206,19 +153,17 @@ const ProveedoresPage = () => {
 
     const guardar = async () => {
       try {
+        console.log('Proveedores - payload a enviar:', payload);
         let result = null;
-
         if (editingId) {
-          // Modo edición
           result = await actualizarProveedor(editingId, payload);
+          console.log('Proveedores - respuesta PUT:', result);
         } else {
-          // Crear nuevo proveedor
           result = await crearProveedor(payload);
+          console.log('Proveedores - respuesta POST:', result);
         }
-
-        await loadData(); // Recargar datos
+        await loadData();
         handleCerrarDialog();
-
         return result;
       } catch (err) {
         console.error('Error guardando proveedor:', err);
@@ -230,23 +175,20 @@ const ProveedoresPage = () => {
     guardar();
   };
 
-  // Cargar datos en el modal al editar
   const handleEditar = (id) => {
     const p = proveedores.find((prov) => prov.id === id);
-
     if (p) {
       setEditingId(p.id);
       setNombre(p.nombre || '');
       setContacto(p.direccion || '');
       setTelefono(p.telefono || '');
       setEmail(p.correo || '');
-      setTamaño(p.tamano !== '-' ? p.tamano : 'Mediana');
-      setTipoProducto(p.tipoProducto !== '-' ? p.tipoProducto : TIPOS_PRODUCTO[0]);
+      setTamaño((p.tamano && p.tamano !== '-') ? p.tamano : (p.raw && (p.raw.tamano || p.raw.tamaño)) || 'Mediana');
+      setTipoProducto((p.tipoProducto && p.tipoProducto !== '-') ? p.tipoProducto : (p.raw && p.raw.tipoProducto) || TIPOS_PRODUCTO[0]);
       setOpenDialog(true);
     }
   };
 
-  // Eliminar proveedor
   const handleEliminar = (id) => {
     if (window.confirm('¿Eliminar este proveedor?')) {
       const borrar = async () => {
@@ -262,7 +204,6 @@ const ProveedoresPage = () => {
     }
   };
 
-  // Cerrar diálogo y limpiar campos
   const handleCerrarDialog = () => {
     setOpenDialog(false);
     setEditingId(null);
@@ -274,10 +215,9 @@ const ProveedoresPage = () => {
     setTipoProducto(TIPOS_PRODUCTO[0]);
   };
 
-  // Filtrado de la tabla con el buscador
+  // 🔍 Filtro de búsqueda
   const proveedoresFiltrados = proveedores.filter((p) => {
     const texto = searchTerm.toLowerCase();
-
     return (
       p.nombre.toLowerCase().includes(texto) ||
       (p.direccion || '').toLowerCase().includes(texto) ||
@@ -287,7 +227,6 @@ const ProveedoresPage = () => {
     );
   });
 
-  // Columnas de la tabla DataGrid
   const columns = [
     { field: 'nombre', headerName: 'Proveedor', flex: 1.2 },
     { field: 'direccion', headerName: 'Dirección', flex: 1 },
@@ -295,8 +234,6 @@ const ProveedoresPage = () => {
     { field: 'correo', headerName: 'Correo', flex: 1 },
     { field: 'tipoProducto', headerName: 'Tipo', flex: 0.8 },
     { field: 'tamano', headerName: 'Tamaño', width: 120 },
-
-    // Columna de acciones (editar / eliminar)
     {
       field: 'acciones',
       headerName: 'Acciones',
@@ -312,7 +249,6 @@ const ProveedoresPage = () => {
           >
             <EditIcon fontSize="small" />
           </Button>
-
           <Button
             size="small"
             variant="outlined"
@@ -328,44 +264,45 @@ const ProveedoresPage = () => {
 
   return (
     <ThemeProvider theme={theme}>
-      <CssBaseline /> {/* Resetea estilos por defecto */}
-
-      <Box
-        sx={{
-          py: 3,
-          px: 5,
-          minHeight: '100vh',
-          backgroundColor: colors.background,
-        }}
-      >
-
-        {/* Encabezado con el logo y barra de búsqueda */}
+      <CssBaseline />
+      <Box sx={{ 
+        py: 3, 
+        px: 5, 
+        minHeight: '100vh', 
+        backgroundColor: colors.background,
+        width: '100%',
+        boxSizing: 'border-box',
+        margin: 0
+      }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
-          <img src={logoNiger} alt="Niger Logo" style={{ width: 80 }} />
+          <img src={logoNiger} alt="Niger Logo" style={{ width: 80, height: 'auto' }} />
           <Box sx={{ flex: 1 }}>
             <BarraBusqueda />
           </Box>
         </Box>
-
-        <Typography variant="h4" sx={{ mb: 3, fontWeight: 'bold' }}>
+        
+        <Typography variant="h4" sx={{ mb: 3, fontWeight: 'bold', color: colors.primary }}>
           Gestión de Proveedores
         </Typography>
 
-        {/* Botones superiores */}
-        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ mb: 3 }}>
+  <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ mb: 3 }}>
           <Button
             variant="contained"
             startIcon={<AddIcon />}
+            sx={{
+              backgroundColor: colors.secondary,
+              '&:hover': { backgroundColor: colors.secondaryHover },
+              height: '40px',
+            }}
             onClick={() => setOpenDialog(true)}
           >
             Nuevo Proveedor
           </Button>
 
-          <Button variant="outlined" onClick={loadData}>
+          <Button variant="outlined" onClick={() => { loadData(); }}>
             {loading ? 'Sincronizando...' : 'Sincronizar BD'}
           </Button>
 
-          {/* Buscador */}
           <Box sx={{ flexGrow: 1 }}>
             <TextField
               fullWidth
@@ -375,71 +312,90 @@ const ProveedoresPage = () => {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               InputProps={{
-                startAdornment: <SearchIcon sx={{ mr: 1 }} />,
+                startAdornment: <SearchIcon sx={{ mr: 1, color: '#aaa' }} />,
               }}
             />
           </Box>
         </Stack>
-
-        {/* Si no hay proveedores */}
+        {/* Si no hay proveedores cargados, mostrar mensaje útil en lugar de pantalla en blanco */}
         {proveedores.length === 0 ? (
-          <Paper sx={{ p: 4, textAlign: 'center' }}>
-            <Typography variant="h6">
-              {loading ? 'Cargando proveedores...' : 'No hay proveedores cargados'}
-            </Typography>
-
-            {lastError && (
-              <Typography sx={{ color: 'error.main' }}>Error: {lastError}</Typography>
-            )}
-
-            <Button onClick={() =>
-              setProveedores(EJEMPLOS_PROVEEDORES.map((p) => ({ ...p, id: p._id })))
-            }>
-              Cargar ejemplos
-            </Button>
+          <Paper sx={{ width: '100%', p: 4, textAlign: 'center', bgcolor: 'background.paper' }}>
+            <Typography variant="h6" sx={{ mb: 2 }}>{loading ? 'Cargando proveedores...' : 'No hay proveedores cargados'}</Typography>
+            {lastError && <Typography sx={{ mb: 2, color: 'error.main' }}>Error: {lastError}</Typography>}
+            <Typography sx={{ mb: 2, color: 'text.secondary' }}>Si la carga tarda o falla, puedes cargar ejemplos locales.</Typography>
+            <Button variant="outlined" onClick={() => setProveedores(EJEMPLOS_PROVEEDORES.map((p) => ({ ...p, id: p._id })))}>Cargar ejemplos</Button>
           </Paper>
         ) : (
-
-          // Tabla DataGrid
-          <Paper sx={{ height: 440, p: 1 }}>
+          <Paper
+            sx={{
+              width: '100%',
+              height: 440,
+              p: 1,
+              bgcolor: 'background.paper',
+            }}
+          >
             <DataGrid
               rows={proveedoresFiltrados}
               columns={columns}
               pageSizeOptions={[5, 10]}
               disableRowSelectionOnClick
+              sx={{
+                width: '100%',
+                '& .MuiDataGrid-columnHeaders': {
+                  backgroundColor: colors.backgroundDark,
+                  color: '#ffffff',
+                  fontWeight: '700',
+                },
+                '& .MuiDataGrid-columnHeader': {
+                  backgroundColor: colors.backgroundDark,
+                  color: '#ffffff',
+                  fontWeight: '700',
+                },
+                '& .MuiDataGrid-columnHeaderTitle': {
+                  fontWeight: '700',
+                  color: '#ffffff',
+                },
+                '& .MuiDataGrid-cell': {
+                  whiteSpace: 'normal',
+                  lineHeight: '1.4em',
+                  color: colors.text,
+                  borderBottom: `1px solid ${colors.borderLight}`,
+                },
+                '& .MuiDataGrid-row': {
+                  '&:hover': {
+                    backgroundColor: colors.backgroundLight,
+                  },
+                },
+              }}
             />
           </Paper>
         )}
 
-        {/* Diálogo para agregar / editar proveedor */}
+        {/* Dialogo de nuevo/editar proveedor */}
         <Dialog open={openDialog} onClose={handleCerrarDialog} maxWidth="sm" fullWidth>
-          <DialogTitle>
+          <DialogTitle sx={{ backgroundColor: colors.secondary, color: 'white' }}>
             {editingId ? 'Editar Proveedor' : 'Nuevo Proveedor'}
           </DialogTitle>
-
-          <DialogContent>
-            <Stack spacing={2} sx={{ mt: 1 }}>
+          <DialogContent sx={{ pt: 2 }}>
+            <Stack spacing={2}>
               <TextField
                 label="Nombre del Proveedor *"
                 fullWidth
                 value={nombre}
                 onChange={(e) => setNombre(e.target.value)}
               />
-
               <TextField
                 label="Dirección *"
                 fullWidth
                 value={contacto}
                 onChange={(e) => setContacto(e.target.value)}
               />
-
               <TextField
                 label="Teléfono *"
                 fullWidth
                 value={telefono}
                 onChange={(e) => setTelefono(e.target.value)}
               />
-
               <TextField
                 label="Correo (opcional)"
                 fullWidth
@@ -447,39 +403,46 @@ const ProveedoresPage = () => {
                 onChange={(e) => setEmail(e.target.value)}
               />
 
-              {/* Selector Tamaño */}
-              <FormControl fullWidth>
-                <InputLabel id="select-tamano-label">Tamaño</InputLabel>
-                <Select
-                  labelId="select-tamano-label"
-                  value={tamaño}
-                  onChange={(e) => setTamaño(e.target.value)}
-                >
-                  {TAMAÑOS.map((t) => (
-                    <MenuItem key={t} value={t}>{t}</MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+              <Box>
+                <FormControl fullWidth>
+                  <InputLabel id="select-tamano-label">Tamaño</InputLabel>
+                  <Select
+                    labelId="select-tamano-label"
+                    value={tamaño}
+                    label="Tamaño"
+                    onChange={(e) => setTamaño(e.target.value)}
+                  >
+                    {TAMAÑOS.map((t) => (
+                      <MenuItem key={t} value={t}>{t}</MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Box>
 
-              {/* Selector Tipo Producto */}
-              <FormControl fullWidth>
-                <InputLabel id="select-tipo-label">Tipo de producto</InputLabel>
-                <Select
-                  labelId="select-tipo-label"
-                  value={tipoProducto}
-                  onChange={(e) => setTipoProducto(e.target.value)}
-                >
-                  {TIPOS_PRODUCTO.map((tipo) => (
-                    <MenuItem key={tipo} value={tipo}>{tipo}</MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+              <Box>
+                <FormControl fullWidth>
+                  <InputLabel id="select-tipo-label">Tipo de producto</InputLabel>
+                  <Select
+                    labelId="select-tipo-label"
+                    value={tipoProducto}
+                    label="Tipo de producto"
+                    onChange={(e) => setTipoProducto(e.target.value)}
+                  >
+                    {TIPOS_PRODUCTO.map((tipo) => (
+                      <MenuItem key={tipo} value={tipo}>{tipo}</MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Box>
             </Stack>
           </DialogContent>
-
           <DialogActions>
             <Button onClick={handleCerrarDialog}>Cancelar</Button>
-            <Button variant="contained" onClick={handleGuardar}>
+            <Button
+              variant="contained"
+              sx={{ backgroundColor: colors.secondary, '&:hover': { backgroundColor: colors.secondaryHover } }}
+              onClick={handleGuardar}
+            >
               {editingId ? 'Actualizar' : 'Guardar'}
             </Button>
           </DialogActions>
@@ -488,5 +451,5 @@ const ProveedoresPage = () => {
     </ThemeProvider>
   );
 };
-d
+
 export default ProveedoresPage;
