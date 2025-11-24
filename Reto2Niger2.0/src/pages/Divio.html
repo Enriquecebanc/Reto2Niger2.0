@@ -2,27 +2,23 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Divio - Documentación</title>
+    <title>Divio – Documentación</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             background: #f7f7f7;
-            margin: 0;
             padding: 40px;
             text-align: center;
         }
-
         h1 {
-            color: #333;
             margin-bottom: 40px;
+            color: #222;
         }
-
         .container {
             display: flex;
             justify-content: center;
             gap: 40px;
         }
-
         .btn {
             padding: 18px 30px;
             background: #005bbb;
@@ -31,9 +27,8 @@
             border-radius: 10px;
             cursor: pointer;
             font-size: 18px;
-            transition: 0.2s;
+            transition: 0.25s;
         }
-
         .btn:hover {
             background: #003f88;
         }
@@ -41,22 +36,24 @@
 </head>
 <body>
 
-    <h1>Divio</h1>
+<h1>Divio</h1>
 
-    <div class="container">
-        <button class="btn" onclick="openHowTo()">How To</button>
-        <button class="btn" onclick="openReference()">Reference Guide</button>
-    </div>
+<div class="container">
+    <button class="btn" onclick="openHowTo()">How To</button>
+    <button class="btn" onclick="openReference()">Reference Guide</button>
+</div>
 
-    <script>
-        function openHowTo() {
-            window.location.href = 'How_To.html';
-        }
+<script>
+    const { ipcRenderer } = require('electron');
 
-        function openReference() {
-            window.location.href = 'Reference_Guide.html';
-        }
-    </script>
+    function openHowTo() {
+        ipcRenderer.send('abrir-how-to');
+    }
+
+    function openReference() {
+        ipcRenderer.send('abrir-reference-guide');
+    }
+</script>
 
 </body>
 </html>
