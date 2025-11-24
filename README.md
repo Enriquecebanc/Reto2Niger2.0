@@ -18,27 +18,16 @@ El ERP ha sido bautizado como **Níger**, al igual que nuestro grupo, y está di
 
 ### Estructura del código
 Reto2Niger2.0/
-
 ├── backend/
-
 │ ├── models/
-
 │ ├── routes/
-
 │ ├── server.js
-
 │ └── .env
-
 └── Reto2Niger2.0/
-
 ├── src/
-
 │ ├── pages/
-
 │ ├── componentes/
-
 │ └── styles/
-
 └── main.js
 
 
